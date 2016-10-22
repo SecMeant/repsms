@@ -13,3 +13,4 @@ tests/.coverage
 build/
 tests/report/
 ProjectSMS/tcl
+ProjectSMS/SMS/smsMain/__pycache__
