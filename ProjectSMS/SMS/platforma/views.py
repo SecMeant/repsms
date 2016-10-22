@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from .forms import logowanie
+from .forms import logowanie , rejestracja , kontakt
+
 
  
 # Create your views here.
 def index(request):
 	instanceLogowanie=logowanie()
+	instanceRejestracja=rejestracja()
+	instancekontakt=kontakt()
+
 	# instanceRejestracja = szkolaForm()
 	if request.method == 'POST':
 		if "zaloguj" in request.POST:
@@ -20,10 +24,13 @@ def index(request):
 				instance.save()
 				instance = User.objects.create_user(instance.nazwaSzkoly, instance.email, 'johnpassword')
 				return HttpResponseRedirect("")
+
 	context={
 		"title":"SMS",
 		"instanceL":instanceLogowanie,
-		# "instanceR":instanceRejestracja,
+		"instanceR":instanceRejestracja,
+		"instanceC":instancekontakt,
+
 
 	}
 	return render (request, "manageindex.html", context)

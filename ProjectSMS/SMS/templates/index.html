@@ -7,14 +7,17 @@
 			<div class="item">
 				<div class="mainImage container-fluid FirstImageCarousel">
 					<div class="container">
-						<div class="col-sm-16 col-sm-offset-1">
-							<span class="col-md-5 textIndex">
-								ZARZĄDZAJ KLASAMI UCZNIÓW<br/>
-								TWOJEJ SZKOŁY<br/><br/>
-								<span class="col-sm-12 textIndexWithin">
-									Załóż konto już dziś<br/> i testuj nasz program za darmo przez 5 dni !
-								</span>
-							</span>
+						<div class="col-sm-16 col-sm-offset-1 ">
+						<form method="POST" action="">
+							<div class="col-sm-6 divFormRejestracja">
+						
+								{{instanceR.as_p}}
+					
+							</div>
+						</form>
+						
+
+
 								
 						</div>	
 					</div>
@@ -42,13 +45,13 @@
 				<div class="container-fluid mainImage ThirdImageCarousel">
 					<div class="container">
 						<div class="col-sm-16 col-sm-offset-1" >
-							<span class="col-md-5 textIndex">
-								ZARZĄDZAJ KLASAMI UCZNIÓW<br/>
-								TWOJEJ SZKOŁY<br/><br/>
-								<span class="col-sm-12 textIndexWithin">
-									Załóż konto już dziś<br/> i testuj nasz program za darmo przez 5 dni !
-								</span>
-							</span>
+							<form method="POST" action="">
+							<div class="col-sm-6 divFormKontakt">
+
+								{{instanceC.as_p}}
+					
+							</div>
+						</form>	
 						</div>	
 					</div>
 				</div>
@@ -90,13 +93,26 @@
 
 		// 	}
 		// }
+		function AnimateFormsRejestracja(){
+			$('.divFormRejestracja').css('opacity', '0');
+			$(".divFormRejestracja").delay(1000).animate({
+            		opacity : '1',
+
+        		});
+		}
+		function AnimateFormsKontakt(){
+			$('.divFormKontakt').css('opacity', '0');
+			$(".divFormKontakt").delay(1000).animate({
+            		opacity : '1',
+
+        		});
+		}	
 		function AnimateText(){
 			$('#textIndexSMS').css('opacity', '0');
 			$("#textIndexSMS").delay(1000).animate({
             		opacity : '1',
         		});
-		}	
-
+		}
 		function AniametButton(){
 			$('.btnIndex').css('opacity', '0');
 			$('.btnIndex').delay(1000).css('top', '200px');
@@ -117,15 +133,23 @@
         		});
 			 	$('#rejestracja').click(function(){
 					$('#myCarousel').carousel(0)
+					AnimateFormsRejestracja();
 				});
 				$('#kontakt').click(function(){
 					$('#myCarousel').carousel(2)
+					AnimateFormsKontakt();
 				});
 				$('#logo').click(function(){
 					$('#myCarousel').carousel(1);
 					AniametButton();
 					AnimateText();
 				});
+				$('.loginBtnRejestracja').click(function(){
+					$('#myCarousel').carousel(0);
+					AnimateFormsRejestracja();
+					$('#myModal').modal("hide");
+				});				
+
 			 
 		}
 	
