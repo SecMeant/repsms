@@ -1,0 +1,214 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Student Management System</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="{% static '/smscss.css' %}">
+		<script type="text/javascript" src="{% static '/SMSAdding.js' %}"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+		<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		
+		<br/>
+		<br/>
+		<dir class="row">
+		<div class ="col-sm-2 menuLeft">
+			<div id="SMS-menu" class="navbar navbar-default" style="display: inline-block;" role="navigation">
+		   	  <div class="container ">
+			      
+			      <div class="collapse navbar-collapse navbar-menubuilder pull-left">
+			         <ul class="nav navbar-nav navbar-left">
+			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary"style=" margin-left:0px;width: 300px" href="#">SMS</a></div>
+		                <p><li class="active"> <span class="glyphicons glyphicons-user"></span><a href="#"><span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj klasę</a>
+		                </li></p>
+		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-user"></span> Dodaj ucznia</a>
+		                </li></p>
+		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-star"></span> Dodaj profil</a>
+		                </li></p>
+		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj algorytm</a>
+		              	</li></p>
+			         </ul>
+			        </div>
+			    </div>
+			</div>
+		</div>
+		<div class ="col-sm-8 pull-right">
+			<div class ="topBar">
+				<p>Hello {{ current_user }}.</p>
+				<p>DATE {{ curent_date }}</p>
+				
+		</div>
+			<hr class="style-four">
+		</div>
+	</dir>
+		 <a href="#">
+          
+        </a>
+		<!-- <div class="active-working-window col-sm-4 col-sm-offset-4"> 
+			<h1>Form</h1>
+			<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+				{{ form.as_p }}
+				<input type="submit" class="btn btn-default" value="Create Post"/>
+			</form>
+		</div> -->
+
+
+																<!-- START MODAL BOX -->
+		<div class="modal fade" id="myModal" role="dialog">
+    		<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header" style="padding:35px 50px;">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+					</div>
+					<div class="modal-body" style="padding:40px 50px;">
+						<!-- START FORM -->
+						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+							{{ form.as_p }}
+							<input type="submit" class="btn btn-default" value="Zatwierdź"/>
+						</form>
+						<!-- END FORM -->
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Zamknij</button>
+						<p>Nie posiadasz konta ? <a href="#">Rejestracja</a></p>
+						<p>Zapomniałeś hasła ? <a href="#">Przypomnij hasło</a></p>
+					</div>
+				</div>
+			</div>
+		</div> 
+																<!-- END MODAL BOX -->
+		
+
+		<script type="text/javascript">
+			// $(".dodajucznia").click(function(){
+			// 	$(".active-working-window").slideDown();
+			// });
+
+			$(document).ready(function(){
+	    	$(".dodajucznia").click(function(){
+	      	  $("#myModal").modal();
+	    	});
+		});
+		</script>
+
+	</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	<!-- <form id="Form_wpisywanie" method="post" action="">
+			<div class="container">
+				<div class="cal">
+					<div class="dnap"> Imię: </div>
+					<div class="for"> <input/> </div>
+				</div>		
+				<div class="cal">
+					<div class="dnap"> Nazwisko: </div>
+
+					<div class="for">	<input/> </div>
+				</div>			
+				<div class="cal">
+					<div class="dnap"> Adres zamieszkania: </div>
+					<div class="for"> <input  id="kod_p1" type="text" maxlength="2" placeholder="--" name="post_code1_1"/> - <input  id="kod_p2" type="text" maxlength="3" placeholder="---" name="post_code1_2"/> 
+					<input  id="Miejscowosc" type="text" name="City1" placeholder="Miejscowość"/> </div>
+				</div>
+				<div class="cal">
+					<div class="dnap"></div>
+					<div class="for"> <input id="ulica" type="text" name="street_1" placeholder="Ulica"/> <input id="nr_dom" type="text" name="home_number_1" placeholder="Nr.dom"/> </div>		 		
+				</div>
+				<div class="cal">
+					<label>
+					<div class="dnap"><input type="checkbox" onchange="copyForm(this);"/></div>
+					<div class="for"> Przepisz adres zamieszkania </div>				
+					</label>
+				</div>			
+				
+				
+				<div class="cal">
+					<div class="dnap"> Adres zameldowania: </div>
+					<div class="for"> <input id="kod_p12" type="text" maxlength="2" placeholder="--" name="post_code2_1"/> - <input id="kod_p22" type="text" maxlength="3" placeholder="---"name="post_code2_2"/> 
+					<input id="Miejscowosc2" type="text" name="City2" placeholder="Miejscowość"/> </div>
+				</div>
+				<div class="cal">
+					<div class="dnap"> </div>
+					<div class="for"> <input id="ulica2" type="text"name="street_2" placeholder="Ulica"/> <input id="nr_dom2" type="text"name="home_number_2" placeholder="Nr.dom"/> </div>		
+				</div>						
+				<div class="cal">
+					<div class="dnap"> Oceny: </div>
+					<div class="for"> <input id="ocena_niemiecki"  type="text" maxlength="1" name="Mark_D" placeholder="Niem"/>	<input id="ocena_angielski"  type="text" maxlength="1" name="Mark_E" placeholder="Ang"/> </div>
+				</div>
+				<div class="cal">
+					<div class="dnap"> Profil: </div>
+					<div class="for"> 
+						<select class="select_anim" name ="sel">
+							<option>Technik informatyk</option>
+							<option>Technik elektronik</option>	
+						</select>
+					</div>
+				</div>
+				
+				<div class="cal">
+					<div class="dnap"></div>
+					<div class="for" id="div_import"> <input class="przycisk_dodaj" id="przycisk_dodaj" type="submit" value="ZATWIERDŹ"/>
+					<a href="index.php"></a></div></div></form>					
+				<div class="cal">
+				<div class="dnap"></div>				
+				<div class="for" id="przyciski_dodawanie">
+					</div>
+				</div> -->

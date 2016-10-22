@@ -1,0 +1,124 @@
+
+	<div id="myCarousel" class="carousel slide ">
+		<ol class="carousel-indicators">
+			<li data-target="#myCarousel" data-slide-to = "0" class="active"></li>
+			<li data-target="#myCarousel" data-slide-to = "1"></li>
+			<li data-target="#myCarousel" data-slide-to = "2"></li>
+		</ol>
+
+		<div class="carousel-inner">
+												<!-- Carousel item -->
+			<div class="item active">
+				<div class="mainImage container-fluid FirstImageCarousel">
+					<div class="container">
+						<div class="col-sm-16 col-sm-offset-1">
+							<span class="col-md-5 textIndex">
+								ZARZĄDZAJ KLASAMI UCZNIÓW<br/>
+								TWOJEJ SZKOŁY<br/><br/>
+								<span class="col-sm-12 textIndexWithin">
+									Załóż konto już dziś<br/> i testuj nasz program za darmo przez 5 dni !
+								</span>
+							</span>
+								
+						</div>	
+					</div>
+				</div>
+			</div>
+												<!-- Carousel item -->	
+			<div class="item">
+				<div class="container-fluid mainImage SecoundImageCarousel">
+					<div class="container">
+						<div class="col-sm-16 col-sm-offset-1">
+							<span class="col-md-5 textIndex">
+								ZARZĄDZAJ KLASAMI UCZNIÓW<br/>
+								TWOJEJ SZKOŁY<br/><br/>
+								<span class="col-sm-12 textIndexWithin">
+									Załóż konto już dziś<br/> i testuj nasz program za darmo przez 5 dni !
+								</span>
+							</span>	
+						</div>	
+					</div>
+				</div>
+			</div>
+												<!-- Carousel item -->
+		<div class="item">
+				<div class="container-fluid mainImage ThirdImageCarousel">
+					<div class="container">
+						<div class="col-sm-16 col-sm-offset-1">
+							<span class="col-md-5 textIndex">
+								ZARZĄDZAJ KLASAMI UCZNIÓW<br/>
+								TWOJEJ SZKOŁY<br/><br/>
+								<span class="col-sm-12 textIndexWithin">
+									Załóż konto już dziś<br/> i testuj nasz program za darmo przez 5 dni !
+								</span>
+							</span>
+						</div>	
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<button class="btnIndex">Free Trial</button>
+	<script type="text/javascript">
+		$(".btnIndex").hover(function() {
+		    $(this).toggleClass('clicked', 1000);
+		});
+
+		$('#myCarousel').carousel({
+		  interval: false,
+		  cycle: true,
+		  pause:false
+		}); 
+		function SetAnimate(i){
+			switch(i%3){
+				case 0:
+				
+				$('.textIndex').delay(500).css('top', '-100px');
+				$('.textIndex').css('left', '-100px');
+				$('.textIndex').css('opacity', '0');
+				$(".textIndex").animate({
+            		opacity : '1',
+    				top:"0",
+    				left:"0"
+        		});break;
+				case 1:
+				$('.textIndex').slideUp();
+			 	$('.textIndex').slideDown();
+			 	break;
+			 	case 2:
+			 	$('.textIndex').fadeOut(200);
+			 	$('.textIndex').fadeIn(2000,"linear");
+			 	break;
+
+			}
+		}
+		function AniametButton(){
+			$('.btnIndex').css('opacity', '0');
+			$('.btnIndex').delay(1000).css('top', '200px');
+			$('.btnIndex').css('right', '50px');
+			$(".btnIndex").delay(500).animate({
+            		opacity : '1',
+    				top:"250px",
+    				right:"100px"
+        		});
+		}
+		window.onload = function() {
+				var k=1;
+				$(".textIndex").delay(1000).animate({
+            		opacity : '1',
+        		});
+        		$(".btnIndex").animate({
+            		opacity : '1',
+        		});
+			setInterval(function(){ 
+				SetAnimate(k);
+				AniametButton();
+			 	$('#myCarousel').carousel("next");
+			 	k++;
+
+			 }, 
+			 4000);
+		}
+	
+    </script>
