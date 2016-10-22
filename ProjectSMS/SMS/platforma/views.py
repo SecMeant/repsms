@@ -23,7 +23,7 @@ def index(request):
 	context={
 		"title":"SMS",
 		"instanceL":instanceLogowanie,
-		"instanceR":instanceRejestracja,
+		# "instanceR":instanceRejestracja,
 
 	}
 	return render (request, "manageindex.html", context)
