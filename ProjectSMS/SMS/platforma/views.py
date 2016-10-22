@@ -1,14 +1,16 @@
 from django.shortcuts import render
-from .forms import szkolaForm,logowanie
+from django.contrib.auth.models import User
+from .forms import logowanie
 
  
 # Create your views here.
 def index(request):
 	instanceLogowanie=logowanie()
-	instanceRejestracja = szkolaForm()
+	# instanceRejestracja = szkolaForm()
 	if request.method == 'POST':
 		if "zaloguj" in request.POST:
-			formLogowanie=szkolaForm(request.POST or None)
+			pass
+			# formLogowanie=szkolaForm(request.POST or None)
 		else:
 			
 			formRejestracja = szkolaForm(request.POST or None)
@@ -16,6 +18,7 @@ def index(request):
 				instance = formRejestracja.save(commit=False)
 				instance.nazwaSzkoly = request.nazwaSzkoly
 				instance.save()
+				instance = User.objects.create_user(instance.nazwaSzkoly, instance.email, 'johnpassword')
 				return HttpResponseRedirect("")
 	context={
 		"title":"SMS",

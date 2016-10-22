@@ -10,13 +10,13 @@
     height: 100%;
 }
 .FirstImageCarousel{
-	background-image: url('book.jpg');
+	background-image: url('images/bookS.jpg');
 }
 .SecoundImageCarousel{
-	background-image: url('plan.jpg');
+	background-image: url('images/planS.jpg');
 }
 .ThirdImageCarousel{
-	background-image: url('tlo.jpg');
+	background-image: url('images/tloS.jpg');
 }
 .navbar{
 	/*background-color:#07162D;*/

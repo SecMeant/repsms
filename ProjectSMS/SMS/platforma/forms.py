@@ -1,14 +1,5 @@
 from django import forms
-from .models import scSzkola
 
-class szkolaForm(forms.ModelForm):
-    class Meta:
-        model = scSzkola
-        fields = [
-            "nazwaSzkoly",
-            "email",
-            "telefon",
-		]
 class logowanie(forms.Form):
 	haslo=forms.CharField(label='haslo', max_length=100,widget=forms.PasswordInput(
 		attrs={

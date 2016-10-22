@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import Http404, HttpResponseRedirect
-from .forms import szkolaForm
 from django.utils import timezone
 # Create your views here.
 
@@ -14,7 +13,8 @@ def smsApp(request):
 				form.save()
 				return HttpResponseRedirect('/')
 		else:
-			form = szkolaForm()
+			pass
+			
 
 		context={
 			"current_user" : current_user,

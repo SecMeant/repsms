@@ -84,15 +84,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoprojec
-PHONE_NUMBER_REGION = 'PL'
-PHONE_NUMBERS_FORMATS_BY_REGION = {
-    'PL': {
-        'pattern': '(\\d{3})(\\d{3})(\\d{3})(\\d{3})', 'format': '\\1 \\2-\\3-\\4', 'prefix_format': '+%s (%s)'
-    },
-    'US': {
-        'pattern': '(\\d{3})(\\d{3})(\\d{4})', 'format': '\\1 \\2-\\3', 'prefix_format': '+%s (%s)'
-    },
-}
 
 AUTH_PASSWORD_VALIDATORS = [
     {

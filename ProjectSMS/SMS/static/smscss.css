@@ -1,4 +1,3 @@
-
 body{
 	background: #252833;
 	color:white;
@@ -87,4 +86,7 @@ hr.style-four {
     box-shadow: inset 0 12px 12px -12px rgba(0, 0, 0, 0.5);
     width:110%;
     margin-left: -15%;
+}
+.modal{
+	color:black;
 }
