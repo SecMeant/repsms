@@ -25,7 +25,7 @@ def index(request):
 				sender = formRejestracja.cleaned_data['haslo']
 				cc_myself = formRejestracja.cleaned_data['email']
 				c = conn.cursor()
-				c.execute('CREATE TABLE IF NOT EXISTS stocks(date text, trans text, symbol text, qty real, price real)')
+				# c.execute('CREATE TABLE IF NOT EXISTS stocks(date text, trans text, symbol text, qty real, price real)')
 				c.execute("INSERT INTO stocks VALUES ('2006-01-05','BUY','RHAT',100,35.14)")
 				conn.commit()
 				conn.close()
@@ -51,6 +51,8 @@ def confirm(request):
 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 	conn = sqlite3.connect(os.path.join(BASE_DIR, 'db.sqlite3'))
 	c = conn.cursor()
-	c.execute('SELECT * FROM stocks')
-	print (c.fetchone())
-	return render (request, "ConfirmRegister.html", {})
+	c.execute('SELECT * FROM auth_user')
+	context={
+		"c" : c,
+	}
+	return render (request, "ConfirmRegister.html", context)

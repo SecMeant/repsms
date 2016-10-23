@@ -24,14 +24,23 @@
 			      <div class="collapse navbar-collapse navbar-menubuilder pull-left">
 			         <ul class="nav navbar-nav navbar-left">
 			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary"style=" margin-left:0px;width: 300px" href="#">SMS</a></div>
-		                <p><li class="active"> <span class="glyphicons glyphicons-user"></span><a href="#" class="optionDodajUcznia"><span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj klasę</a>
-		                </li></p>
-		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-user"></span> Dodaj ucznia</a>
-		                </li></p>
-		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-star"></span> Dodaj profil</a>
-		                </li></p>
-		                <p><li><a href="#"><span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj algorytm</a>
-		              	</li></p>
+
+		                <p><li><a href="#" class="optionDodajKlase">
+		                <span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj klasę
+		                </a></li></p>
+
+		                <p><li><a href="#" class="optionDodajUcznia">
+		                <span class="glyphicon glyphicon glyphicon-user"></span> Dodaj ucznia
+		                </a></li></p>
+
+		                <p><li><a href="#" class="optionDodajProfil">
+		                <span class="glyphicon glyphicon glyphicon-star"></span> Dodaj profil
+		                </a></li></p>
+
+		                <p><li><a href="#" class="optionDodajAlgorytm">
+		                <span class="glyphicon glyphicon glyphicon-plus"></span> Dodaj algorytm
+		                </a></li></p>
+
 			         </ul>
 			        </div>
 			    </div>
@@ -47,44 +56,64 @@
 		</div>
 			<hr class="style-four">
 		</div>
-	</dir>
-		 <a href="#">
-          
-        </a>
-		<!-- <div class="active-working-window col-sm-4 col-sm-offset-4"> 
-			<h1>Form</h1>
-			<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
-				{{ form.as_p }}
-				<input type="submit" class="btn btn-default" value="Create Post"/>
-			</form>
-		</div> -->
-
-
-																<!-- START MODAL BOX -->
-		<div class="modal fade" id="myModal" role="dialog">
+	</div>
+													<!-- START DODAJ KLASE MODAL BOX -->
+		<div class="modal fade" id="dodajKlaseModal" role="dialog">
     		<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header" style="padding:35px 50px;">
 						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
+						<h4><span class="glyphicon glyphicon-th-list"></span>TWORZENIE KLASY</h4>
 					</div>
 					<div class="modal-body" style="padding:40px 50px;">
 						<!-- START FORM -->
 						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
-							{{ form.as_p }}
+							
+
+
+								<!-- HERE GOES THE INPUTS -->
+
+
+
+
 							<input type="submit" class="btn btn-default" value="Zatwierdź"/>
 						</form>
-						<!-- END FORM -->
-					</div>
-					<div class="modal-footer">
-						<button type="submit" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Zamknij</button>
-						<p>Nie posiadasz konta ? <a href="#">Rejestracja</a></p>
-						<p>Zapomniałeś hasła ? <a href="#">Przypomnij hasło</a></p>
 					</div>
 				</div>
 			</div>
 		</div> 
-																<!-- END MODAL BOX -->
+													<!-- END DODAJ KLASE MODAL BOX -->
+
+													<!-- START DODAJ PROFIL MODAL BOX -->
+		<div class="modal fade" id="dodajProfilModal" role="dialog">
+    		<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header" style="padding:35px 50px;">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4><span class="glyphicon glyphicon-th-list"></span>TWORZENIE PROFILU</h4>
+					</div>
+					<div class="modal-body" style="padding:40px 50px;">
+						<!-- START FORM -->
+						<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
+							
+
+<!-- 
+								<label>Pełna nazwa profilu </label>
+								<input type="text" name="newProfileFullName" maxlength="16" required><br/>
+
+								<label>Skrócona nazwa profilu </label>
+								<input type="text" name="newProfileShortName" maxlength="8" required><br/> -->
+
+
+								{{form.as_p}}
+
+							<input type="submit" class="btn btn-default" name="addProfile" value="Zatwierdź"/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div> 
+													<!-- END DODAJ PROFILE MODAL BOX -->
 		
 
 		<script type="text/javascript">
@@ -93,10 +122,14 @@
 			// });
 
 			$(document).ready(function(){
-	    	$(".optionDodajUcznia").click(function(){
-	      	  $("#myModal").modal();
-	    	});
-		});
+		    	$(".optionDodajKlase").click(function(){
+		      	  $("#dodajKlaseModal").modal();
+		      	});
+
+		      	 $(".optionDodajProfil").click(function(){
+		      	  $("#dodajProfilModal").modal();
+		    	});
+			});
 		</script>
 
 	</body>
