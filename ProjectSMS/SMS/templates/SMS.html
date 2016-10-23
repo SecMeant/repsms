@@ -23,6 +23,7 @@
 			      
 			      <div class="collapse navbar-collapse navbar-menubuilder pull-left">
 			         <ul class="nav navbar-nav navbar-left">
+
 			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary"style=" margin-left:0px;width: 300px" href="#">SMS</a></div>
 
 		                <p><li><a href="#" class="optionDodajKlase">
@@ -55,6 +56,11 @@
 
 		</div>
 			<hr class="style-four">
+			{% if same %}
+				<div class="alert alert-danger pull-left">
+						<strong>Powtórzenie!</strong> Już stworzyłes profil o takiej nazwie lub skrócie.
+				</div>
+			{% endif %}
 		</div>
 	</div>
 													<!-- START DODAJ KLASE MODAL BOX -->
@@ -95,17 +101,9 @@
 					<div class="modal-body" style="padding:40px 50px;">
 						<!-- START FORM -->
 						<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
-							
-
-<!-- 
-								<label>Pełna nazwa profilu </label>
-								<input type="text" name="newProfileFullName" maxlength="16" required><br/>
-
-								<label>Skrócona nazwa profilu </label>
-								<input type="text" name="newProfileShortName" maxlength="8" required><br/> -->
-
 
 								{{form.as_p}}
+								
 
 							<input type="submit" class="btn btn-default" name="addProfile" value="Zatwierdź"/>
 						</form>

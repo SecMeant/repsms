@@ -42,6 +42,12 @@ def smsApp(request):
 						c.execute("INSERT INTO profile VALUES(?,?)",(fullname,shortname))
 					conn.commit()
 					conn.close()
+					context={
+						"current_user" : current_user,
+						"form":formAddProfile,
+						"same":same
+					}
+					return render (request, "SMS.html", context)
 		context={
 			"current_user" : current_user,
 			"form":formAddProfile,
