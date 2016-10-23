@@ -12,5 +12,5 @@ tests/coverage_html/
 tests/.coverage
 build/
 tests/report/
-ProjectSMS/tcl
-ProjectSMS/SMS/smsMain/__pycache__
+ProjectSMS/tcl/*
+ProjectSMS/SMS/smsMain/__pycache__/*

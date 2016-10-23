@@ -30,9 +30,11 @@ def index(request):
 			
 			formRejestracja = rejestracja(request.POST or None)
 			if formRejestracja.is_valid():
+
 				formRejestracja.save(commit=False)
 				formRejestracja.created=timezone.now()
 				formRejestracja.save()
+
 				return HttpResponseRedirect('/confirm')
 		elif "kontakt" in request.POST:
 			pass		
@@ -44,5 +46,5 @@ def index(request):
 	}
 	return render (request, "index.html", context)
 def confirm(request):
-	
 	return render (request, "ConfirmRegister.html", {})
+
