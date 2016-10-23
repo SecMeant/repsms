@@ -39,9 +39,11 @@
 		</div>
 		<div class ="col-sm-8 pull-right">
 			<div class ="topBar">
-				<p>Hello {{ current_user }}.</p>
-				<p>DATE {{ curent_date }}</p>
-				
+		<h2>{{ user.get_full_name }}</h2>
+			<ul>
+  			<li>Username: {{ user.username }}</li>
+			</ul>
+
 		</div>
 			<hr class="style-four">
 		</div>
