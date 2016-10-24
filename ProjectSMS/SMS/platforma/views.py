@@ -18,14 +18,12 @@ def index(request):
 			if varLog.is_valid():
 				passw = varLog.cleaned_data['haslo']
 				login = varLog.cleaned_data['login']
-				
-				User = accounts.objects.raw('SELECT login, password FROM platforma WHERE login=%s and password=%s',[login, passw])#all().filter(login=login)
-				print(User)
-				# if User.object. password is passw: 
-				# print("%s , %s" %(login , passw)) 
-				# for User in allUsers:
-				# 	for login , haslo in (user.login , user.password):
+				try:
+					userLoginData =accounts.objects.get(login=login,password=passw)
+				except accounts.DoesNotExist:
+					userLoginData = None
 
+				print(userLoginData.columns)
 		elif "rejestracja" in request.POST:
 			
 			formRejestracja = rejestracja(request.POST or None)

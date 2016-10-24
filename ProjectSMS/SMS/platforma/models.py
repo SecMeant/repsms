@@ -9,7 +9,7 @@ from django.utils import timezone
 # Create your models here.
 class accounts(models.Model):
 	username = models.CharField(max_length=60)
-	login = models.CharField(max_length=60)
+	login = models.CharField(max_length=60 ,unique=True)
 	password = models.CharField(max_length=30)
 	email = models.EmailField(max_length=50)
 	phoneNumber = models.IntegerField()
