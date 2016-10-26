@@ -4,7 +4,7 @@ from django.forms import ModelForm
 class logowanie(forms.Form):
 	haslo=forms.CharField(label='haslo', max_length=100, widget=forms.PasswordInput(
 		attrs={
-		'type':"text", 
+		'type':"password", 
 		'class':"form-control",
 		'id':"psw", 
 		'placeholder':"Wpisz haslo"})
@@ -76,7 +76,7 @@ class rejestracja(ModelForm):
 			'type':"text", 
 			'class':"form-control",
 			'id':"email", 
-			'placeholder':"Wpisz numer telefonu"}),
+			'placeholder':"Wpisz nazwe szkoly"}),
 
 		'login': forms.TextInput(
 			attrs={
