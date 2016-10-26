@@ -104,11 +104,25 @@
 
 								{{formAddStudent.as_p}}
 
-
+								<hr><br/>
 
 
 							<input type="submit" class="btn btn-default" name="addStudent" value="Zatwierdź"/>
+
+
 						</form>
+
+								<div class="importFile">
+
+									<p class="text-center">IMPORTUJ UCZNIOW Z PLIKU</p>
+
+									<form method="post" enctype="multipart/form-data"> {% csrf_token %}
+										<input type="file" name="studentFile" />
+										<input type="submit" name="studentFile" value="Upload" />
+									</form>
+
+								</div>
+					
 					</div>
 				</div>
 			</div>

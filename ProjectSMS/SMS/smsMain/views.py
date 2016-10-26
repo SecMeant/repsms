@@ -6,6 +6,7 @@ from django.db import transaction
 from .forms import addProfile, addStudent
 import os
 import sqlite3
+from .csvfuncs import searchcsv, importcsv
 
 # Create your views here.
 @login_required
@@ -40,6 +41,45 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 					}
 					return render (request, "SMS.html", context)
+
+			elif "studentFile" in request.POST:
+
+				#Tablica szukanych kolumn w pliku csv
+
+				wantedtable = [
+					"Imię", #1
+					"Nazwisko",#2
+					"Kod pocztowy",#3
+					"Miejscowość",#4
+					"Ulica",#5
+					"Nr budynku",#6
+					"Nr mieszkania",#7
+					"angielski",#8
+					"niemiecki",#9
+					]
+
+				answer = [None] * len(wantedtable)
+				c = conn.cursor()
+
+				file = request.FILES['studentFile']
+				line = file.readline().decode('utf-8')
+				fline = line.split(";")
+
+				i=0
+				for word in wantedtable:
+					answer[i] = searchcsv(word,request.FILES['studentFile'])
+					i+=1
+
+				importcsv(wantedtable,answer,request.FILES['studentFile'],c)
+
+
+				context={
+						"current_user" : current_user,
+						"formAddProfile":formAddProfile,
+						"formAddStudent":formAddStudent,
+					}
+
+				return render (request, "SMS.html", context)
 
 			elif "addProfile" in request.POST:
 				formAddProfile = addProfile(request.POST)

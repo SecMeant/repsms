@@ -93,3 +93,18 @@ hr.style-four {
 .modal h4 span{
 	margin-right:40px;
 }
+.importFile{
+	margin: auto;
+	width: 60%;
+	padding: 20px;
+	margin-top: 50px;
+	font-weight: bold;
+	border-style: solid;
+	border-width:2px;
+	border-color: black;
+	border-radius:10px;
+}
+.importFile > p{
+	margin-top: -20px;
+	margin-bottom: 15px;
+}
