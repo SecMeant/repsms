@@ -1,6 +1,7 @@
 from django import forms
 from .models import accounts
 from django.forms import ModelForm
+from django.contrib.auth.models import User
 class logowanie(forms.Form):
 	haslo=forms.CharField(label='haslo', max_length=100, widget=forms.PasswordInput(
 		attrs={
@@ -19,71 +20,24 @@ class logowanie(forms.Form):
 			'placeholder':"Wpisz login"})
 		
 	)
-# class rejestracja(forms.Form):
-# 	# nazwa szkoły
-# 	# login
-# 	# haslo
-# 	# email
-# 	# numer telefonu
-# 	# checkbox accept regulaminu
-# 	nazwaSzkoly=forms.CharField(label="Nazwa Szkoły", max_length=100, widget=forms.TextInput(
-# 		attrs={
-# 		'type':"text", 
-# 		'class':"form-control",
-# 		'id':"ns", 
-# 		'placeholder':"Wpisz nazwę szkoły"})
-# 	)
-# 	login=forms.CharField(label='Login', max_length=100, widget=forms.TextInput(
-# 		attrs={
-# 		'type':"text", 
-# 		'class':"form-control",
-# 		'id':"username", 
-# 		'placeholder':"Wpisz login"}) 
-
-# 	)
-
-# 	haslo=forms.CharField(label='Hasło', max_length=100, widget=forms.PasswordInput(
-# 		attrs={
-# 		'type':"password", 
-# 		'class':"form-control",
-# 		'id':"psw", 
-# 		'placeholder':"Wpisz hasło"})
-
-# 	)
-# 	email=forms.CharField(label='E-mail', max_length=40, widget=forms.TextInput(
-# 		attrs={
-# 		'type':"text", 
-# 		'class':"form-control",
-# 		'id':"email", 
-# 		'placeholder':"Wpisz e-mail"})
-# 	)
-# 	numerTelefonu=forms.IntegerField(label='NumerTelefonu', widget=forms.TextInput(
-# 		attrs={
-# 		'type':"text", 
-# 		'class':"form-control",
-# 		'id':"email", 
-# 		'placeholder':"Wpisz numer telefonu"})
-# 	) 
-	# confirm=forms.BooleanField(label='Akceptacja regulaminu')
 class rejestracja(ModelForm):
-	confirm=forms.BooleanField(label='Akceptacja regulaminu')
 	class Meta:
-		model=accounts
-		fields=('username',	'login', 'password', 'email', 'phoneNumber')
+		model = User
+		fields = ('first_name', 'username', 'email','password')
 		widgets = {
 		'username': forms.TextInput(
 			attrs={
 			'type':"text", 
 			'class':"form-control",
 			'id':"email", 
-			'placeholder':"Wpisz nazwe szkoly"}),
+			'placeholder':"Wpisz login"}),
 
-		'login': forms.TextInput(
+		'first_name': forms.TextInput(
 			attrs={
 			'type':"text", 
 			'class':"form-control",
 			'id':"login", 
-			'placeholder':"Wpisz login"}),
+			'placeholder':"Wpisz nazwe szkoly"}),
 
 		'password': forms.PasswordInput(
 			attrs={
@@ -98,7 +52,20 @@ class rejestracja(ModelForm):
 			'class':"form-control",
 			'id':"email", 
 			'placeholder':"Wpisz email"}),
+		}
+		labels = {
+			'first_name': ('Nazwa Szkoły'),
+			'username': ('Login'),
+			'password': ('Hasło'),
+			'email': ('E-mail'),
+		}
 
+class rejestracjaExtends(ModelForm):
+	confirm=forms.BooleanField(label='Akceptacja regulaminu')
+	class Meta:
+		model=accounts
+		fields=('phoneNumber',)
+		widgets = {
 		'phoneNumber': forms.TextInput(
 			attrs={
 			'type':"text", 
@@ -107,10 +74,6 @@ class rejestracja(ModelForm):
 			'placeholder':"Wpisz numer telefonu"}),
 		}
 		labels = {
-			'username': ('Nazwa Szkoły'),
-			'login': ('Login'),
-			'password': ('Hasło'),
-			'email': ('E-mail'),
 			'phoneNumber': ('Numer Telefonu'),
 		}
 
