@@ -9,8 +9,7 @@ def index(request):
 	instanceLogowanie=logowanie()
 	instanceRejestracja=rejestracja()	
 	instancekontakt=kontakt()
-	CaruselValue=[0,1,0]
-	itemCarusel=['item','item active']
+	itemCarusel=['item','item active','item']
 	if request.method == 'POST':
 		instanceLogowanie=logowanie()
 		if "zaloguj" in request.POST:
@@ -41,10 +40,10 @@ def index(request):
 														hasher='pbkdf2_sha1')
 				instanc.save()
 			else:	
-				CaruselValue=[1,0,0]
+				itemCarusel=['item active','item','item']
 			
 		elif "kontakt" in request.POST:
-			CaruselValue=[0,0,1]
+			itemCarusel=['item','item','item active']
 
 			
 	context={
@@ -52,7 +51,6 @@ def index(request):
 		"instanceL":instanceLogowanie,
 		"instanceR":instanceRejestracja,
 		"instanceC":instancekontakt,
-		"CaruselValue":CaruselValue,
 		"itemCarusel":itemCarusel,
 	 }
 	return render (request, "index.html", context)
