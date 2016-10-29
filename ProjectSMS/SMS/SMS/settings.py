@@ -81,7 +81,7 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+AUTH_USER_MODEL = 'platforma.User'
 
 # Password validation
 # https://docs.djangoprojec
@@ -100,7 +100,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+PASSWORD_HASHERS = (
+     
+     'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
 
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/

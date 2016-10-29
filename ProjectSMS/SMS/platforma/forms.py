@@ -1,7 +1,7 @@
 from django import forms
-from .models import accounts
+from .models import User
 from django.forms import ModelForm
-from django.contrib.auth.models import User
+
 class logowanie(forms.Form):
 	haslo=forms.CharField(label='haslo', max_length=100, widget=forms.PasswordInput(
 		attrs={
@@ -23,20 +23,20 @@ class logowanie(forms.Form):
 class rejestracja(ModelForm):
 	class Meta:
 		model = User
-		fields = ('first_name', 'username', 'email','password')
+		fields = ('nazwaSzkoly', 'username', 'email','password', 'phoneNumber')
 		widgets = {
 		'username': forms.TextInput(
 			attrs={
 			'type':"text", 
 			'class':"form-control",
-			'id':"email", 
+			'id':"username", 
 			'placeholder':"Wpisz login"}),
 
-		'first_name': forms.TextInput(
+		'nazwaSzkoly': forms.TextInput(
 			attrs={
 			'type':"text", 
 			'class':"form-control",
-			'id':"login", 
+			'id':"nazwaSzkoly", 
 			'placeholder':"Wpisz nazwe szkoly"}),
 
 		'password': forms.PasswordInput(
@@ -46,6 +46,13 @@ class rejestracja(ModelForm):
 			'id':"password", 
 			'placeholder':"Wpisz hasło"}),
 
+		'phoneNumber': forms.TextInput(
+			attrs={
+			'type':"text", 
+ 			'class':"form-control",
+			'id':"phoneNumber", 
+			'placeholder':"Wpisz numer telefonu"}),		
+
 		'email': forms.TextInput(
 			attrs={
 			'type':"text", 
@@ -54,28 +61,14 @@ class rejestracja(ModelForm):
 			'placeholder':"Wpisz email"}),
 		}
 		labels = {
-			'first_name': ('Nazwa Szkoły'),
+			'nazwaSzkoly': ('Nazwa Szkoły'),
 			'username': ('Login'),
 			'password': ('Hasło'),
+			'phoneNumber': ('Numer Telefonu'),
 			'email': ('E-mail'),
 		}
 
-class rejestracjaExtends(ModelForm):
-	confirm=forms.BooleanField(label='Akceptacja regulaminu')
-	class Meta:
-		model=accounts
-		fields=('phoneNumber',)
-		widgets = {
-		'phoneNumber': forms.TextInput(
-			attrs={
-			'type':"text", 
-			'class':"form-control",
-			'id':"phoneNumber", 
-			'placeholder':"Wpisz numer telefonu"}),
-		}
-		labels = {
-			'phoneNumber': ('Numer Telefonu'),
-		}
+
 
 
 class kontakt(forms.Form):
