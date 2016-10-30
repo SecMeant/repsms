@@ -21,9 +21,16 @@ class logowanie(forms.Form):
 		
 	)
 class rejestracja(ModelForm):
+	passwordConfirm=forms.CharField(label="Potwierdzenie hasła", max_length=64, widget=forms.PasswordInput(
+	attrs={
+	'type':"password", 
+	'class':"form-control",
+	'id':"passwordConfirm", 
+	'placeholder':"Potwierdź hasło"})
+	)
 	class Meta:
 		model = User
-		fields = ('nazwaSzkoly', 'username', 'email','password', 'phoneNumber')
+		fields = ('nazwaSzkoly', 'username', 'email', 'password', 'passwordConfirm', 'phoneNumber')
 		widgets = {
 		'username': forms.TextInput(
 			attrs={
@@ -45,7 +52,7 @@ class rejestracja(ModelForm):
 			'class':"form-control",
 			'id':"password", 
 			'placeholder':"Wpisz hasło"}),
-
+		
 		'phoneNumber': forms.TextInput(
 			attrs={
 			'type':"text", 

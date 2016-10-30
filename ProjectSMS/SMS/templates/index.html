@@ -12,10 +12,30 @@
 						<form method="POST" action='' enctype='multipart/form-data'>
 							<div class="col-sm-6 divFormRejestracja">
 								{% csrf_token %}
-								{{instanceR.as_p}}
-								{{instanceReEx.as_p}}
+								{% for field in instanceR %}
+									<div class="form-group col-sm-8">
+										{{field.label_tag }}
+											{{field}} 
+											{% if field.name == 'username' and passwordError.login %}
+												<div class="alert alert-danger">{{passwordError.login }}</div>
+											{% endif %}
 
-							<input type="submit" class="btn btn-success" name="rejestracja" value="Załóż konto" />
+											{% if field.name == 'email' and passwordError.email %}
+												<div class="alert alert-danger">{{passwordError.email }}</div>
+											{% endif %}
+
+											{% if field.name == 'passwordConfirm' and passwordError.passwordConfirm %}
+												<div class="alert alert-danger">{{passwordError.passwordConfirm}}</div>
+											{% endif %}
+											{% if field.name == 'phoneNumber' and passwordError.phoneNumber %}
+												<div class="alert alert-danger">{{passwordError.phoneNumber}}</div>
+											{% endif %}
+											</br>											
+										
+									</div>
+									{% endfor %}
+							<input type="submit" class="btn btn-success buttonRejestracja" name="rejestracja" value="Załóż konto" />
+
 							</div>
 						</form>
 						
@@ -49,12 +69,11 @@
 					<div class="container">
 						<div class="col-sm-16 col-sm-offset-1" >
 							<form method="POST" action="">
-							<div class="col-sm-6 divFormKontakt">
-
-								{{instanceC.as_p}}{% csrf_token %}
-								<input type="submit" class="btn btn-danger" name="kontakt" value="Wyślij wiadomość" />
-							</div>
-						</form>	
+								<div class="col-sm-6 divFormKontakt">
+									{{instanceC.as_p}}{% csrf_token %}
+									<input type="submit" class="btn btn-danger" name="kontakt" value="Wyślij wiadomość"/>
+								</div>
+							</form>	
 						</div>	
 					</div>
 				</div>

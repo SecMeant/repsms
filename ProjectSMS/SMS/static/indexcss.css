@@ -121,17 +121,19 @@ button.btnIndex:hover{
 .container{
 	width:100%;
 }
-.divFormRejestracja > p{
+.divFormRejestracja{
 	font-size: 20px;
 	color:white;
 	font-weight: bold;
 	width:60%;
 	margin-top:4%;
 	letter-spacing: 1px;
+	display:inline-grid;
 }
 .divFormRejestracja{
-	margin-left:28%;
-	margin-top: -12%;
+	margin-left:26%;
+	margin-top: -14%;
+
 }
 .divFormKontakt > p{
 	font-size: 20px;
@@ -144,4 +146,8 @@ button.btnIndex:hover{
 .divFormKontakt{
 	margin-left:28%;
 	margin-top: -12%;
+}
+.buttonRejestracja{
+	margin-top:66%;
+	margin-left:-39%; 
 }

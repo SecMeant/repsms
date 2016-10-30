@@ -38,7 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	nazwaSzkoly = models.CharField(max_length=100, blank=True)
 	email = models.EmailField(blank=False)
 	password = models.CharField(max_length=256)
-	phoneNumber = models.IntegerField()
+	phoneNumber = models.CharField(max_length=15)
 	created = models.DateTimeField(default=datetime.now())	
 	expired = models.DateTimeField(default=datetime.now()+timedelta(days=1))
 	confirm = models.BooleanField(default=False)
