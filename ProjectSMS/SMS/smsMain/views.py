@@ -61,9 +61,7 @@ def smsApp(request):
 				answer = [None] * len(wantedtable)
 				c = conn.cursor()
 
-				file = request.FILES['studentFile']
-				line = file.readline().decode('utf-8')
-				fline = line.split(";")
+				
 
 				i=0
 				for word in wantedtable:
@@ -72,7 +70,8 @@ def smsApp(request):
 
 				importcsv(wantedtable,answer,request.FILES['studentFile'],c)
 
-
+				conn.commit()
+				conn.close()
 				context={
 						"current_user" : current_user,
 						"formAddProfile":formAddProfile,
