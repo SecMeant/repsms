@@ -13,34 +13,30 @@
 							<div class="col-sm-6 divFormRejestracja">
 								{% csrf_token %}
 								{% for field in instanceR %}
-									<div class="form-group col-sm-8">
+									{% if field.errors %}
+									<div class="form-group col-sm-8 has-error has-feedback">
 										{{field.label_tag }}
-											{{field}} 
-											{% if field.name == 'username' and passwordError.login %}
-												<div class="alert alert-danger">{{passwordError.login }}</div>
-											{% endif %}
-
-											{% if field.name == 'email' and passwordError.email %}
-												<div class="alert alert-danger">{{passwordError.email }}</div>
-											{% endif %}
-
-											{% if field.name == 'passwordConfirm' and passwordError.passwordConfirm %}
-												<div class="alert alert-danger">{{passwordError.passwordConfirm}}</div>
-											{% endif %}
-											{% if field.name == 'phoneNumber' and passwordError.phoneNumber %}
-												<div class="alert alert-danger">{{passwordError.phoneNumber}}</div>
-											{% endif %}
-											</br>											
-										
+											<div class="col-sm-16">
+											{{field}}
+											<span class="glyphicon glyphicon-remove form-control-feedback"></span>	
+											</div> 
+  											{% for error in field.errors %}
+     									   		<label class="col-sm-7 control-label" for="inputError">{{ error|escape }}</label>
+    										{% endfor %}
+    								{% else %}	
+    								<div class="form-group col-sm-8 has-success has-feedback">
+										{{field.label_tag }}
+										<div class="col-sm-16">
+											{{field}}
+											<span class="glyphicon glyphicon-ok form-control-feedback"></span>
+										</div> 
+									{% endif %}
+									</br>											
 									</div>
-									{% endfor %}
-							<input type="submit" class="btn btn-success buttonRejestracja" name="rejestracja" value="Załóż konto" />
-
+								{% endfor %}
+								<input type="submit" class="btn btn-success buttonRejestracja" name="rejestracja" value="Załóż konto" />
 							</div>
 						</form>
-						
-
-
 								
 						</div>	
 					</div>

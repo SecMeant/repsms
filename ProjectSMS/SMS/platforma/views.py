@@ -7,34 +7,37 @@ from django.contrib.auth import authenticate, login
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-def validate(postRepaired):
-	errors={"login":False,"email":False,"passwordConfirm":False,"phoneNumber":False,}
-	try:
-		validate_email( postRepaired['email'] )
+# def validate(postRepaired):
+# 	errors={"login":False,"email":False,"passwordConfirm":False,"phoneNumber":False,}
+# 	try:
+# 		validate_email( postRepaired['email'] )
+		
 
-	except ValidationError:
-		errors['email']="Nieprawidlowy email"
-	try:
-		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("+", "")
-		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(" ", "")
-		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("(", "")
-		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(")", "")
-		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("-", "")
-		if not len(str(postRepaired['phoneNumber'])) >=9 or not str(postRepaired['phoneNumber']).isdigit():
-			raise TypeError
-	except TypeError:
-		errors['phoneNumber']="Nieprawidlowy numer telefonu"
+# 	except ValidationError:
+# 		errors['email']="Nieprawidlowy email"
+# 	try:
+
+# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("+", "")
+# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(" ", "")
+# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("(", "")
+# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(")", "")
+# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("-", "")
+# 		if not len(str(postRepaired['phoneNumber'])) >=9 or not str(postRepaired['phoneNumber']).isdigit():
+# 			raise TypeError
+# 	except TypeError:
+# 		errors['phoneNumber']="Nieprawidlowy numer telefonu"
 	
-	if postRepaired['password'] == postRepaired['passwordConfirm']:
-		pass
-	else:
-		errors['passwordConfirm']="Hasła się nie zgadzają"
+# 	if postRepaired['password'] == postRepaired['passwordConfirm'] and len(postRepaired['password']) >0:
+# 		pass
+# 	else:
+# 		errors['passwordConfirm']="Hasła się nie zgadzają"
 	
-	if User.objects.get(username=postRepaired['username']):
-		errors['login']="Login jest juz zajety"
-					
-	print(errors)
-	return postRepaired ,errors
+# 	try: 
+# 		User.objects.get(username=postRepaired['username'])
+# 		errors['login']="Login jest juz zajety"
+# 	except:
+# 		pass				
+# 	return postRepaired ,errors
 			
 
 def index(request):
@@ -63,9 +66,7 @@ def index(request):
 
 		elif "rejestracja" in request.POST:
 			
-			request.POST,passwordError=validate(request.POST)
 			instanceRejestracja = rejestracja(request.POST or None)
-			
 			if instanceRejestracja.is_valid():
 				if instanceRejestracja.cleaned_data['password']==instanceRejestracja.cleaned_data['passwordConfirm']:
 					instanceRejestracja.save()
@@ -89,7 +90,6 @@ def index(request):
 		"instanceR":instanceRejestracja,
 		"instanceC":instancekontakt,
 		"itemCarusel":itemCarusel,
-		"passwordError":passwordError,
 	 }
 	return render (request, "index.html", context)
 

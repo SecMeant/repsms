@@ -46,7 +46,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
           <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
         </div>
-        <div class="modal-body" style="padding:40px 50px;">
+        <div class="modal-body" class="form-horizontal" style="padding:40px 50px;">
           <form role="form" action="" method="POST">{% csrf_token %}
             <div class="form-group">
               <label for="usrname"><span class="glyphicon glyphicon-user"></span> Login</label>
@@ -60,6 +60,7 @@
               <label><input type="checkbox" value="" checked>Zapamietaj mnie</label>
             </div>
               <button type="submit" class="btn btn-success btn-block" name="zaloguj" value="zaloguj"><span class="glyphicon glyphicon-off"></span> Zaloguj</button>
+
           </form>
         </div>
         <div class="modal-footer">

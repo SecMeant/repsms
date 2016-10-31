@@ -21,6 +21,45 @@ class logowanie(forms.Form):
 		
 	)
 class rejestracja(ModelForm):
+	def __init__(self, *args, **kwargs):
+		super(rejestracja, self).__init__(*args, **kwargs)
+		if self.errors:
+			for f_name in self.fields:
+				if f_name in self.errors:
+					classes = self.fields[f_name].widget.attrs.get('class', '')
+					ids = self.fields[f_name].widget.attrs.get('id', '')
+					classes += ' form-control'
+					ids += ' inputError'
+					self.fields[f_name].widget.attrs['class'] = classes
+					self.fields[f_name].widget.attrs['id'] = ids
+
+
+	def clean(self):
+		'''Required custom validation for the form.'''
+		super(rejestracja,self).clean()
+		if 'password' in self.cleaned_data and 'passwordConfirm' in self.cleaned_data:
+			if self.cleaned_data['password'] != self.cleaned_data['passwordConfirm'] or self.cleaned_data['password'] == 0 :
+				self._errors['password'] = [u'Hasła się nie zgadzają.']
+				self._errors['passwordConfirm'] = [u'Hasła się nie zgadzają.']
+		
+		if 'phoneNumber' in self.cleaned_data:
+			temp=self.cleaned_data['phoneNumber']
+			temp=str(temp).replace("+", "")
+			temp=str(temp).replace(" ", "")
+			temp=str(temp).replace("(", "")
+			temp=str(temp).replace(")", "")
+			temp=str(temp).replace("-", "")
+			if not len(str(temp)) >=9 or not str(temp).isdigit():
+				self._errors['phoneNumber'] = [u'Podaj prawidlowy numer telefonu.']
+		if 'username' in self.cleaned_data:
+			try:
+				User.objects.get(username=self.cleaned_data['username'])
+				self._errors['username'] = [u'Nazwa jest już zajęta.']
+			except:
+				pass
+		return self.cleaned_data
+
+
 	passwordConfirm=forms.CharField(label="Potwierdzenie hasła", max_length=64, widget=forms.PasswordInput(
 	attrs={
 	'type':"password", 
@@ -44,7 +83,8 @@ class rejestracja(ModelForm):
 			'type':"text", 
 			'class':"form-control",
 			'id':"nazwaSzkoly", 
-			'placeholder':"Wpisz nazwe szkoly"}),
+			'placeholder':"Wpisz nazwe szkoly",
+			'required':'required'}),
 
 		'password': forms.PasswordInput(
 			attrs={
@@ -74,6 +114,11 @@ class rejestracja(ModelForm):
 			'phoneNumber': ('Numer Telefonu'),
 			'email': ('E-mail'),
 		}
+		error_messages = {
+            'email': {
+                'invalid': ("Podaj poprawny adres email."),
+            },
+        }
 
 
 
