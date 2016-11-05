@@ -47,3 +47,34 @@ class addStudent(forms.Form):
 		'placeholder':"np. 97070904998"})
 		
 	)
+
+class addClass(forms.Form):
+	nazwaKlasy = forms.CharField(label='Nazwa klasy', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'class':"form-control",
+		'id':'nazwaKlasy',
+		'placeholder':"nazwa"})
+		
+	)
+	liczebnosc = forms.IntegerField(label='Liczebnosc klasy')
+	profil = forms.ChoiceField(label='Profil')
+	algorytm = forms.ChoiceField(label='Algorytm')
+
+
+
+	def __init__(self,*args, **kwargs):
+		profile = kwargs.pop('profile', None)
+		algorytmVar = kwargs.pop('algorytm', None)
+		super(addClass, self).__init__(*args, **kwargs)
+		self.fields['profil'].choices = profile
+		self.fields['algorytm'].choices = algorytmVar
+		print(algorytmVar)
+		print(profile)
+
+class addAlgorithm(forms.Form):
+	nazwa = forms.CharField(label='Nazwa algorytmu')
+	matematyka = forms.IntegerField(label='Matematyka')
+	jpolski = forms.IntegerField(label='Język polski')
+	jangielski = forms.IntegerField(label='Język Angielski')
+	jniemiecki = forms.IntegerField(label='Język Niemiecki')
