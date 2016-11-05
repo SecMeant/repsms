@@ -3,12 +3,11 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .forms import addProfile, addStudent, addClass, addAlgorithm
+from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm
 import os
 import sqlite3
 from .csvfuncs import searchcsv, importcsv
 
-# Create your views here.
 @login_required
 @transaction.atomic
 def smsApp(request):
@@ -21,21 +20,42 @@ def smsApp(request):
 		dbname += ".sqlite3"
 		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
 		c = conn.cursor()
+
+		# Preparing data to send it to forms
+		# Algorithms choicefield
+		# Need to do this that way becouse of the manner of django functions.
+		# forms.choicefield gets an array that contains only 2 indexes
+		# first one contains name and the secound value of the select tag that is rendered by mentioned function
 		c.execute("SELECT * FROM algorytmy")
 		algorithms = c.fetchall()	
-		print(algorithms)
-		algorithmspass = [[],[]]
-		i = 0 
+		algorithmspass = []
 		for cols in algorithms:
-			algorithmspass[i] = (cols[0:2])
-			i+=1
-		
+			algorithmspass.append(cols[0:2]) 
+		# Profiles choicefield
 		c.execute("SELECT * FROM profile")
 		profiles = c.fetchall()
+		# Classes choicefield (removal)
+		# I want to leave a nice comment to line under for loop, becouse its true beauty !
+		# im iterating data in loop as usual, appending a ClassId just after casting to string from integer
+		# than adding a '-' and concatenating name of the class to display it in a list, 
+		# the class id is the value passed to remove method later
+		# Im adding '-' becouse the name of class can contains spaces and im calling split() fucntion to
+		# make this work like this [(a),(b)] like multidimensinal array, becouse the choiceField function requires that
+		# so by adding a dash im making sure that the split will happen just between right data.
+		# After all im not sure of im doing this concatenate the right way, but im just a python begginer so..
+		c.execute("SELECT * FROM klasy")
+		klasy = c.fetchall()
+		klasypass = []
+		for cols in klasy:
+			klasypass.append((str(cols[4])+"-"+cols[0]).split("-"))
+
 		formAddProfile = addProfile
 		formAddStudent = addStudent
 		formAddAlgorithm = addAlgorithm
+		formRemoveProfile = removeProfile(profile=(profiles))
 		formAddClass = addClass(profile=(profiles),algorytm=(algorithmspass))
+		formRemoveClass = removeClass(klasy=(klasypass))
+		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 
 		if request.method == 'POST':
 			# Dodawanie ucznia, pojedyncze
@@ -45,7 +65,7 @@ def smsApp(request):
 					imieUcznia = formAddStudent.cleaned_data['imie']
 					nazwiskoUcznia = formAddStudent.cleaned_data['nazwisko']
 					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(imie text, nazwisko text)")
+					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(imie text, nazwisko text , pesel integer, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
 					c.execute("INSERT INTO uczniowie ('Imię','Nazwisko') VALUES(?,?)",(imieUcznia,nazwiskoUcznia))
 					conn.commit()
 					conn.close()
@@ -55,6 +75,9 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 						"formAddClass":formAddClass,
 						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
 					}
 					return render (request, "SMS.html", context)
 
@@ -79,9 +102,66 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 						"formAddClass":formAddClass,
 						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
 					}
 
 					return render (request, "SMS.html", context)
+
+					# Usuwanie klasy
+
+			elif "removeClass" in request.POST:
+				formRemoveClass =  removeClass(request.POST,klasy=(klasypass))
+				if formRemoveClass.is_valid():
+					idKlasy = formRemoveClass.cleaned_data['klasy']	
+					c = conn.cursor()
+					query = ""
+					query = "DELETE FROM klasy WHERE id =" + idKlasy
+					c.execute(query)
+					conn.commit()
+					conn.close()
+
+					context={
+						"current_user" : current_user,
+						"formAddProfile":formAddProfile,
+						"formAddStudent":formAddStudent,
+						"formAddClass":formAddClass,
+						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
+					}
+
+					return render (request, "SMS.html", context)
+
+				# Usuwanie profilu
+					
+			elif "removeProfile" in request.POST:
+				formRemoveProfile =  removeProfile(request.POST,profile=(profiles))
+				if formRemoveProfile.is_valid():
+					profil = formRemoveProfile.cleaned_data['profile']	
+					c = conn.cursor()
+					query = ""
+					query = "DELETE FROM profile WHERE shortname ='" + profil +"'"
+					c.execute(query)
+					conn.commit()
+					conn.close()
+
+					context={
+						"current_user" : current_user,
+						"formAddProfile":formAddProfile,
+						"formAddStudent":formAddStudent,
+						"formAddClass":formAddClass,
+						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
+					}
+
+					return render (request, "SMS.html", context)
+
+
 
 					# Dodawanie ucznia / uczniow poprzez plik
 
@@ -121,6 +201,9 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 						"formAddClass":formAddClass,
 						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
 					}
 
 				return render (request, "SMS.html", context)
@@ -150,7 +233,10 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 						"formAddClass":formAddClass,
 						"formAddAlgorithm":formAddAlgorithm,
-						"same":same
+						"formRemoveClass":formRemoveClass,
+						"same":same,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
 					}
 					return render (request, "SMS.html", context)
 
@@ -175,7 +261,37 @@ def smsApp(request):
 						"formAddStudent":formAddStudent,
 						"formAddClass":formAddClass,
 						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
 					}
+					return render (request, "SMS.html", context)
+
+					# Usuwanie profilu
+					
+			elif "removeAlgorithm" in request.POST:
+				formRemoveAlgorithm =  removeAlgorithm(request.POST,algorytm=(algorithmspass))
+				if formRemoveAlgorithm.is_valid():
+					algoName = formRemoveAlgorithm.cleaned_data['algorithm']	
+					c = conn.cursor()
+					query = ""
+					query = "DELETE FROM algorytmy WHERE id =" + algoName
+					print(query)
+					c.execute(query)
+					conn.commit()
+					conn.close()
+
+					context={
+						"current_user" : current_user,
+						"formAddProfile":formAddProfile,
+						"formAddStudent":formAddStudent,
+						"formAddClass":formAddClass,
+						"formAddAlgorithm":formAddAlgorithm,
+						"formRemoveClass":formRemoveClass,
+						"formRemoveProfile":formRemoveProfile,
+						"formRemoveAlgorithm":formRemoveAlgorithm,
+					}
+
 					return render (request, "SMS.html", context)
 
 
@@ -186,5 +302,8 @@ def smsApp(request):
 			"formAddStudent":formAddStudent,
 			"formAddClass":formAddClass,
 			"formAddAlgorithm":formAddAlgorithm,
+			"formRemoveClass":formRemoveClass,
+			"formRemoveProfile":formRemoveProfile,
+			"formRemoveAlgorithm":formRemoveAlgorithm,
 		}
 		return render (request, "SMS.html", context)
