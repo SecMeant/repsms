@@ -94,7 +94,6 @@ def remember(request):
 														salt=None,
 														hasher='pbkdf2_sha1')					
 		instanc.save()
-		print("sadsd")
 		me = "sagan.pawel1000@gmail.com"
 		you = email
 		msg = MIMEMultipart('alternative')

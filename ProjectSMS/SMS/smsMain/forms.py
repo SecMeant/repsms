@@ -48,6 +48,30 @@ class addStudent(forms.Form):
 		
 	)
 
+class removeClass(forms.Form):
+	klasy = forms.ChoiceField(label='Usun')
+
+	def __init__(self,*args, **kwargs):
+		klasyVar = kwargs.pop('klasy', None)
+		super(removeClass, self).__init__(*args, **kwargs)
+		self.fields['klasy'].choices = klasyVar
+
+class removeProfile(forms.Form):
+	profile = forms.ChoiceField(label='Usun')
+
+	def __init__(self,*args, **kwargs):
+		profilesVar = kwargs.pop('profile', None)
+		super(removeProfile, self).__init__(*args, **kwargs)
+		self.fields['profile'].choices = profilesVar
+
+class removeAlgorithm(forms.Form):
+	algorithm = forms.ChoiceField(label='Usun')
+
+	def __init__(self,*args, **kwargs):
+		algorithmVar = kwargs.pop('algorytm', None)
+		super(removeAlgorithm, self).__init__(*args, **kwargs)
+		self.fields['algorithm'].choices = algorithmVar
+
 class addClass(forms.Form):
 	nazwaKlasy = forms.CharField(label='Nazwa klasy', max_length=48, widget=forms.TextInput(
 		attrs={
@@ -69,8 +93,6 @@ class addClass(forms.Form):
 		super(addClass, self).__init__(*args, **kwargs)
 		self.fields['profil'].choices = profile
 		self.fields['algorytm'].choices = algorytmVar
-		print(algorytmVar)
-		print(profile)
 
 class addAlgorithm(forms.Form):
 	nazwa = forms.CharField(label='Nazwa algorytmu')
