@@ -36,14 +36,14 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
 	username = models.CharField(max_length=40, unique=True)
 	nazwaSzkoly = models.CharField(max_length=100, blank=True)
-	email = models.EmailField(blank=False)
+	email = models.EmailField(blank=False,unique=True)
 	password = models.CharField(max_length=256)
 	phoneNumber = models.CharField(max_length=15)
 	created = models.DateTimeField(default=datetime.now())	
 	expired = models.DateTimeField(default=datetime.now()+timedelta(days=1))
 	confirm = models.BooleanField(default=False)
 	is_active = models.BooleanField(_('active'), default=True)
-	is_staff = models.BooleanField(_('staff'), default=True)
+	is_staff = models.BooleanField(_('staff'), default=False)
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'confirm', 'phoneNumber', 'nazwaSzkoly']
 

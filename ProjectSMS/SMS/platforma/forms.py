@@ -3,15 +3,8 @@ from .models import User
 from django.forms import ModelForm
 
 class logowanie(forms.Form):
-	haslo=forms.CharField(label='haslo', max_length=100, widget=forms.PasswordInput(
-		attrs={
-		'type':"password", 
-		'class':"form-control",
-		'id':"psw", 
-		'placeholder':"Wpisz haslo"})
-		
-	)
-	login=forms.CharField(label='login', max_length=100,
+
+	login=forms.CharField(label='Login', max_length=100,
 		widget=forms.TextInput(
 			attrs={
 			'type':"text", 
@@ -20,6 +13,36 @@ class logowanie(forms.Form):
 			'placeholder':"Wpisz login"})
 		
 	)
+	haslo=forms.CharField(label='Haslo', max_length=100, widget=forms.PasswordInput(
+		attrs={
+		'type':"password", 
+		'class':"form-control",
+		'id':"psw", 
+		'placeholder':"Wpisz haslo"})
+		
+	)
+	def __init__(self, *args, **kwargs):
+		super(logowanie, self).__init__(*args, **kwargs)
+		if self.errors:
+			for f_name in self.fields:
+				if f_name in self.errors:
+					classes = self.fields[f_name].widget.attrs.get('class', '')
+					ids = self.fields[f_name].widget.attrs.get('id', '')
+					classes += ' form-control'
+					ids += ' inputError'
+					self.fields[f_name].widget.attrs['class'] = classes
+					self.fields[f_name].widget.attrs['id'] = ids
+	def clean(self):
+		'''Required custom validation for the form.'''
+		super(logowanie , self).clean()
+		if 'haslo' in self.cleaned_data and 'login' in self.cleaned_data:
+			try:
+				User.objects.get(username=self.cleaned_data['login '],password=self.cleaned_data['haslo'])
+			except:
+				self._errors['login'] = [u' ']
+				self._errors['haslo'] = [u'Wprowadź poprawne dane logowania ']
+
+
 class rejestracja(ModelForm):
 	def __init__(self, *args, **kwargs):
 		super(rejestracja, self).__init__(*args, **kwargs)
@@ -117,6 +140,7 @@ class rejestracja(ModelForm):
 		error_messages = {
             'email': {
                 'invalid': ("Podaj poprawny adres email."),
+                'unique':("Konto o takim adresie email istniej.")
             },
         }
 

@@ -1,46 +1,23 @@
 from django.shortcuts import render
 from .forms import logowanie , rejestracja, kontakt
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.hashers import make_password
 from .models import User
 from django.contrib.auth import authenticate, login
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-# def validate(postRepaired):
-# 	errors={"login":False,"email":False,"passwordConfirm":False,"phoneNumber":False,}
-# 	try:
-# 		validate_email( postRepaired['email'] )
-		
-
-# 	except ValidationError:
-# 		errors['email']="Nieprawidlowy email"
-# 	try:
-
-# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("+", "")
-# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(" ", "")
-# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("(", "")
-# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace(")", "")
-# 		postRepaired['phoneNumber']=str(postRepaired['phoneNumber']).replace("-", "")
-# 		if not len(str(postRepaired['phoneNumber'])) >=9 or not str(postRepaired['phoneNumber']).isdigit():
-# 			raise TypeError
-# 	except TypeError:
-# 		errors['phoneNumber']="Nieprawidlowy numer telefonu"
-	
-# 	if postRepaired['password'] == postRepaired['passwordConfirm'] and len(postRepaired['password']) >0:
-# 		pass
-# 	else:
-# 		errors['passwordConfirm']="Hasła się nie zgadzają"
-	
-# 	try: 
-# 		User.objects.get(username=postRepaired['username'])
-# 		errors['login']="Login jest juz zajety"
-# 	except:
-# 		pass				
-# 	return postRepaired ,errors
+import string
+import random
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import os, urllib
+def RandomString(size = 8, chars=string.ascii_letters + string.digits):
+	return ''.join(random.SystemRandom().choice(chars) for i in range(size))
 			
-
 def index(request):
+	
 	instanceLogowanie=logowanie()
 	instanceRejestracja=rejestracja(initial=request.POST)
 	instancekontakt=kontakt()
@@ -49,11 +26,11 @@ def index(request):
 	if request.method == 'POST':
 		instanceLogowanie=logowanie()
 		if "zaloguj" in request.POST:
-			varLog = logowanie(request.POST or None)
-			if varLog.is_valid():
+			instanceLogowanie = logowanie(request.POST or None)
+			if instanceLogowanie.is_valid():
 
-				passw = varLog.cleaned_data['haslo']
-				loginU = varLog.cleaned_data['login']
+				passw = instanceLogowanie.cleaned_data['haslo']
+				loginU = instanceLogowanie.cleaned_data['login']
 				try:
 					user = authenticate(username=loginU, password=passw)
 				except:
@@ -62,7 +39,7 @@ def index(request):
 					login(request, user)
 					return HttpResponseRedirect('/sms')
 				else:
-					return HttpResponseRedirect('#')
+					return HttpResponse().__setitem__('instanceL',instanceLogowanie)
 
 		elif "rejestracja" in request.POST:
 			
@@ -97,3 +74,49 @@ def index(request):
 def confirm(request):
 	return render (request, "ConfirmRegister.html", {})
 
+def remember(request):
+	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	BASE_DIR.join('templates/emailpassword')
+	email=request.GET['email']
+	email = urllib.parse.unquote(email)
+	print(email)
+	try:
+
+		instance =User.objects.get(email=email)
+		
+		securePassword=RandomString();
+
+		# try:
+		# 	User.objects.get(password=securePassword)
+		# except:
+		# 	securePassword=RandomString();
+		instance.password=make_password(password=securePassword,
+														salt=None,
+														hasher='pbkdf2_sha1')					
+		instanc.save()
+		print("sadsd")
+		me = "sagan.pawel1000@gmail.com"
+		you = email
+		msg = MIMEMultipart('alternative')
+		msg['Subject'] = 'SMS przypomnienie hasła'
+		msg['From'] = me
+		msg['To'] = you
+		text = "Email ten został wysłany w związku z rządaniem przypomnienia hasła dla konta %s. \n "  % instance.login
+		text.join("Twoje nowe hasło to %s" % securePassword)
+		fp = open(BASE_DIR, 'rb')
+		# Create a text/plain message
+		html = MIMEText(fp.read(),'html')
+		fp.close()
+
+		part1 = MIMEText(text, 'plain')
+		part2 = MIMEText(html, 'html')
+
+		msg.attach(part1)
+		msg.attach(part2)
+
+		s = smtplib.SMTP('smtp.gmail.com')
+		s.sendmail(me, you, msg.as_string())
+		s.quit()
+	except:
+		pass
+	return HttpResponseRedirect('')

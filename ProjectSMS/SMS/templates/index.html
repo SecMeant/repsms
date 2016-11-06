@@ -8,37 +8,32 @@
 			<div class="{{itemCarusel.0}}">
 				<div class="mainImage container-fluid FirstImageCarousel">
 					<div class="container">
-						<div class="col-sm-16 col-sm-offset-1 ">
-						<form method="POST" action='' enctype='multipart/form-data'>
-							<div class="col-sm-6 divFormRejestracja">
+						
+						<form method="POST" action='' enctype='multipart/form-data' > 
+							<div class="divFormRejestracja col-sm-10 " >
 								{% csrf_token %}
 								{% for field in instanceR %}
 									{% if field.errors %}
-									<div class="form-group col-sm-8 has-error has-feedback">
+									<div class="form-group has-error has-feedback">
 										{{field.label_tag }}
-											<div class="col-sm-16">
 											{{field}}
 											<span class="glyphicon glyphicon-remove form-control-feedback"></span>	
-											</div> 
   											{% for error in field.errors %}
-     									   		<label class="col-sm-7 control-label" for="inputError">{{ error|escape }}</label>
+     									   		<label class=" control-label" for="inputError">{{ error|escape }}</label>
     										{% endfor %}
     								{% else %}	
-    								<div class="form-group col-sm-8 has-success has-feedback">
+    								<div class="form-group has-success has-feedback">
 										{{field.label_tag }}
-										<div class="col-sm-16">
 											{{field}}
-											<span class="glyphicon glyphicon-ok form-control-feedback"></span>
-										</div> 
 									{% endif %}
 									</br>											
 									</div>
 								{% endfor %}
-								<input type="submit" class="btn btn-success buttonRejestracja" name="rejestracja" value="Załóż konto" />
+								<input type="submit" class="btn btn-success col-sm-offset-5 " name="rejestracja" value="Załóż konto" />
 							</div>
 						</form>
 								
-						</div>	
+							
 					</div>
 				</div>
 			</div>
@@ -167,7 +162,7 @@
 				$('.loginBtnRejestracja').click(function(){
 					$('#myCarousel').carousel(0);
 					AnimateFormsRejestracja();
-					$('#myModal').modal("hide");
+					$('#ModalRejestracja').modal("hide");
 				});	
 
 
