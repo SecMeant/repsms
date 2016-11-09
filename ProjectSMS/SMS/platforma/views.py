@@ -76,46 +76,49 @@ def confirm(request):
 
 def remember(request):
 	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-	BASE_DIR.join('templates/emailpassword')
+	BASE_DIR+='\\templates\emailpassword.html'
+	print(BASE_DIR)
 	email=request.GET['email']
 	email = urllib.parse.unquote(email)
-	print(email)
 	try:
 
 		instance =User.objects.get(email=email)
 		
 		securePassword=RandomString();
 
-		# try:
-		# 	User.objects.get(password=securePassword)
-		# except:
-		# 	securePassword=RandomString();
+		try:
+			User.objects.get(password=securePassword)
+		except:
+			securePassword=RandomString();
 		instance.password=make_password(password=securePassword,
 														salt=None,
 														hasher='pbkdf2_sha1')					
-		instanc.save()
+		instance.save()
 		me = "sagan.pawel1000@gmail.com"
-		you = email
+		you = "pawel.sagan@op.pl"
 		msg = MIMEMultipart('alternative')
+		
 		msg['Subject'] = 'SMS przypomnienie hasła'
 		msg['From'] = me
 		msg['To'] = you
-		text = "Email ten został wysłany w związku z rządaniem przypomnienia hasła dla konta %s. \n "  % instance.login
-		text.join("Twoje nowe hasło to %s" % securePassword)
-		fp = open(BASE_DIR, 'rb')
-		# Create a text/plain message
-		html = MIMEText(fp.read(),'html')
-		fp.close()
-
+		
+		text = "Email ten został wysłany w związku z rządaniem przypomnienia hasła dla konta" +instance.username+"\n"
+		text.join("Twoje nowe hasło to %s" % (securePassword,))
+		
+		content = open(BASE_DIR, 'r').read()
 		part1 = MIMEText(text, 'plain')
-		part2 = MIMEText(html, 'html')
+		part2 = MIMEText(content,'html')
 
 		msg.attach(part1)
 		msg.attach(part2)
-
-		s = smtplib.SMTP('smtp.gmail.com')
+		login="sagan.pawel1000@gmail.com"
+		password="jestemsuper"
+		s = smtplib.SMTP('smtp.gmail.com:587')
+		s.ehlo()
+		s.starttls()
+		s.login(login,password)
 		s.sendmail(me, you, msg.as_string())
 		s.quit()
 	except:
 		pass
-	return HttpResponseRedirect('')
+	return HttpResponseRedirect('/')
