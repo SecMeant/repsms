@@ -112,7 +112,7 @@ def remember(request):
 		msg.attach(part1)
 		msg.attach(part2)
 		login="sagan.pawel1000@gmail.com"
-		password="jestemsuper"
+		password=""
 		s = smtplib.SMTP('smtp.gmail.com:587')
 		s.ehlo()
 		s.starttls()
