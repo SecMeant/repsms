@@ -69,11 +69,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	objects = UserManager()
 	@property
-	def my_date(self):
+	def is_expired(self):
 		return self.expired
 
-	@my_date.setter
-	def my_date(self, value):
+	@is_expired.setter
+	def is_expired(self, value):
 		if value < datetime.now():
 			is_active=False
 			

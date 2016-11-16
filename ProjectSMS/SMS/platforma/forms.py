@@ -1,7 +1,7 @@
 from django import forms
 from .models import User
 from django.forms import ModelForm
-
+from django.contrib.auth import authenticate
 class logowanie(forms.Form):
 
 	login=forms.CharField(label='Login', max_length=100,
@@ -37,7 +37,7 @@ class logowanie(forms.Form):
 		super(logowanie , self).clean()
 		if 'haslo' in self.cleaned_data and 'login' in self.cleaned_data:
 			try:
-				User.objects.get(username=self.cleaned_data['login '],password=self.cleaned_data['haslo'])
+				self.userr=authenticate(username=self.cleaned_data['login'], password=self.cleaned_data['haslo'])
 			except:
 				self._errors['login'] = [u' ']
 				self._errors['haslo'] = [u'Wprowadź poprawne dane logowania ']

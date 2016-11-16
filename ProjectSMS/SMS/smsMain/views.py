@@ -12,7 +12,7 @@ from .csvfuncs import searchcsv, importcsv
 @transaction.atomic
 def smsApp(request):
 	
-	if request.user.is_authenticated:
+	if request.user.is_authenticated and request.user.is_expired():
 		current_user = request.user
 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

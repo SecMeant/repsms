@@ -3,7 +3,7 @@ from .forms import logowanie , rejestracja, kontakt
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.hashers import make_password
 from .models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -17,32 +17,32 @@ def RandomString(size = 8, chars=string.ascii_letters + string.digits):
 	return ''.join(random.SystemRandom().choice(chars) for i in range(size))
 			
 def index(request):
-	
+	# Tworznie formularzy
 	instanceLogowanie=logowanie()
 	instanceRejestracja=rejestracja(initial=request.POST)
-	instancekontakt=kontakt()
-	passwordError={"login":False,"email":False,"passwordConfirm":False,"phoneNumber":False,}
+	# Jesli jest zalogowany to wpisz do kontaktu jego email
+	if(request.user.is_authenticated):
+		instancekontakt=kontakt(initial={'email': request.user.email})
+	else:
+		instancekontakt=kontakt()
+
+	# itemcarusel to zmeinna trzymajaca stan głownej karuzeli w razie wystapienia erroru
 	itemCarusel=['item','item active','item']
 	if request.method == 'POST':
 		instanceLogowanie=logowanie()
+
 		if "zaloguj" in request.POST:
 			instanceLogowanie = logowanie(request.POST or None)
 			if instanceLogowanie.is_valid():
-
 				passw = instanceLogowanie.cleaned_data['haslo']
 				loginU = instanceLogowanie.cleaned_data['login']
-				try:
-					user = authenticate(username=loginU, password=passw)
-				except:
-					user=None
-				if user is not None:
-					login(request, user)
-					return HttpResponseRedirect('/sms')
-				else:
-					return HttpResponse().__setitem__('instanceL',instanceLogowanie)
+				
+				login(request, instanceLogowanie.userr)
+				return HttpResponseRedirect('/sms')
+			else:
+				return HttpResponse().__setitem__('instanceL',instanceLogowanie)
 
 		elif "rejestracja" in request.POST:
-			
 			instanceRejestracja = rejestracja(request.POST or None)
 			if instanceRejestracja.is_valid():
 				if instanceRejestracja.cleaned_data['password']==instanceRejestracja.cleaned_data['passwordConfirm']:
@@ -95,7 +95,7 @@ def remember(request):
 														hasher='pbkdf2_sha1')					
 		instance.save()
 		me = "sagan.pawel1000@gmail.com"
-		you = "pawel.sagan@op.pl"
+		you = email
 		msg = MIMEMultipart('alternative')
 		
 		msg['Subject'] = 'SMS przypomnienie hasła'
@@ -121,4 +121,7 @@ def remember(request):
 		s.quit()
 	except:
 		pass
+	return HttpResponseRedirect('/')
+def OWnLogout(request):
+	logout(request)
 	return HttpResponseRedirect('/')
