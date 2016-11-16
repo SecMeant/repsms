@@ -17,6 +17,7 @@ def RandomString(size = 8, chars=string.ascii_letters + string.digits):
 	return ''.join(random.SystemRandom().choice(chars) for i in range(size))
 			
 def index(request):
+	isregister=False
 	# Tworznie formularzy
 	instanceLogowanie=logowanie()
 	instanceRejestracja=rejestracja(initial=request.POST)
@@ -50,8 +51,9 @@ def index(request):
 					instanc = User.objects.get(username=instanceRejestracja.cleaned_data['username'])
 					instanc.password=make_password(password=instanceRejestracja.cleaned_data['password'],
 														salt=None,
-														hasher='pbkdf2_sha1')					
+														hasher='pbkdf2_sha1')								
 					instanc.save()
+					isregister=True
 				else:
 					itemCarusel=['item active','item','item']
 			else:	
@@ -67,6 +69,7 @@ def index(request):
 		"instanceR":instanceRejestracja,
 		"instanceC":instancekontakt,
 		"itemCarusel":itemCarusel,
+		"isregister":isregister,
 	 }
 	return render (request, "index.html", context)
 

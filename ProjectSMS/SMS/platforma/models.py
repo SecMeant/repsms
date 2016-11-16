@@ -42,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	created = models.DateTimeField(default=datetime.now())	
 	expired = models.DateTimeField(default=datetime.now()+timedelta(days=1))
 	confirm = models.BooleanField(default=False)
-	is_active = models.BooleanField(_('active'), default=True)
+	is_active = models.BooleanField(_('active'), default=False)
 	is_staff = models.BooleanField(_('staff'), default=False)
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'confirm', 'phoneNumber', 'nazwaSzkoly']
