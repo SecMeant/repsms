@@ -12,7 +12,7 @@ from .csvfuncs import searchcsv, importcsv
 @transaction.atomic
 def smsApp(request):
 	
-	if request.user.is_authenticated and request.user.is_expired():
+	if request.user.is_authenticated:
 		current_user = request.user
 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -64,9 +64,26 @@ def smsApp(request):
 				if formAddStudent.is_valid():
 					imieUcznia = formAddStudent.cleaned_data['imie']
 					nazwiskoUcznia = formAddStudent.cleaned_data['nazwisko']
+					kod1Ucznia = formAddStudent.cleaned_data['kod1']
+					kod2Ucznia = formAddStudent.cleaned_data['kod2']
+					kodUcznia1 = kod1Ucznia +'-'+ kod2Ucznia
+					miejscowoscUcznia = formAddStudent.cleaned_data['miejscowosc']
+					ulicaUcznia = formAddStudent.cleaned_data['ulica']
+					nrbudynkuUcznia = formAddStudent.cleaned_data['nrbudynku']
+					nrmieszkaniaUcznia = formAddStudent.cleaned_data['nrmieszkania']
+					kod12Ucznia = formAddStudent.cleaned_data['kod12']
+					kod22Ucznia = formAddStudent.cleaned_data['kod22']
+					kodUcznia2 = kod12Ucznia +'-'+ kod22Ucznia
+					miejscowosc2Ucznia = formAddStudent.cleaned_data['miejscowosc2']
+					ulica2Ucznia = formAddStudent.cleaned_data['ulica2']
+					nrbudynku2Ucznia = formAddStudent.cleaned_data['nrbudynku2']
+					nrmieszkania2Ucznia = formAddStudent.cleaned_data['nrmieszkania2']
+
 					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(imie text, nazwisko text , pesel integer, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
-					c.execute("INSERT INTO uczniowie ('Imię','Nazwisko') VALUES(?,?)",(imieUcznia,nazwiskoUcznia))
+					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
+					query = "INSERT INTO uczniowie ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2') "
+					query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?)"
+					c.execute(query,(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia))
 					conn.commit()
 					conn.close()
 					context={

@@ -7,6 +7,7 @@ class addProfile(forms.Form):
 		'type':"text", 
 		'class':"form-control",
 		'id':'ProfileFullName',
+		'size':'20',
 		'placeholder':"np. Technik Informatyk"})
 		
 	)
@@ -16,6 +17,7 @@ class addProfile(forms.Form):
 			'type':"text", 
 			'class':"form-control",
 			'id':'ProfileShortName',
+			'size':'20',
 			'placeholder':"np. TI"})
 		
 	)
@@ -24,8 +26,9 @@ class addStudent(forms.Form):
 	imie = forms.CharField(label='Imie', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
+		'class':'',
 		'id':'imieUcznia',
+		'size':'20',
 		'placeholder':"np. Paweł"})
 		
 	)
@@ -33,20 +36,91 @@ class addStudent(forms.Form):
 	nazwisko = forms.CharField(label='Nazwisko', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
 		'id':'nazwiskoUcznia',
+		'size':'20',
 		'placeholder':"np. Sagan"})
 		
 	)
 
-	pesel = forms.CharField(label='Pesel', max_length=48, widget=forms.TextInput(
+	# ADRES ZAMIESZKANIA
+	kod1 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
+	kod2 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'2'}))
+
+	miejscowosc = forms.CharField(max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
-		'id':'peselUcznia',
-		'placeholder':"np. 97070904998"})
+		'id':'miejscowosc',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
 		
 	)
+
+	ulica = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+	nrmieszkania = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
+	# ADRES ZAMELDOWANIA
+	kod12 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
+	kod22 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'1'}))
+
+	miejscowosc2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'miejscowosc2',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
+		
+	)
+
+	ulica2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica2',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku2 = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom2',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+
+	nrmieszkania2 = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom2',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
 
 class removeClass(forms.Form):
 	klasy = forms.ChoiceField(label='Usun')
