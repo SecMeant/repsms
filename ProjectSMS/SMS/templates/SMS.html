@@ -116,15 +116,39 @@
 					</div>
 					<div class="modal-body" style="padding:40px 50px;">
 						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
-							
 
+								<div class="formAddStudent">
+									
+									<div class="labelform"><div class="innerLabel">Imie:</div><div class="innerInput">{{formAddStudent.imie}}</div></div>
+									<div class="labelform"><div class="innerLabel">Nazwisko:</div><div class="innerInput">{{formAddStudent.nazwisko}}</div></div>
 
-								{{formAddStudent.as_p}}
+									<div class="labelform">
+										<div class="innerLabel">Adres zamieszkania:</div>{{formAddStudent.kod1}}- {{formAddStudent.kod2}}{{formAddStudent.miejscowosc}}
+									</div>
+
+									<div class="labelform innerInput ulicadom">
+										{{formAddStudent.ulica}}
+										{{formAddStudent.nrbudynku}}
+										{{formAddStudent.nrmieszkania}}
+									</div>
+
+									<div class="labelform">
+									<br>
+									<br>
+										<div class="innerLabel">Adres zameldowania:</div>{{formAddStudent.kod12}}- {{formAddStudent.kod22}}{{formAddStudent.miejscowosc2}}
+									</div>
+
+									<div class="labelform innerInput ulicadom">
+										{{formAddStudent.ulica2}}
+										{{formAddStudent.nrbudynku2}}
+										{{formAddStudent.nrmieszkania2}}
+									</div>
+								</div>
 
 								<hr><br/>
 
 
-							<input type="submit" class="btn btn-default" name="addStudent" value="Zatwierdź"/>
+							<input type="submit" class="btn btn-default pull-right" name="addStudent" value="Zatwierdź"/>
 
 
 						</form>
