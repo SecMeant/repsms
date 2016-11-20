@@ -108,3 +108,23 @@ hr.style-four {
 	margin-top: -20px;
 	margin-bottom: 15px;
 }
+.innerLabel {
+	width:30%;
+	text-align: right;
+	display:inline-block;
+}
+.innerInput {
+	display:inline-block;
+}
+.ulicadom{
+	text-align: left;
+	width:70%;
+	float:right;
+}
+.btn{
+	margin-right: 20%;
+}
+input{
+	margin-bottom: 1%;
+	margin-right: 2px;
+}

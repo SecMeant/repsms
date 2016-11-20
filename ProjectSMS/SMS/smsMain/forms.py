@@ -7,6 +7,7 @@ class addProfile(forms.Form):
 		'type':"text", 
 		'class':"form-control",
 		'id':'ProfileFullName',
+		'size':'20',
 		'placeholder':"np. Technik Informatyk"})
 		
 	)
@@ -16,6 +17,7 @@ class addProfile(forms.Form):
 			'type':"text", 
 			'class':"form-control",
 			'id':'ProfileShortName',
+			'size':'20',
 			'placeholder':"np. TI"})
 		
 	)
@@ -24,8 +26,9 @@ class addStudent(forms.Form):
 	imie = forms.CharField(label='Imie', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
+		'class':'',
 		'id':'imieUcznia',
+		'size':'20',
 		'placeholder':"np. Paweł"})
 		
 	)
@@ -33,20 +36,123 @@ class addStudent(forms.Form):
 	nazwisko = forms.CharField(label='Nazwisko', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
 		'id':'nazwiskoUcznia',
+		'size':'20',
 		'placeholder':"np. Sagan"})
 		
 	)
 
-	pesel = forms.CharField(label='Pesel', max_length=48, widget=forms.TextInput(
+	# ADRES ZAMIESZKANIA
+	kod1 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
+	kod2 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'2'}))
+
+	miejscowosc = forms.CharField(max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':"form-control",
-		'id':'peselUcznia',
-		'placeholder':"np. 97070904998"})
+		'id':'miejscowosc',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
 		
 	)
+
+	ulica = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+	nrmieszkania = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
+	# ADRES ZAMELDOWANIA
+	kod12 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
+	kod22 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'1'}))
+
+	miejscowosc2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'miejscowosc2',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
+		
+	)
+
+	ulica2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica2',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku2 = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom2',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+
+	nrmieszkania2 = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrdom2',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
+	ocenPol = forms.CharField(label='Ocena Polski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenPol',
+		'size':'1'})
+		
+	)
+
+	ocenMat = forms.CharField(label='Ocena Matematyka', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenMat',
+		'size':'1'})
+		
+	)
+
+	ocenAng = forms.CharField(label='Ocena Angielski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenAng',
+		'size':'1'})
+		
+	)
+
+	ocenNiem = forms.CharField(label='Ocena Niemiecki', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenNiem',
+		'size':'1'})
+		
+	)
+
 
 class removeClass(forms.Form):
 	klasy = forms.ChoiceField(label='Usun')
@@ -55,6 +161,7 @@ class removeClass(forms.Form):
 		klasyVar = kwargs.pop('klasy', None)
 		super(removeClass, self).__init__(*args, **kwargs)
 		self.fields['klasy'].choices = klasyVar
+
 
 class removeProfile(forms.Form):
 	profile = forms.ChoiceField(label='Usun')
@@ -100,3 +207,11 @@ class addAlgorithm(forms.Form):
 	jpolski = forms.IntegerField(label='Język polski')
 	jangielski = forms.IntegerField(label='Język Angielski')
 	jniemiecki = forms.IntegerField(label='Język Niemiecki')
+
+class fillClass(forms.Form):
+	klasy = forms.ChoiceField(label='Wybierz Klase')
+
+	def __init__(self,*args, **kwargs):
+		klasyVar = kwargs.pop('klasy', None)
+		super(fillClass, self).__init__(*args, **kwargs)
+		self.fields['klasy'].choices = klasyVar
