@@ -5,6 +5,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.utils.translation import ugettext_lazy as _
+import pytz
+import sqlite3,os
 
 class UserManager(BaseUserManager):
     use_in_migrations = True
@@ -42,8 +44,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 	created = models.DateTimeField(default=datetime.now())	
 	expired = models.DateTimeField(default=datetime.now()+timedelta(days=1))
 	confirm = models.BooleanField(default=False)
-	is_active = models.BooleanField(_('active'), default=False)
-	is_staff = models.BooleanField(_('staff'), default=False)
+	is_active = models.BooleanField(_('active'), default=True)
+	is_staff = models.BooleanField(_('staff'), default=True)
 	USERNAME_FIELD = 'username'
 	REQUIRED_FIELDS = ['email', 'confirm', 'phoneNumber', 'nazwaSzkoly']
 
@@ -68,14 +70,21 @@ class User(AbstractBaseUser, PermissionsMixin):
 		return (self.username, self.nazwaSzkoly)
 
 	objects = UserManager()
-	@property
 	def is_expired(self):
-		return self.expired
+		if self.expired < datetime.utcnow().replace(tzinfo=pytz.utc) and not self.is_superuser:
+			BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+			conn = sqlite3.connect(os.path.join(BASE_DIR,  'db.sqlite3'))
+			c = conn.cursor()
+			elo =c.execute("UPDATE platforma_user SET is_active=? WHERE email=?",(False,self.email))
+			conn.commit()
+			conn.close()
+			return True
 
-	@is_expired.setter
-	def is_expired(self, value):
-		if value < datetime.now():
-			is_active=False
+		return False
+		
+	
+		
+		
 			
 
 

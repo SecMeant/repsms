@@ -7,12 +7,18 @@ from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, 
 import os
 import sqlite3
 from .csvfuncs import searchcsv, importcsv
-
+from django.contrib.auth import logout
 @login_required
 @transaction.atomic
 def smsApp(request):
 	
-	if request.user.is_authenticated and request.user.is_expired():
+	if request.user.is_authenticated:
+
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
 		current_user = request.user
 
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
