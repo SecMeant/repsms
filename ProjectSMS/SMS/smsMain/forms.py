@@ -121,6 +121,38 @@ class addStudent(forms.Form):
 		
 	)
 
+	ocenPol = forms.CharField(label='Ocena Polski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenPol',
+		'size':'1'})
+		
+	)
+
+	ocenMat = forms.CharField(label='Ocena Matematyka', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenMat',
+		'size':'1'})
+		
+	)
+
+	ocenAng = forms.CharField(label='Ocena Angielski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenAng',
+		'size':'1'})
+		
+	)
+
+	ocenNiem = forms.CharField(label='Ocena Niemiecki', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenNiem',
+		'size':'1'})
+		
+	)
+
 
 class removeClass(forms.Form):
 	klasy = forms.ChoiceField(label='Usun')
@@ -129,6 +161,7 @@ class removeClass(forms.Form):
 		klasyVar = kwargs.pop('klasy', None)
 		super(removeClass, self).__init__(*args, **kwargs)
 		self.fields['klasy'].choices = klasyVar
+
 
 class removeProfile(forms.Form):
 	profile = forms.ChoiceField(label='Usun')
@@ -174,3 +207,11 @@ class addAlgorithm(forms.Form):
 	jpolski = forms.IntegerField(label='Język polski')
 	jangielski = forms.IntegerField(label='Język Angielski')
 	jniemiecki = forms.IntegerField(label='Język Niemiecki')
+
+class fillClass(forms.Form):
+	klasy = forms.ChoiceField(label='Wybierz Klase')
+
+	def __init__(self,*args, **kwargs):
+		klasyVar = kwargs.pop('klasy', None)
+		super(fillClass, self).__init__(*args, **kwargs)
+		self.fields['klasy'].choices = klasyVar
