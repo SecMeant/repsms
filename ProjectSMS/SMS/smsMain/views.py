@@ -8,12 +8,9 @@ import os
 import sqlite3
 import math
 from .csvfuncs import searchcsv, importcsv
-<<<<<<< HEAD
 from django.contrib.auth import logout
-=======
 from operator import itemgetter
 
->>>>>>> 732975584f13a8da60ddf7843ed89106bd3c1f4f
 @login_required
 @transaction.atomic
 def smsApp(request):
@@ -98,7 +95,7 @@ def smsApp(request):
 					ocenaNiemieckiUcznia = formAddStudent.cleaned_data['ocenNiem']
 
 					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text)")
+					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text, klasa text)")
 					query = "INSERT INTO uczniowie ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','matematyka','angielski','niemiecki') "
 					query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 					c.execute(query,(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaPolskiUcznia,ocenaMatematykaUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia))
@@ -156,7 +153,7 @@ def smsApp(request):
 					c.execute("SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
 					klasa = c.fetchall()
 
-					c.execute("SELECT * FROM uczniowie")
+					c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
 
 					uczniowie = c.fetchall()
 					uczniowie = list(map(list,uczniowie))
@@ -166,6 +163,7 @@ def smsApp(request):
 
 					points = 0
 					buff = 0
+					print(len(uczniowie[0]))
 					while(buff < len(uczniowie)):
 						if(uczniowie[buff][13]):
 							points = int(uczniowie[buff][13]) * algo[0][2]
@@ -179,21 +177,26 @@ def smsApp(request):
 						uczniowie[buff].append(points)
 						buff += 1
 
-					uczniowie = sorted(uczniowie,key=itemgetter(17),reverse=True)
+					uczniowie = sorted(uczniowie,key=itemgetter(18),reverse=True)
 
 					letter = klasa[0][4]
+
 					inc = 0
 					inc2 = 0
 					j = 0
 					while(inc < math.ceil(len(uczniowie)/klasa[0][2])):
-						query = "CREATE TABLE IF NOT EXISTS "+current_user.username+klasa[0][0]+letter+" (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text,punkty text)"
+						if(ord(letter)>90):
+							print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
+							break;
+						nazwaNowejKlasy = current_user.username+klasa[0][0]+letter
+						query = "CREATE TABLE IF NOT EXISTS "+nazwaNowejKlasy+" (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text,klasa text,punkty text)"
 						c.execute(query)
 						conn.commit()
 						while(inc2 < klasa[0][2] and j<len(uczniowie)):
-							query = "INSERT INTO "+current_user.username+klasa[0][0]+letter+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','matematyka','angielski','niemiecki','punkty') "
-							query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-							print(uczniowie)
+							query = "INSERT INTO "+nazwaNowejKlasy+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','matematyka','angielski','niemiecki','klasa','punkty') "
+							query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 							c.execute(query,uczniowie[j][1:])
+							c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie[j][0]))
 							conn.commit()
 							j += 1
 							inc2 += 1
@@ -293,21 +296,23 @@ def smsApp(request):
 					"Nr budynku",#6
 					"Nr mieszkania",#7
 					"polski",#8
+					"eloszka",
 					"matematyka",#9
 					"angielski",#10
 					"niemiecki",#11
 					]
 
-				answer = [None] * len(wantedtable)
+				answer = []
 				c = conn.cursor()
 
-				
-
-				i=0
 				for word in wantedtable:
-					answer[i] = searchcsv(word,request.FILES['studentFile'])
-					i+=1
+					temp = searchcsv(word,request.FILES['studentFile'])
+					if(temp != None):
+						answer.append(searchcsv(word,request.FILES['studentFile']))
+					else:
+						answer.append('')
 
+				print(answer)
 				importcsv(wantedtable,answer,request.FILES['studentFile'],c)
 
 				conn.commit()
@@ -422,34 +427,6 @@ def smsApp(request):
 
 					return render (request, "SMS.html", context)
 
-		c.execute("SELECT * FROM uczniowie")
-
-		uczniowie = c.fetchall()
-		uczniowie = list(map(list,uczniowie))
-
-		algorithmName = "AU"
-
-		c.execute("SELECT * FROM algorytmy WHERE nazwa='"+algorithmName+'\'')
-		algo = c.fetchall()
-
-		points = 0
-		buff = 0
-		while(buff < len(uczniowie)):
-			if(uczniowie[buff][13]):
-				points = int(uczniowie[buff][13]) * algo[0][2]
-			if(uczniowie[buff][14]):
-				points += int(uczniowie[buff][14]) * algo[0][3]
-			if(uczniowie[buff][15]):
-				points += int(uczniowie[buff][15]) * algo[0][4]
-			if(uczniowie[buff][16]):
-				points += int(uczniowie[buff][16]) * algo[0][5]
-
-			uczniowie[buff].append(points)
-			buff += 1
-
-		uczniowie = sorted(uczniowie,key=itemgetter(17),reverse=True)
-
-		print(len(uczniowie))
 		context={
 			"current_user" : current_user,
 			"formAddProfile":formAddProfile,
@@ -460,6 +437,5 @@ def smsApp(request):
 			"formRemoveProfile":formRemoveProfile,
 			"formRemoveAlgorithm":formRemoveAlgorithm,
 			"formFillClass":formFillClass,
-			"uczniowie":uczniowie,
 		}
 		return render (request, "SMS.html", context)

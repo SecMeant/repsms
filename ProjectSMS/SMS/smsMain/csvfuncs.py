@@ -46,17 +46,28 @@ def generateValue(values,offset):
 	query += values[offset[i]]
 	return query.split(",")
 
+def fixWanted(wanted,offset):
+	i = 0
+	while(i<len(offset)):
+		if(offset[i] == ''):
+			del wanted[i]
+			del offset[i]
+			i-=1
+		i+=1
+	return wanted
 
 
 def importcsv(colms,offset,file,cursor):
 	fixnames(colms) # Naprawiam niektore nazwy bo sqlite nie lubi ze spacjami
+	colms = fixWanted(colms,offset) # Wyrzucam z wanted table kolumny ktorych nie znalazlem poniewaz nie beda one uzyte w kwerendzie
+	print("colms:  ",colms)
+	print("offset:  ",offset)
 	cursor.execute("CREATE TABLE IF NOT EXISTS uczniowie(id INTEGER PRIMARY KEY AUTOINCREMENT)")
 	for word in colms:
 		try:
 			cursor.execute("ALTER TABLE uczniowie ADD " + word + " text")
 		except :
 			print("Column " + word + " exists !")
-
 	
 	query = generateQuery("uczniowie",colms,len(colms),"INSERT INTO")
 	line = file.readline().decode('utf-8')
