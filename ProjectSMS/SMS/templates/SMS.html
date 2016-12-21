@@ -66,7 +66,29 @@
 						<strong>Powtórzenie!</strong> Już stworzyłes profil o takiej nazwie lub skrócie.
 				</div>
 			{% endif %}
-														<!-- SRODKOWA CZESC SMS -->
+
+			<!-- SRODKOWA CZESC SMS -->
+
+				<!-- START TABLICA WSZYSTKICH UCZNIOW -->
+					{% if allStudents|length > 0 %}
+
+						<table border=1>
+								<tr>
+									{% for every in headerTable %}
+										<td>{{ every }}</td>
+									{% endfor %}
+								</tr>
+							{% for students in allStudents %}
+								<tr>
+									{% for field in students %}
+										<td>{{ field }}</td>
+									{% endfor %}
+								</tr>
+							{% endfor %}
+						</table>
+					{% endif %}
+				<!-- END TABLICA WSZYSTKICH UCZNIOW -->
+				
 			<!-- LEFT CONTAINER -->
 			<div class="col-md-12">
 				{% for uczen in uczniowie %}

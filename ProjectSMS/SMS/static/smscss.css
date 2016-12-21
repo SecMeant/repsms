@@ -3,6 +3,14 @@ body{
 	color:white;
 }
 
+table *{
+	padding:7px;
+}
+
+table{
+	margin-left: -360px;
+}
+
 #SMS-menu.navbar-default .navbar-brand {
     color: rgba(214, 192, 192, 1);
     

@@ -33,7 +33,7 @@ def smsApp(request):
 
 		# Preparing data to send it to forms
 		# Algorithms choicefield
-		# Need to do this that way becouse of the manner of django functions.
+		# Need to do this that way because of the manner of django functions.
 		# forms.choicefield gets an array that contains only 2 indexes
 		# first one contains name and the secound value of the select tag that is rendered by mentioned function
 		c.execute("SELECT * FROM algorytmy")
@@ -49,8 +49,8 @@ def smsApp(request):
 		# im iterating data in loop as usual, appending a ClassId just after casting to string from integer
 		# than adding a '-' and concatenating name of the class to display it in a list, 
 		# the class id is the value passed to remove method later
-		# Im adding '-' becouse the name of class can contain spaces and im calling split() fucntion to
-		# make this work like this [(a),(b)] like multidimensinal array, because the choiceField function requires that
+		# Im adding '-' because the name of class can contain spaces and im calling split() fucntion to
+		# make this work like this [(a),(b)] - like multidimensinal array, because the choiceField function requires that
 		# so by adding a dash im making sure that the split will happen just between right data.
 		# After all im not sure of im doing this concatenate the right way, but im just a python begginer so..
 		c.execute("SELECT * FROM klasy")
@@ -67,6 +67,34 @@ def smsApp(request):
 		formRemoveClass = removeClass(klasy=(klasypass))
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
+
+		c.execute("SELECT * FROM uczniowie")
+		allStudents = c.fetchall()
+
+		# headerTable contains all of the names of columns from database
+		# passing this to html to print out header of students table
+		
+		headerTable = [
+			'id',
+			'Imie',
+			'Nazwisko',
+			'Kod Pocztowy',
+			'Miejscowosc',
+			'Ulica',
+			'Nr Bud',
+			'Nr Miesz',
+			'Kod Pocztowy\nzameldowania',
+			'Miejscowosc\nzameldowania',
+			'Ulica\nzameldowania',
+			'Nr Bud\nzameldowania',
+			'Nr Miesz\nzameldowania',
+			'polski',
+			'matematyka',
+			'angielski',
+			'niemiecki',
+			'klasa',
+		]
+		
 
 		if request.method == 'POST':
 			# Dodawanie ucznia, pojedyncze
@@ -111,6 +139,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -139,6 +169,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -221,6 +253,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -248,6 +282,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -275,6 +311,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -327,6 +365,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 				return render (request, "SMS.html", context)
@@ -361,6 +401,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -396,6 +438,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -423,6 +467,8 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
+						"allStudents":allStudents,
+						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -437,5 +483,7 @@ def smsApp(request):
 			"formRemoveProfile":formRemoveProfile,
 			"formRemoveAlgorithm":formRemoveAlgorithm,
 			"formFillClass":formFillClass,
+			"allStudents":allStudents,
+			"headerTable":headerTable,
 		}
 		return render (request, "SMS.html", context)
