@@ -43,8 +43,8 @@ class addStudent(forms.Form):
 	)
 
 	# ADRES ZAMIESZKANIA
-	kod1 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
-	kod2 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'2'}))
+	kod1 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p1','class':'kodp','maxlength':'2','size':'1'}))
+	kod2 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p2','class':'kodp','maxlength':'3','size':'2'}))
 
 	miejscowosc = forms.CharField(max_length=48, widget=forms.TextInput(
 		attrs={
@@ -67,7 +67,7 @@ class addStudent(forms.Form):
 	nrbudynku = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'id':'nrdom',
+		'id':'nrbud',
 		'size':'4',
 		'placeholder':"Nr.bud"})
 		
@@ -75,15 +75,15 @@ class addStudent(forms.Form):
 	nrmieszkania = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'id':'nrdom',
+		'id':'nrmiesz',
 		'size':'5',
 		'placeholder':"Nr.miesz"})
 		
 	)
 
 	# ADRES ZAMELDOWANIA
-	kod12 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'2','size':'1'}))
-	kod22 = forms.CharField(widget=forms.TextInput(attrs={'class':'kodp','maxlength':'3','size':'1'}))
+	kod12 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p21','class':'kodp','maxlength':'2','size':'1'}))
+	kod22 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p22','class':'kodp','maxlength':'3','size':'1'}))
 
 	miejscowosc2 = forms.CharField(max_length=48, widget=forms.TextInput(
 		attrs={
@@ -106,7 +106,7 @@ class addStudent(forms.Form):
 	nrbudynku2 = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'id':'nrdom2',
+		'id':'nrbud2',
 		'size':'4',
 		'placeholder':"Nr.bud"})
 		
@@ -115,7 +115,7 @@ class addStudent(forms.Form):
 	nrmieszkania2 = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'id':'nrdom2',
+		'id':'nrmiesz2',
 		'size':'5',
 		'placeholder':"Nr.miesz"})
 		
