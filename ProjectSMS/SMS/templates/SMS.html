@@ -52,14 +52,14 @@
 			    </div>
 			</div>
 		</div>
-		<div class ="col-sm-8 pull-right">
+		<div class ="col-sm-8">
 			<div class ="topBar">
-		<h2>{{ user.get_full_name }}</h2>
-			<ul>
-  			<li>Username: {{ user.username }}</li>
-			</ul>
+				<h2>{{ user.get_full_name }}</h2>
+					<ul>
+		  			<li>Username: {{ user.username }}</li>
+					</ul>
 
-		</div>
+			</div>
 			<hr class="style-four"></hr>
 			{% if same %}
 				<div class="alert alert-danger pull-left">
@@ -68,27 +68,14 @@
 			{% endif %}
 
 			<!-- SRODKOWA CZESC SMS -->
-
-				<!-- START TABLICA WSZYSTKICH UCZNIOW -->
-					{% if allStudents|length > 0 %}
-
-						<table border=1>
-								<tr>
-									{% for every in headerTable %}
-										<td>{{ every }}</td>
-									{% endfor %}
-								</tr>
-							{% for students in allStudents %}
-								<tr>
-									{% for field in students %}
-										<td>{{ field }}</td>
-									{% endfor %}
-								</tr>
-							{% endfor %}
-						</table>
-					{% endif %}
-				<!-- END TABLICA WSZYSTKICH UCZNIOW -->
-				
+				<div class="row centerMenu">
+					<center>
+						<a href="/sms/wszyscyuczniowie"><div class="showAllStudents centerOption">WSZYSCY UCZNIOWIE</div></a>
+						<a href="/sms/uczniowieprzydzieleni"><div class="showStudentWithClass centerOption">UCZNIOWIE PRZYDZIELENI DO KLASY</div></a>
+						<a href="/sms/uczniowienieprzydzieleni"><div class="showStudentWithNoClass centerOption">UCZNIOWIE NIEPRZYDZIELENI DO KLASY</div></a>
+					</center>
+				</div>
+				<div class="row"></div>
 			<!-- LEFT CONTAINER -->
 			<div class="col-md-12">
 				{% for uczen in uczniowie %}
@@ -357,116 +344,3 @@
 </script>
 	</body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	<!-- <form id="Form_wpisywanie" method="post" action="">
-			<div class="container">
-				<div class="cal">
-					<div class="dnap"> Imię: </div>
-					<div class="for"> <input/> </div>
-				</div>		
-				<div class="cal">
-					<div class="dnap"> Nazwisko: </div>
-
-					<div class="for">	<input/> </div>
-				</div>			
-				<div class="cal">
-					<div class="dnap"> Adres zamieszkania: </div>
-					<div class="for"> <input  id="kod_p1" type="text" maxlength="2" placeholder="--" name="post_code1_1"/> - <input  id="kod_p2" type="text" maxlength="3" placeholder="---" name="post_code1_2"/> 
-					<input  id="Miejscowosc" type="text" name="City1" placeholder="Miejscowość"/> </div>
-				</div>
-				<div class="cal">
-					<div class="dnap"></div>
-					<div class="for"> <input id="ulica" type="text" name="street_1" placeholder="Ulica"/> <input id="nr_dom" type="text" name="home_number_1" placeholder="Nr.dom"/> </div>		 		
-				</div>
-				<div class="cal">
-					<label>
-					<div class="dnap"><input type="checkbox" onchange="copyForm(this);"/></div>
-					<div class="for"> Przepisz adres zamieszkania </div>				
-					</label>
-				</div>			
-				
-				
-				<div class="cal">
-					<div class="dnap"> Adres zameldowania: </div>
-					<div class="for"> <input id="kod_p12" type="text" maxlength="2" placeholder="--" name="post_code2_1"/> - <input id="kod_p22" type="text" maxlength="3" placeholder="---"name="post_code2_2"/> 
-					<input id="Miejscowosc2" type="text" name="City2" placeholder="Miejscowość"/> </div>
-				</div>
-				<div class="cal">
-					<div class="dnap"> </div>
-					<div class="for"> <input id="ulica2" type="text"name="street_2" placeholder="Ulica"/> <input id="nr_dom2" type="text"name="home_number_2" placeholder="Nr.dom"/> </div>		
-				</div>						
-				<div class="cal">
-					<div class="dnap"> Oceny: </div>
-					<div class="for"> <input id="ocena_niemiecki"  type="text" maxlength="1" name="Mark_D" placeholder="Niem"/>	<input id="ocena_angielski"  type="text" maxlength="1" name="Mark_E" placeholder="Ang"/> </div>
-				</div>
-				<div class="cal">
-					<div class="dnap"> Profil: </div>
-					<div class="for"> 
-						<select class="select_anim" name ="sel">
-							<option>Technik informatyk</option>
-							<option>Technik elektronik</option>	
-						</select>
-					</div>
-				</div>
-				
-				<div class="cal">
-					<div class="dnap"></div>
-					<div class="for" id="div_import"> <input class="przycisk_dodaj" id="przycisk_dodaj" type="submit" value="ZATWIERDŹ"/>
-					<a href="index.php"></a></div></div></form>					
-				<div class="cal">
-				<div class="dnap"></div>				
-				<div class="for" id="przyciski_dodawanie">
-					</div>
-				</div> -->
