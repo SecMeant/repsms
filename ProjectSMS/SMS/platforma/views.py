@@ -26,7 +26,7 @@ def index(request,activeid=None):
 		c= conn.cursor()
 		c.execute('SELECT * FROM tempUsers WHERE username=(?) ' ,['Test1'])
 		Users = c.fetchall()
-		print(len(Users))
+		
 		if(len(Users) != 1 ):
 			print(activeid)
 			User.objects.create_user(username=Users[0][0],
