@@ -68,34 +68,6 @@ def smsApp(request):
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
 
-		c.execute("SELECT * FROM uczniowie")
-		allStudents = c.fetchall()
-
-		# headerTable contains all of the names of columns from database
-		# passing this to html to print out header of students table
-		
-		headerTable = [
-			'id',
-			'Imie',
-			'Nazwisko',
-			'Kod Pocztowy',
-			'Miejscowosc',
-			'Ulica',
-			'Nr Bud',
-			'Nr Miesz',
-			'Kod Pocztowy\nzameldowania',
-			'Miejscowosc\nzameldowania',
-			'Ulica\nzameldowania',
-			'Nr Bud\nzameldowania',
-			'Nr Miesz\nzameldowania',
-			'polski',
-			'matematyka',
-			'angielski',
-			'niemiecki',
-			'klasa',
-		]
-		
-
 		if request.method == 'POST':
 			# Dodawanie ucznia, pojedyncze
 			if "addStudent" in request.POST:
@@ -139,8 +111,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -169,8 +139,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -253,8 +221,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -281,9 +247,7 @@ def smsApp(request):
 						"formRemoveClass":formRemoveClass,
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
+						"formFillClass":formFillClass,	
 					}
 
 					return render (request, "SMS.html", context)
@@ -311,8 +275,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 
 					return render (request, "SMS.html", context)
@@ -365,8 +327,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 
 				return render (request, "SMS.html", context)
@@ -401,8 +361,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -438,8 +396,6 @@ def smsApp(request):
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
 					}
 					return render (request, "SMS.html", context)
 
@@ -466,9 +422,7 @@ def smsApp(request):
 						"formRemoveClass":formRemoveClass,
 						"formRemoveProfile":formRemoveProfile,
 						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-						"allStudents":allStudents,
-						"headerTable":headerTable,
+						"formFillClass":formFillClass,			
 					}
 
 					return render (request, "SMS.html", context)
@@ -482,8 +436,174 @@ def smsApp(request):
 			"formRemoveClass":formRemoveClass,
 			"formRemoveProfile":formRemoveProfile,
 			"formRemoveAlgorithm":formRemoveAlgorithm,
-			"formFillClass":formFillClass,
+			"formFillClass":formFillClass,	
+		}
+		return render (request, "SMS.html", context)
+
+def showAllStudents(request):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		c = conn.cursor()
+
+		c.execute("SELECT * FROM uczniowie")
+		allStudents = c.fetchall()
+
+		# headerTable contains all of the names of columns from database
+		# passing this to html to print out header of students table
+
+		headerTable = [
+			'id',
+			'Imie',
+			'Nazwisko',
+			'Kod Pocztowy',
+			'Miejscowosc',
+			'Ulica',
+			'Nr Bud',
+			'Nr Miesz',
+			'Kod Pocztowy\nzameldowania',
+			'Miejscowosc\nzameldowania',
+			'Ulica\nzameldowania',
+			'Nr Bud\nzameldowania',
+			'Nr Miesz\nzameldowania',
+			'polski',
+			'matematyka',
+			'angielski',
+			'niemiecki',
+			'klasa',
+		]
+
+		context={
 			"allStudents":allStudents,
 			"headerTable":headerTable,
 		}
-		return render (request, "SMS.html", context)
+
+		return render (request, "allStudents.html",context)
+def collectclasses(c,current_user):
+	c.execute("SELECT * FROM klasy")
+	classes = c.fetchall()
+	className = []
+	for everyclass in classes:
+		letter = 'A'
+		while(everyclass[4] >= letter):
+			className.append(str(current_user) + str(everyclass[0]) + letter)
+			letter = ord(letter)
+			letter += 1
+			letter = chr(letter)
+	return className
+
+def showAllStudentsWithClass(request):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		c = conn.cursor()
+
+		classList = collectclasses(c,current_user)
+		
+		# THIS QUERY IS TEMPORARY !!! THIS CAN PROVIDE CRASHES IN THE FUTUTRE
+		# Im getting all the fields with NULL
+		# but this value for no class might change in the future
+		# so im just targeting it worth looking sometime when crash occurs.,
+		classes = []
+		for each in classList:
+			query = "SELECT * FROM uczniowie WHERE klasa='"+each+"'"
+			c.execute(query) 
+			classes.append(c.fetchall())
+
+		# headerTable contains all of the names of columns from database
+		# passing this to html to print out header of students table
+
+		headerTable = [
+			'id',
+			'Imie',
+			'Nazwisko',
+			'Kod Pocztowy',
+			'Miejscowosc',
+			'Ulica',
+			'Nr Bud',
+			'Nr Miesz',
+			'Kod Pocztowy\nzameldowania',
+			'Miejscowosc\nzameldowania',
+			'Ulica\nzameldowania',
+			'Nr Bud\nzameldowania',
+			'Nr Miesz\nzameldowania',
+			'polski',
+			'matematyka',
+			'angielski',
+			'niemiecki',
+			'klasa',
+		]
+
+		context={
+			"classes":classes,
+			"headerTable":headerTable,
+		}
+
+		return render (request, "studentsWithClass.html",context)
+
+def showAllStudentsWithNoClass(request):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		c = conn.cursor()
+
+		c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
+		allStudents = c.fetchall()
+
+		# headerTable contains all of the names of columns from database
+		# passing this to html to print out header of students table
+
+		headerTable = [
+			'id',
+			'Imie',
+			'Nazwisko',
+			'Kod Pocztowy',
+			'Miejscowosc',
+			'Ulica',
+			'Nr Bud',
+			'Nr Miesz',
+			'Kod Pocztowy\nzameldowania',
+			'Miejscowosc\nzameldowania',
+			'Ulica\nzameldowania',
+			'Nr Bud\nzameldowania',
+			'Nr Miesz\nzameldowania',
+			'polski',
+			'matematyka',
+			'angielski',
+			'niemiecki',
+			'klasa',
+		]
+
+		context={
+			"allStudents":allStudents,
+			"headerTable":headerTable,
+		}
+
+		return render (request, "studentsWithNoClass.html", context)

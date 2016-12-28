@@ -1,0 +1,33 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Uczniowie przydzieleni do klasy</title>
+	<link rel="stylesheet" href="{% static '/smscss.css' %}">
+</head>
+<body>
+	<table >
+		<tr>
+			{% for every in headerTable %}
+				<td>{{ every }}</td>
+			{% endfor %}
+		</tr>
+		{% for class in classes %}
+			<tr>
+				{% if class.0.17 %}
+					<td colspan="18"><center>{{ class.0.17 }}, Wielkosc:{{ class|length }}</center></td>
+				{% endif %}
+			</tr>
+			<tr>
+				{% for student in class %}
+					<tr>
+						{% for info in student %}
+							<td>{{ info }}</td>
+						{% endfor %}
+					</tr>
+				{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
+</body>
+</html>
