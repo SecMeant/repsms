@@ -1,6 +1,6 @@
-from django.shortcuts import render
-from .forms import logowanie , rejestracja, kontakt
-from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, redirect
+from .forms import logowanie , rejestracja, kontakt , ChangePassword
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.contrib.auth.hashers import make_password
 from .models import User
 from django.contrib.auth import authenticate, login, logout
@@ -8,39 +8,93 @@ from django.utils.translation import ugettext_lazy as _
 import string, random, sqlite3, smtplib,  os, urllib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
+from datetime import timedelta , datetime
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def RandomString(size = 8, chars=string.ascii_letters + string.digits):
 	return ''.join(random.SystemRandom().choice(chars) for i in range(size))
 			
-def index(request,activeid=None):
+def index(request,typeMethod=None,activeid=None):
 	# zmienna wyswietlajaca komunikat inforujacy o pomyslnej rejestraci i wysylajkaca email
 	isregister=False
-	# zmienna po wyslaniu emaila inforumjaca uzytkownia ze wszystko Ok
+	# zmienna gotowy do logowania
 	isReady=False
+	# zmienna aktywujaca modal do zmiany hasla 
+	isAboutToChangePass=False
 	# Tworznie formularzy
-	if(activeid !=None):
-		conn = sqlite3.connect(os.path.join(BASE_DIR,'TemporaryUser.db'))
-		c= conn.cursor()
-		c.execute('SELECT * FROM tempUsers WHERE username=(?) ' ,['Test1'])
-		Users = c.fetchall()
-		
-		if(len(Users) != 1 ):
-			print(activeid)
-			User.objects.create_user(username=Users[0][0],
-								 nazwaSzkoly=Users[0][1],
-                                 email=Users[0][2],
-                                 password=Users[0][3],
-                                 phoneNumber=Users[0][4],
-                                 )
-			isReady=True;
-		return HttpResponseRedirect('/')
-		conn.close()
+	# Potwierzdzenie rejestracji  lub zmiana hasła
+	if typeMethod == "activate":
+		if(activeid !=None):
+			try:
+				conn = sqlite3.connect(os.path.join(BASE_DIR,'TemporaryUser.db'))
+				c= conn.cursor()
+				c.execute('SELECT * FROM tempUsers WHERE activCode=(?) ' ,[activeid])
+				Users = c.fetchall()
 
+				if(len(Users) == 1 ):
+					
+					User.objects._create_user(username=Users[0][0],
+										 nazwaSzkoly=Users[0][1],
+		                                 email=Users[0][2],
+		                                 password=Users[0][3],
+		                                 phoneNumber=Users[0][4],
+		                                 )
+					
+					
+					c.execute('DELETE FROM tempUsers WHERE activCode=(?) ' ,[activeid])
+
+				conn.commit()
+				conn.close()
+				# Tworzenie potzrebnych tabel
+				
+				conn = sqlite3.connect(os.path.join(BASE_DIR, Users[0][0] + '.sqlite3'))
+
+				c= conn.cursor()
+				c.execute('CREATE TABLE IF NOT EXISTS "algorytmy" ( id integer NOT NULL PRIMARY KEY AUTOINCREMENT, nazwa text, jpolski integer, matematyka integer, jangielski integer, jniemiecki integer )')
+				c.execute('CREATE TABLE IF NOT EXISTS "profile" ( shortname text, fullname text )')
+				c.execute("CREATE TABLE IF NOT EXISTS klasy(nazwaKlasy text NOT NULL, profil text NOT NULL, liczebnosc integer NOT NULL, algorytm integer NOT NULL,litera text NOT NULL, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
+				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text)")
+				conn.commit()
+				conn.close()
+				isReady=True
+			except:
+				raise Http404("Coś poszło nie tak !!")
+
+			# return redirect('/',isReady=True)
+	elif typeMethod == "changepassword":
+		isAboutToChangePass=True
+
+	# obsluzenie requestu zmiany hasła 
+	if "changepass" in request.POST:
+		instance = ChangePassword(request.POST or None,initial=request.POST)
+		if instance.is_valid():
+			key = instance.cleaned_data['superKey']
+			password = instance.cleaned_data['password']
+			conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+			c = conn.cursor()
+			c.execute("SELECT email FROM User WHERE key =?", [key])
+			row = c.fetchall()
+			email = row[0]
+			obj = User.objects.get(email = email[0])#User.objects.get(email=email)
+			obj.password=make_password(password=password,
+													salt=None,
+													hasher='pbkdf2_sha1')
+			c.execute("DELETE FROM User Where email =?",[email[0]])
+			conn.commit()
+			conn.close()
+			obj.save()
+			isReady=True
+		else:
+			isAboutToChangePass=True
+
+
+	# formluarz logowania
 	instanceLogowanie=logowanie()
+	# formularz rejestracji
 	instanceRejestracja=rejestracja(initial=request.POST)
+	# formularz zmiany hasla 
+	instanceChangePass=ChangePassword()
 	# Jesli jest zalogowany to wpisz do kontaktu jego email
 	if(request.user.is_authenticated):
 		instancekontakt=kontakt(initial={'email': request.user.email})
@@ -57,11 +111,12 @@ def index(request,activeid=None):
 			if instanceLogowanie.is_valid():
 				passw = instanceLogowanie.cleaned_data['haslo']
 				loginU = instanceLogowanie.cleaned_data['login']
-				
-				login(request, instanceLogowanie.userr)
+				 
+			
+				login(request,instanceLogowanie.userr)
 				return HttpResponseRedirect('/sms')
 			else:
-				return HttpResponse().__setitem__('instanceL',instanceLogowanie)
+				isReady=True
 
 		elif "rejestracja" in request.POST:
 			instanceRejestracja = rejestracja(request.POST or None)
@@ -73,7 +128,20 @@ def index(request,activeid=None):
 				itemCarusel=['item active','item','item']
 			
 		elif "kontakt" in request.POST:
+			instancekontakt= kontakt(request.POST or None,initial=request.POST)
+			if instancekontakt.is_valid():
+				imie = instancekontakt.cleaned_data['imie']
+				nazwisko = instancekontakt.cleaned_data['nazwisko']
+				email = instancekontakt.cleaned_data['email']
+				tresc = instancekontakt.cleaned_data['tresc']
+				if imie == "" and nazwisko == "":
+					title="Anonymous"
+				else:
+					title = imie +' ' + nazwisko
+				SendEmail('sagan.pawel1000@gmail.com',email,title,plain=tresc, html=None)
+
 			itemCarusel=['item','item','item active']
+
 
 			
 	context={
@@ -81,10 +149,14 @@ def index(request,activeid=None):
 		"instanceL":instanceLogowanie,
 		"instanceR":instanceRejestracja,
 		"instanceC":instancekontakt,
+		"incanceP":instanceChangePass,
 		"itemCarusel":itemCarusel,
 		"isregister":isregister,
+		"isChangePassword":isAboutToChangePass,
+		"isReady":isReady,
 	 }
 	return render (request, "index.html", context)
+
 
 
 def confirm(request):
@@ -95,34 +167,30 @@ def remember(request):
 	email=request.GET['email']
 	email = urllib.parse.unquote(email)
 	try:
-
 		instance =User.objects.get(email=email)
-		
-		securePassword=RandomString();
-
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+		c=conn.cursor();
+		c.execute("CREATE TABLE IF NOT EXISTS User(email text, key text)")
 		while True:
-			try:
-				User.objects.get(password=securePassword)
-				securePassword=RandomString()
-			except:
+			key=RandomString(size=32)
+			c.execute('SELECT * FROM User WHERE key=(?) ' ,[key])
+			if len(c.fetchall()) is 0:
 				break
-		
-		instance.password=make_password(password=securePassword,
-														salt=None,
-														hasher='pbkdf2_sha1')					
-		instance.save()
+		c.execute("DELETE FROM User WHERE email=?",[email])
+		c.execute("INSERT INTO User('email','key') VALUES(?,?)",(email,key))
+		conn.commit()
+		conn.close()
 		# base data to send email  in my own email sender fun
 		me = "sagan.pawel1000@gmail.com"
 		you = email
 		src='\\templates\emailpassword.html'
 		title='SMS przypomnienie hasła'
-		text = "Email ten został wysłany w związku z rządaniem przypomnienia hasła dla konta" +instance.username+"\n"
-		text.join("Twoje nowe hasło to %s" % (securePassword,))
-		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		BASE_DIR+=src
-		content = open(BASE_DIR, 'r').read()
-		
-		SendEmail(me,you,title,plain=text,html=content)
+		content = open(BASE_DIR, 'r',encoding="utf-8").read()
+		content = content.replace("**user**",instance.username)
+		content = content.replace("**pass**",key)
+		SendEmail(me,you,title,plain=None,html=content)
 	except:
 		pass
 	return HttpResponseRedirect('/')
@@ -151,7 +219,6 @@ def SendEmail(me,you,title, **kwargs):
 	s.ehlo()
 	s.starttls()
 	s.login(login,password)
-	print(msg.as_string())
 	s.sendmail(me, you, msg.as_string())
 	s.quit()
 
@@ -160,14 +227,12 @@ def preRegister(Data):
 	
 	conn = sqlite3.connect(os.path.join(BASE_DIR,'TemporaryUser.db'))
 	tUser = conn.cursor()
-	tUser.execute("CREATE TABLE IF NOT EXISTS tempUsers(username text, nazwaSzkoly text, email text, password text ,phoneNumber integer,created timestamp, activCode text)")
+	tUser.execute("CREATE TABLE IF NOT EXISTS tempUsers(username text, nazwaSzkoly text, email text, password text ,phoneNumber integer,created timestamp, activCode text,expired timestamp)")
 
 	username=Data.cleaned_data['username']
 	nazwaSzkoly=Data.cleaned_data['nazwaSzkoly']
 	email=Data.cleaned_data['email']
-	password=make_password(password=Data.cleaned_data['password'],
-													salt=None,
-													hasher='pbkdf2_sha1')
+	password=Data.cleaned_data['password']
 	phoneNumber=Data.cleaned_data['phoneNumber']
 	created=datetime.now()
 
@@ -175,21 +240,20 @@ def preRegister(Data):
 		activateCode=RandomString(size=32)
 		print(activateCode)
 		tUser.execute('SELECT * FROM tempUsers WHERE activCode=(?) ' ,[activateCode])
-		if tUser.rowcount == -1:
+
+		if len(tUser.fetchall()) is 0:
 			break
 
 	
-	tUser.execute("INSERT INTO tempUsers ('username','nazwaSzkoly','email','password','phoneNumber','created','activCode') VALUES(?,?,?,?,?,?,?)",
-				(username,nazwaSzkoly,email,password,phoneNumber,created,activateCode))
+	tUser.execute("INSERT INTO tempUsers ('username','nazwaSzkoly','email','password','phoneNumber','created','activCode','expired') VALUES(?,?,?,?,?,?,?,?)",
+				(username,nazwaSzkoly,email,password,phoneNumber,created,activateCode,created + timedelta(days=1)))
 	conn.commit()
 	conn.close()
 	me = "sagan.pawel1000@gmail.com"
-	you = 'pawel.sagan@op.pl'
+	you = email
 	src='\\templates\\rejestracja.html'
 	title='Witamy w aplikacji SMS'
-	content = open(BASE_DIR + src, 'r').read()
+	content = open(BASE_DIR + src, 'r',encoding="utf-8").read()
 	content = content.replace("**activ**",activateCode)
 
 	SendEmail(me,you,title,plain=None,html=content)
-
-

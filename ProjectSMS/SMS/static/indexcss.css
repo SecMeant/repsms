@@ -132,15 +132,11 @@ button.btnIndex:hover{
 	margin-left:20%;
 	margin-top: -14%;
 }
-.divFormKontakt > p{
-	font-size: 20px;
+.divFormKontakt {
+	font-size: 30px;
 	color:white;
 	font-weight: bold;
-	width:60%;
-	margin-top:4%;
+	margin-top:-200px;
 	letter-spacing: 1px;
+
 }	
-.divFormKontakt{
-	margin-left:28%;
-	margin-top: -12%;
-}

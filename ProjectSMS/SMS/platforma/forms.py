@@ -1,7 +1,11 @@
 from django import forms
 from .models import User
 from django.forms import ModelForm
+import sqlite3,os
 from django.contrib.auth import authenticate
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 class logowanie(forms.Form):
 
 	login=forms.CharField(label='Login', max_length=100,
@@ -36,11 +40,11 @@ class logowanie(forms.Form):
 		'''Required custom validation for the form.'''
 		super(logowanie , self).clean()
 		if 'haslo' in self.cleaned_data and 'login' in self.cleaned_data:
-			try:
-				self.userr=authenticate(username=self.cleaned_data['login'], password=self.cleaned_data['haslo'])
-			except:
+			self.userr = authenticate(username=self.cleaned_data['login'], password=self.cleaned_data['haslo'])
+			if self.userr == None:
 				self._errors['login'] = [u' ']
 				self._errors['haslo'] = [u'Wprowadź poprawne dane logowania ']
+
 
 
 class rejestracja(ModelForm):
@@ -90,6 +94,7 @@ class rejestracja(ModelForm):
 	'id':"passwordConfirm", 
 	'placeholder':"Potwierdź hasło"})
 	)
+
 	class Meta:
 		model = User
 		fields = ('nazwaSzkoly', 'username', 'email', 'password', 'passwordConfirm', 'phoneNumber')
@@ -125,7 +130,7 @@ class rejestracja(ModelForm):
 
 		'email': forms.TextInput(
 			attrs={
-			'type':"text", 
+			'type':"email", 
 			'class':"form-control",
 			'id':"email", 
 			'placeholder':"Wpisz email"}),
@@ -168,9 +173,9 @@ class kontakt(forms.Form):
 		'placeholder':"Podaj nazwisko"})
 
 	)
-	email=forms.CharField(label='E-mail', max_length=40, widget=forms.TextInput(
+	email=forms.EmailField(label='E-mail', max_length=40, widget=forms.TextInput(
 		attrs={
-		'type':"text", 
+		'type':"email", 
 		'class':"form-control",
 		'id':"email", 
 		'placeholder':"Wpisz e-mail"})
@@ -182,3 +187,96 @@ class kontakt(forms.Form):
 		'id':"messageContent", 
 		'placeholder':"Treść wiadomości"})
 	)
+
+	error_messages = {
+            'email': {
+                'invalid': ("Podaj poprawny adres email."),
+            },
+            'imei': {
+                'invalid': ("Podaj imię."),
+            },
+            'nazwisko': {
+                'invalid': ("Podaj nazwisko."),
+            },
+            'tresc': {
+                'invalid': ("O co chciałbyś nas spytać ?"),
+            },
+        }
+	def __init__(self, *args, **kwargs):
+		super(kontakt, self).__init__(*args, **kwargs)
+		if self.errors:
+			for f_name in self.fields:
+				if f_name in self.errors:
+					classes = self.fields[f_name].widget.attrs.get('class', '')
+					ids = self.fields[f_name].widget.attrs.get('id', '')
+					classes += ' form-control'
+					ids += ' inputError'
+					self.fields[f_name].widget.attrs['class'] = classes
+					self.fields[f_name].widget.attrs['id'] = ids
+	# def clean(self):
+	# 	'''Required custom validation for the form.'''
+	# 	super(kontakt , self).clean()
+	# 	if 'imie' in self.cleaned_data and 'nazwisko' in self.cleaned_data and  'email' in self.cleaned_data and 'tresc' in self.cleaned_data :
+	# 		if self.cleaned_data['imie'] == "":
+	# 			_errors['imie'] = "Pole nie może być puste"
+			
+
+
+class ChangePassword(forms.Form):
+
+	password=forms.CharField(label='Hasło', max_length=100,
+		widget=forms.PasswordInput(
+			attrs={
+			'type':"password", 
+			'class':"form-control",
+			'id':"psw", 
+			'placeholder':"Hasło:"})
+		
+	)
+	passwordConfirm=forms.CharField(label='Powtórz hasło:', max_length=100, widget=forms.PasswordInput(
+		attrs={
+		'type':"password", 
+		'class':"form-control",
+		'id':"psw", 
+		'placeholder':"Hasło:"})
+		
+	)
+	superKey=forms.CharField(label='Klucz:', max_length=100, widget=forms.PasswordInput(
+		attrs={
+		'type':"password", 
+		'class':"form-control",
+		'id':"psw", 
+		'placeholder':"Klucz:"})
+		
+	)
+
+	def __init__(self, *args, **kwargs):
+		super(ChangePassword, self).__init__(*args, **kwargs)
+		if self.errors:
+			for f_name in self.fields:
+				if f_name in self.errors:
+					classes = self.fields[f_name].widget.attrs.get('class', '')
+					ids = self.fields[f_name].widget.attrs.get('id', '')
+					classes += ' form-control'
+					ids += ' inputError'
+					self.fields[f_name].widget.attrs['class'] = classes
+					self.fields[f_name].widget.attrs['id'] = ids
+	def clean(self):
+		'''Required custom validation for the form.'''
+		super(ChangePassword , self).clean()
+		if 'password' in self.cleaned_data and 'passwordConfirm' in self.cleaned_data:
+			if self.cleaned_data['password'] != self.cleaned_data['passwordConfirm']:
+				self._errors['password'] = [u""]
+				self._errors['passwordConfirm'] = [u"Hasła nie mogą się różnić"]
+		if 'superKey' in self.cleaned_data:
+			try:
+				conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+				c = conn.cursor()
+				c.execute('SELECT * FROM User WHERE key=(?) ' ,[self.cleaned_data['superKey']])
+				
+				if len(c.fetchall()) is not  1:
+					conn.close()
+					raise ValueError
+				conn.close()
+			except ValueError:
+				self._errors['superKey'] = [u"Niepoprawny kod"]

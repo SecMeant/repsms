@@ -40,7 +40,7 @@
 
 
 
- <!-- Modal -->
+ <!-- Modal logowania -->
   <div class="modal fade" id="ModalRejestracja" role="dialog">
    <div class="modal-dialog">
       <!-- Modal content-->
@@ -50,7 +50,7 @@
         <h4><span class="glyphicon glyphicon-lock"></span> Login</h4>
      </div>
      <div class="modal-body" class="form-horizontal" style="padding:40px 50px;">
-      <form role="form" action="" method="POST">{% csrf_token %}
+      <form role="form" action="/" method="POST">{% csrf_token %}
          {% for field in instanceL %}
          {% if field.errors%}
          <div class="form-group has-error has-feedback">
@@ -83,7 +83,7 @@
   </div>
  </div> 
 
-
+<!-- Modal wyswitlany po prośbie uzytkownika o zmiane hasła -->
 <div class="modal fade" id="ModalRemember" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -93,7 +93,7 @@
       </div>
       <div class="modal-body">
        <p>Podaj adres email, na który zostanie wysłana wiadomość</p>
-        <form role="form" action="remind" method="GET">{% csrf_token %}
+        <form role="form" action="/remind" method="GET">{% csrf_token %}
         {{instanceC.email}}
         
       </div>
@@ -106,12 +106,57 @@
   </div>
 </div>
 
+<!-- Modal zmiany hasła -->
+<div class="modal fade" id="ChangePass" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Zmień swoje hasło: </h4>
+      </div>
+      
+      <div class="modal-body">
+      
+          <form method="POST" action='/' enctype='multipart/form-data' >
+              
+                {% csrf_token %}
+                {% for field in incanceP %}
+                  {% if field.errors %}
+                  <div class="form-group has-error has-feedback">
+                    {{field.label_tag }}
+                      {{field}}
+                      <span class="glyphicon glyphicon-remove form-control-feedback"></span>  
+                        {% for error in field.errors %}
+                            <label class=" control-label" for="inputError">{{ error|escape }}</label>
+                        {% endfor %}
+                    {% else %}  
+                    <div class="form-group has-success has-feedback">
+                    {{field.label_tag }}
+                      {{field}}
+                  {% endif %}                    
+                  </div>
+                {% endfor %}
+
+          
+        
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Zamknij</button>
+        <input type="submit" name="changepass" class="btn btn-success" value="Zmień hasło">
+      </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal wyswietlajacy informacje o wyslaniu e-maila po rejestracji -->
 <div class="modal fade" id="ModalConfirm" tabindex="-1" role="dialog" aria-labelledby="myModalConfirm">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Przypomnienie hasła</h4>
+        <h4 class="modal-title" id="myModalLabel">Rejestracja udana</h4>
       </div>
       <div class="modal-body">
        <p><strong>Na podany adres email zotsała wysłana wiadomość.</strong></p>
@@ -131,6 +176,16 @@
 {% if isregister %}
  <script type="text/javascript">
        $("#ModalConfirm").modal({show: true});
+</script>
+{% endif %}
+{% if isChangePassword %}
+ <script type="text/javascript">
+       $("#ChangePass").modal({show: true,backdrop: "static"})
+</script>
+{% endif %}
+{% if isReady %}
+ <script type="text/javascript">
+       $("#ModalRejestracja").modal({show: true})
 </script>
 {% endif %}
 

@@ -9,7 +9,7 @@
 				<div class="mainImage container-fluid FirstImageCarousel">
 					<div class="container">
 						
-						<form method="POST" action='' enctype='multipart/form-data' > 
+						<form method="POST" action='/' enctype='multipart/form-data' > 
 							<div class="divFormRejestracja col-sm-10 " >
 								{% csrf_token %}
 								{% for field in instanceR %}
@@ -58,11 +58,30 @@
 		<div class="{{itemCarusel.2}}">
 				<div class="container-fluid mainImage ThirdImageCarousel">
 					<div class="container">
-						<div class="col-sm-16 col-sm-offset-1" >
-							<form method="POST" action="">
-								<div class="col-sm-6 divFormKontakt">
-									{{instanceC.as_p}}{% csrf_token %}
+						<div class="col-sm-7 col-sm-offset-4">
+							<form method="POST" action="?">
+								<div class="col-sm-7 divFormKontakt">
+								<form method="POST" action="/">
+								{% csrf_token %}
+								{% for field in instanceC %}
+									{% if field.errors %}
+									<div class="form-group has-error has-feedback">
+										{{field.label_tag }}
+											{{field}}
+											<span class="glyphicon glyphicon-remove form-control-feedback"></span>	
+  											{% for error in field.errors %}
+     									   		<label class=" control-label" for="inputError">{{ error|escape }}</label>
+    										{% endfor %}
+    								{% else %}	
+    								<div class="form-group has-success has-feedback">
+										{{field.label_tag }}
+											{{field}}
+									{% endif %}											
+									</div>
+								{% endfor %}
 									<input type="submit" class="btn btn-danger" name="kontakt" value="Wyślij wiadomość"/>
+								
+							</form>	
 								</div>
 							</form>	
 						</div>	
@@ -83,29 +102,7 @@
 		  cycle: true,
 		  pause:false
 		}); 
-		// function SetAnimate(i){
-		// 	switch(i%3){
-		// 		case 0:
-				
-		// 		$('.textIndex').delay(500).css('top', '-100px');
-		// 		$('.textIndex').css('left', '-100px');
-		// 		$('.textIndex').css('opacity', '0');
-		// 		$(".textIndex").animate({
-  //           		opacity : '1',
-  //   				top:"0",
-  //   				left:"0"
-  //       		});break;
-		// 		case 1:
-		// 		$('.textIndex').slideUp();
-		// 	 	$('.textIndex').slideDown();
-		// 	 	break;
-		// 	 	case 2:
-		// 	 	$('.textIndex').fadeOut(200);
-		// 	 	$('.textIndex').fadeIn(2000,"linear");
-		// 	 	break;
-
-		// 	}
-		// }
+	
 		function AnimateFormsRejestracja(){
 			$('.divFormRejestracja').css('opacity', '0');
 			$(".divFormRejestracja").delay(1000).animate({
