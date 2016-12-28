@@ -28,7 +28,8 @@ def smsApp(request):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		dbname = current_user.username
 		dbname += ".sqlite3"
-		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+
 		c = conn.cursor()
 
 		# Preparing data to send it to forms
