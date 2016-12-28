@@ -1,0 +1,58 @@
+{% load staticfiles %}
+<html>
+<head>
+<title>SMS - Platforma szybkiego zarządzania uczniami !</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+ 
+{% block title %}{{ section.title }}{% endblock %}
+</head>
+<style>
+	body {
+	background: #17202A;
+
+	}
+	.welcome{
+
+		background: #34495E;
+		height :350px;
+		text-align: center;
+	}
+	.l-down{
+	margin-top: 15px;
+	}
+	.welcome > .l-down >.label {
+		background:#3399cc;
+		font-size:50px;
+		padding: 20px 20px 20px 20px;
+	}
+	.well{
+		margin-top: -30px;
+		width:50%;
+	}
+	.btn{
+		font-size: 30px;
+		font-weight: bold;
+		
+	}
+</style>
+<body>
+	<div class="welcome">
+		<div class="l-down">
+		 <label class="label label-info" >Wybierz wersje aplikacji</label>
+		</div>
+		
+	</div>
+	<center><div class="well well-sm" >Witam Cie drogi użytkowniku, w tej części aplikacji możesz wybrać wersje aplikacje którą 						zakupiłeś/aś:
+					<ol style="text-align: left;">
+						<li><strong>Wersja podstawowa</strong> charakteryzuje się szybkim dodawaniem </li>
+						<li><strong>Wersja rozszerzona</strong> charakteryzuje się możliwością tworzenia własnych klas , algorytmów...</li>				
+					</ol>
+					</div>
+	<button type="button" class="btn btn-primary btn-block" onclick="window.location.href='/SMS/simple'">Wersja Podstawowa</button>
+	<button type="button" class="btn btn-primary btn-block" onclick="window.location.href='/SMS/extended'">Werjsa Rozszerzona</button>
+	</center>
+</body>
+</html>
