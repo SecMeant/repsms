@@ -54,7 +54,7 @@ def index(request,typeMethod=None,activeid=None):
 				c.execute('CREATE TABLE IF NOT EXISTS "algorytmy" ( id integer NOT NULL PRIMARY KEY AUTOINCREMENT, nazwa text, jpolski integer, matematyka integer, jangielski integer, jniemiecki integer )')
 				c.execute('CREATE TABLE IF NOT EXISTS "profile" ( shortname text, fullname text )')
 				c.execute("CREATE TABLE IF NOT EXISTS klasy(nazwaKlasy text NOT NULL, profil text NOT NULL, liczebnosc integer NOT NULL, algorytm integer NOT NULL,litera text NOT NULL, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
-				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text, klasa text)")
+				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text)")
 				conn.commit()
 				conn.close()
 				isReady=True

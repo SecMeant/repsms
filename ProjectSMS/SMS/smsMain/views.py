@@ -95,13 +95,6 @@ def smsApp(request):
 					ocenaAngielskiUcznia = formAddStudent.cleaned_data['ocenAng']
 					ocenaNiemieckiUcznia = formAddStudent.cleaned_data['ocenNiem']
 
-					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text, klasa text)")
-					query = "INSERT INTO uczniowie ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','matematyka','angielski','niemiecki') "
-					query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-					c.execute(query,(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaPolskiUcznia,ocenaMatematykaUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia))
-					conn.commit()
-					conn.close()
 					context={
 						"current_user" : current_user,
 						"formAddProfile":formAddProfile,
@@ -125,11 +118,9 @@ def smsApp(request):
 					liczebnosc = formAddClass.cleaned_data['liczebnosc']
 					algorytm = formAddClass.cleaned_data['algorytm']	
 					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS klasy(nazwaKlasy text NOT NULL, profil text NOT NULL, liczebnosc integer NOT NULL, algorytm integer NOT NULL,litera text NOT NULL, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
 					c.execute("INSERT INTO klasy VALUES(?,?,?,?,?,?)",(nazwaKlasy,profil,liczebnosc,algorytm,'A',None))
 					conn.commit()
 					conn.close()
-
 					context={
 						"current_user" : current_user,
 						"formAddProfile":formAddProfile,
@@ -190,12 +181,12 @@ def smsApp(request):
 							print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
 							break;
 						nazwaNowejKlasy = current_user.username+klasa[0][0]+letter
-						query = "CREATE TABLE IF NOT EXISTS "+nazwaNowejKlasy+" (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text,klasa text,punkty text)"
+						query = "CREATE TABLE IF NOT EXISTS "+nazwaNowejKlasy+" (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text,punkty text)"
 						c.execute(query)
 						conn.commit()
 						while(inc2 < klasa[0][2] and j<len(uczniowie)):
-							query = "INSERT INTO "+nazwaNowejKlasy+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','matematyka','angielski','niemiecki','klasa','punkty') "
-							query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+							query = "INSERT INTO "+nazwaNowejKlasy+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','angielski','niemiecki','francuski','wloski','hiszpanski','rosyjski','matematyka','fizyka','informatyka','historia','biologia','chemia','geografia','wos','zajęcia_techniczne','zajęcia_artstyczne','edukacja_dla_bezpieczeństwa','plastyka','muzyka','wf','zachowanie','klasa','punkty') "
+							query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
 							c.execute(query,uczniowie[j][1:])
 							c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie[j][0]))
 							conn.commit()
@@ -297,10 +288,27 @@ def smsApp(request):
 					"Nr budynku",#6
 					"Nr mieszkania",#7
 					"polski",#8
-					"eloszka",
-					"matematyka",#9
-					"angielski",#10
-					"niemiecki",#11
+					"angielski",#9
+					"niemiecki",#10
+					"francuski",#11
+					"wloski",#12
+					"hiszpanski",#13
+					"rosyjski",#14
+					"matematyka",#15
+					"fizyka",#16
+					"informatyka",#17
+					"historia",#18
+					"biologia",#19
+					"chemia",#20
+					"geografia",#21
+					"wos",#22
+					"zajęcia techniczne",#23
+					"zajęcia artstyczne",#24
+					"edukacja dla bezpieczeństwa",#25
+					"plastyka",#26
+					"muzyka",#27
+					"wf",#28
+					"zachowanie",#29
 					]
 
 				answer = []
@@ -340,7 +348,6 @@ def smsApp(request):
 					fullname = formAddProfile.cleaned_data['newProfileFullName']
 					shortname = formAddProfile.cleaned_data['newProfileShortName']
 					c = conn.cursor()
-					c.execute("CREATE TABLE IF NOT EXISTS profile(fullname text, shortname text)")
 					c.execute("SELECT * FROM profile")
 					same = False
 					for row in c.fetchall():
@@ -453,35 +460,12 @@ def showAllStudents(request):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		dbname = current_user.username
 		dbname += ".sqlite3"
-		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
 
 		c.execute("SELECT * FROM uczniowie")
 		allStudents = c.fetchall()
-
-		# headerTable contains all of the names of columns from database
-		# passing this to html to print out header of students table
-
-		headerTable = [
-			'id',
-			'Imie',
-			'Nazwisko',
-			'Kod Pocztowy',
-			'Miejscowosc',
-			'Ulica',
-			'Nr Bud',
-			'Nr Miesz',
-			'Kod Pocztowy\nzameldowania',
-			'Miejscowosc\nzameldowania',
-			'Ulica\nzameldowania',
-			'Nr Bud\nzameldowania',
-			'Nr Miesz\nzameldowania',
-			'polski',
-			'matematyka',
-			'angielski',
-			'niemiecki',
-			'klasa',
-		]
+		headerTable = [description[0] for description in c.description]
 
 		context={
 			"allStudents":allStudents,
@@ -514,8 +498,12 @@ def showAllStudentsWithClass(request):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		dbname = current_user.username
 		dbname += ".sqlite3"
-		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
+
+		c.execute("SELECT * FROM uczniowie")
+		allStudents = c.fetchall()
+		headerTable = [description[0] for description in c.description]
 
 		classList = collectclasses(c,current_user)
 		
@@ -528,30 +516,6 @@ def showAllStudentsWithClass(request):
 			query = "SELECT * FROM uczniowie WHERE klasa='"+each+"'"
 			c.execute(query) 
 			classes.append(c.fetchall())
-
-		# headerTable contains all of the names of columns from database
-		# passing this to html to print out header of students table
-
-		headerTable = [
-			'id',
-			'Imie',
-			'Nazwisko',
-			'Kod Pocztowy',
-			'Miejscowosc',
-			'Ulica',
-			'Nr Bud',
-			'Nr Miesz',
-			'Kod Pocztowy\nzameldowania',
-			'Miejscowosc\nzameldowania',
-			'Ulica\nzameldowania',
-			'Nr Bud\nzameldowania',
-			'Nr Miesz\nzameldowania',
-			'polski',
-			'matematyka',
-			'angielski',
-			'niemiecki',
-			'klasa',
-		]
 
 		context={
 			"classes":classes,
@@ -572,36 +536,14 @@ def showAllStudentsWithNoClass(request):
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 		dbname = current_user.username
 		dbname += ".sqlite3"
-		conn = sqlite3.connect(os.path.join(BASE_DIR, current_user.username + '.sqlite3'))
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
 
 		c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
 		allStudents = c.fetchall()
 
-		# headerTable contains all of the names of columns from database
-		# passing this to html to print out header of students table
-
-		headerTable = [
-			'id',
-			'Imie',
-			'Nazwisko',
-			'Kod Pocztowy',
-			'Miejscowosc',
-			'Ulica',
-			'Nr Bud',
-			'Nr Miesz',
-			'Kod Pocztowy\nzameldowania',
-			'Miejscowosc\nzameldowania',
-			'Ulica\nzameldowania',
-			'Nr Bud\nzameldowania',
-			'Nr Miesz\nzameldowania',
-			'polski',
-			'matematyka',
-			'angielski',
-			'niemiecki',
-			'klasa',
-		]
-
+		headerTable = [description[0] for description in c.description]
+		
 		context={
 			"allStudents":allStudents,
 			"headerTable":headerTable,
