@@ -106,7 +106,7 @@ def smsApp(request):
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
 					}
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 					# Dodawanie klasy
 
@@ -133,7 +133,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,
 					}
 
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 					# Wypelnianie klasy
 
@@ -215,7 +215,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,
 					}
 
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 					# Usuwanie klasy
 
@@ -242,7 +242,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,	
 					}
 
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 				# Usuwanie profilu
 					
@@ -269,7 +269,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,
 					}
 
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 
 
@@ -338,7 +338,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,
 					}
 
-				return HttpResponseRedirect("/sms")
+				return HttpResponseRedirect("/sms/extended")
 
 				# Dodawanie profilu
 
@@ -370,7 +370,7 @@ def smsApp(request):
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
 					}
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 					# Dodawanie algorytmu
 
@@ -405,7 +405,7 @@ def smsApp(request):
 						"formRemoveAlgorithm":formRemoveAlgorithm,
 						"formFillClass":formFillClass,
 					}
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 					# Usuwanie profilu
 					
@@ -433,7 +433,7 @@ def smsApp(request):
 						"formFillClass":formFillClass,			
 					}
 
-					return HttpResponseRedirect("/sms")
+					return HttpResponseRedirect("/sms/extended")
 
 		context={
 			"current_user" : current_user,
