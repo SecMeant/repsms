@@ -18,14 +18,15 @@ from django.contrib import admin
 from django.conf.urls import include , url
 from platforma import urls as platurls
 from smsMain import urls as smsurls
+from SmsEasy import urls as LiczbaE
 from smsMain.views import showAllStudents
 from django.conf.urls.static import static
 from . import settings 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^' , include(platurls)),
-    url(r'^(?i)SMS',include(smsurls)),
-    url(r'^(?i)SMS/',include(smsurls)),
+    url(r'^(?i)SMS/extended',include(smsurls)),
+    url(r'^(?i)SMS/simple',include(LiczbaE)),
     ]
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

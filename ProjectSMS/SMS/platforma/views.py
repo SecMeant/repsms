@@ -40,8 +40,6 @@ def index(request,typeMethod=None,activeid=None):
 		                                 password=Users[0][3],
 		                                 phoneNumber=Users[0][4],
 		                                 )
-					
-					
 					c.execute('DELETE FROM tempUsers WHERE activCode=(?) ' ,[activeid])
 
 				conn.commit()
@@ -114,7 +112,7 @@ def index(request,typeMethod=None,activeid=None):
 				 
 			
 				login(request,instanceLogowanie.userr)
-				return HttpResponseRedirect('/sms')
+				return HttpResponseRedirect('/version')
 			else:
 				isReady=True
 
@@ -256,3 +254,5 @@ def preRegister(Data):
 	content = content.replace("**activ**",activateCode)
 
 	SendEmail(me,you,title,plain=None,html=content)
+def chooseVerion(request):
+	return render(request, "choosePlatform.html")
