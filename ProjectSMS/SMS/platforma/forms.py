@@ -270,7 +270,7 @@ class ChangePassword(forms.Form):
 				self._errors['passwordConfirm'] = [u"Hasła nie mogą się różnić"]
 		if 'superKey' in self.cleaned_data:
 			try:
-				conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+				conn=sqlite3.connect(os.path.join(BASE_DIR+"\\TempDB","UserTempChangePassword.db"))
 				c = conn.cursor()
 				c.execute('SELECT * FROM User WHERE key=(?) ' ,[self.cleaned_data['superKey']])
 				

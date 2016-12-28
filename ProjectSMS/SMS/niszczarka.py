@@ -5,8 +5,7 @@ from datetime import  datetime
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def destroyAfterExpire():
-	print(os.path.join(BASE_DIR,'SMS\\TemporaryUser.db'))
-	conn = sqlite3.connect(os.path.join(BASE_DIR,'SMS\\TemporaryUser.db'))
+	conn = sqlite3.connect(os.path.join(BASE_DIR,'SMS\\TempDB\\TemporaryUser.db'))
 	c = conn.cursor()
 	c.execute('SELECT * from tempUsers')
 	try:

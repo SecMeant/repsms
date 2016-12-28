@@ -27,7 +27,7 @@ def index(request,typeMethod=None,activeid=None):
 	if typeMethod == "activate":
 		if(activeid !=None):
 			try:
-				conn = sqlite3.connect(os.path.join(BASE_DIR,'TemporaryUser.db'))
+				conn = sqlite3.connect(os.path.join(BASE_DIR+"\\TempDB",'TemporaryUser.db'))
 				c= conn.cursor()
 				c.execute('SELECT * FROM tempUsers WHERE activCode=(?) ' ,[activeid])
 				Users = c.fetchall()
@@ -48,13 +48,13 @@ def index(request,typeMethod=None,activeid=None):
 				conn.close()
 				# Tworzenie potzrebnych tabel
 				
-				conn = sqlite3.connect(os.path.join(BASE_DIR, Users[0][0] + '.sqlite3'))
+				conn = sqlite3.connect(os.path.join(BASE_DIR+"\\userData", Users[0][0] + '.sqlite3'))
 
 				c= conn.cursor()
 				c.execute('CREATE TABLE IF NOT EXISTS "algorytmy" ( id integer NOT NULL PRIMARY KEY AUTOINCREMENT, nazwa text, jpolski integer, matematyka integer, jangielski integer, jniemiecki integer )')
 				c.execute('CREATE TABLE IF NOT EXISTS "profile" ( shortname text, fullname text )')
 				c.execute("CREATE TABLE IF NOT EXISTS klasy(nazwaKlasy text NOT NULL, profil text NOT NULL, liczebnosc integer NOT NULL, algorytm integer NOT NULL,litera text NOT NULL, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
-				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text)")
+				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text,matematyka text,angielski text, niemiecki text, klasa text)")
 				conn.commit()
 				conn.close()
 				isReady=True
@@ -71,7 +71,7 @@ def index(request,typeMethod=None,activeid=None):
 		if instance.is_valid():
 			key = instance.cleaned_data['superKey']
 			password = instance.cleaned_data['password']
-			conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+			conn=sqlite3.connect(os.path.join(BASE_DIR+"\\TempDB","UserTempChangePassword.db"))
 			c = conn.cursor()
 			c.execute("SELECT email FROM User WHERE key =?", [key])
 			row = c.fetchall()
@@ -169,7 +169,7 @@ def remember(request):
 	try:
 		instance =User.objects.get(email=email)
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-		conn=sqlite3.connect(os.path.join(BASE_DIR,"UserTempChangePassword.db"))
+		conn=sqlite3.connect(os.path.join(BASE_DIR+"\\TempDB","UserTempChangePassword.db"))
 		c=conn.cursor();
 		c.execute("CREATE TABLE IF NOT EXISTS User(email text, key text)")
 		while True:
@@ -225,7 +225,7 @@ def SendEmail(me,you,title, **kwargs):
 def preRegister(Data):
 	# create db if not exist
 	
-	conn = sqlite3.connect(os.path.join(BASE_DIR,'TemporaryUser.db'))
+	conn = sqlite3.connect(os.path.join(BASE_DIR+"\\TempDB",'TemporaryUser.db'))
 	tUser = conn.cursor()
 	tUser.execute("CREATE TABLE IF NOT EXISTS tempUsers(username text, nazwaSzkoly text, email text, password text ,phoneNumber integer,created timestamp, activCode text,expired timestamp)")
 
@@ -238,7 +238,6 @@ def preRegister(Data):
 
 	while True:
 		activateCode=RandomString(size=32)
-		print(activateCode)
 		tUser.execute('SELECT * FROM tempUsers WHERE activCode=(?) ' ,[activateCode])
 
 		if len(tUser.fetchall()) is 0:
