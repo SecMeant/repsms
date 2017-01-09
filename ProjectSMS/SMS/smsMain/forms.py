@@ -209,7 +209,8 @@ class addAlgorithm(forms.Form):
 	jniemiecki = forms.IntegerField(label='Język Niemiecki')
 
 class fillClass(forms.Form):
-	klasy = forms.ChoiceField(label='Wybierz Klase')
+	klasy = forms.ChoiceField(label='Wybierz klase')
+	sposob = forms.BooleanField(label='Optymalizuj',required=False)
 
 	def __init__(self,*args, **kwargs):
 		klasyVar = kwargs.pop('klasy', None)

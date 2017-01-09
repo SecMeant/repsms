@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass
+from .funkcjeopty import dejnumer, optymalizuj, rest
+from .fillfuncs import fillclasses 
 import os
 import sqlite3
 import math
@@ -141,7 +143,7 @@ def smsApp(request):
 				formFillClass = fillClass(request.POST,klasy=(klasypass))
 				if formFillClass.is_valid():
 					c = conn.cursor()
-					print(formFillClass.cleaned_data['klasy'])
+					sposob = formFillClass.cleaned_data['sposob']
 					c.execute("SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
 					klasa = c.fetchall()
 
@@ -149,58 +151,79 @@ def smsApp(request):
 
 					uczniowie = c.fetchall()
 					uczniowie = list(map(list,uczniowie))
+					# start of implementation of opti functions from php
+					ile = len(uczniowie)
+					if(ile>=1 and sposob==True):
+						odp = []
+						odpowiedzi = [] # I have no idea why i chose similar names. Have no time to figure it out right now
+						sizeofclass = int(klasa[0][2])
+						odpowiedzi.append(dejnumer(ile,sizeofclass)) # First argument is size of all students to sort out, secound is size of class
+						odp.append(optymalizuj(odpowiedzi[0],sizeofclass)) # Same arguments as above here
+						print("DEBUG INFORMATION:")
+						print("odp1:")
+						print(odp)
+						odp[0] = rest(odp[0]) # Here as argument I need returned value from optymalizuj function
+						print("odpowiedzi:")
+						print(odpowiedzi)
+						print("odp:")
+						print(odp)
+						print("END OF DEBUG")
+						fillclasses(c,conn,klasa,uczniowie,current_user,odp)
 
-					c.execute("SELECT * FROM algorytmy WHERE id="+str(klasa[0][3]))
-					algo = c.fetchall()
+					else:
+						fillclasses(c,conn,klasa,uczniowie,current_user)
+					# end of implementation
+			
+					# c.execute("SELECT * FROM algorytmy WHERE id="+str(klasa[0][3]))
+					# algo = c.fetchall()
 
-					points = 0
-					buff = 0
-					print(len(uczniowie[0]))
-					while(buff < len(uczniowie)):
-						if(uczniowie[buff][13]):
-							points = int(uczniowie[buff][13]) * algo[0][2]
-						if(uczniowie[buff][14]):
-							points += int(uczniowie[buff][14]) * algo[0][3]
-						if(uczniowie[buff][15]):
-							points += int(uczniowie[buff][15]) * algo[0][4]
-						if(uczniowie[buff][16]):
-							points += int(uczniowie[buff][16]) * algo[0][5]
+					# points = 0
+					# buff = 0
+					# while(buff < len(uczniowie)):
+					# 	if(uczniowie[buff][13]):
+					# 		points = int(uczniowie[buff][13]) * algo[0][2]
+					# 	if(uczniowie[buff][14]):
+					# 		points += int(uczniowie[buff][14]) * algo[0][3]
+					# 	if(uczniowie[buff][15]):
+					# 		points += int(uczniowie[buff][15]) * algo[0][4]
+					# 	if(uczniowie[buff][16]):
+					# 		points += int(uczniowie[buff][16]) * algo[0][5]
 
-						uczniowie[buff].append(points)
-						buff += 1
+					# 	uczniowie[buff].append(points)
+					# 	buff += 1
 
-					uczniowie = sorted(uczniowie,key=itemgetter(18),reverse=True)
+					# uczniowie = sorted(uczniowie,key=itemgetter(18),reverse=True)
 
-					letter = klasa[0][4]
+					# letter = klasa[0][4]
 
-					inc = 0
-					inc2 = 0
-					j = 0
-					while(inc < math.ceil(len(uczniowie)/klasa[0][2])):
-						if(ord(letter)>90):
-							print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
-							break;
-						nazwaNowejKlasy = current_user.username+klasa[0][0]+letter
-						query = "CREATE TABLE IF NOT EXISTS "+nazwaNowejKlasy+" (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text,punkty text)"
-						c.execute(query)
-						conn.commit()
-						while(inc2 < klasa[0][2] and j<len(uczniowie)):
-							query = "INSERT INTO "+nazwaNowejKlasy+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','angielski','niemiecki','francuski','wloski','hiszpanski','rosyjski','matematyka','fizyka','informatyka','historia','biologia','chemia','geografia','wos','zajęcia_techniczne','zajęcia_artstyczne','edukacja_dla_bezpieczeństwa','plastyka','muzyka','wf','zachowanie','klasa','punkty') "
-							query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
-							c.execute(query,uczniowie[j][1:])
-							c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie[j][0]))
-							conn.commit()
-							j += 1
-							inc2 += 1
-						inc2 = 0
-						inc += 1
-						letter = ord(letter)
-						letter += 1
-						letter = chr(letter)
+					# inc = 0
+					# inc2 = 0
+					# j = 0
+					# while(inc < math.ceil(len(uczniowie)/klasa[0][2])):
+					# 	if(ord(letter)>90):
+					# 		print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
+					# 		break;
+					# 	nazwaNowejKlasy = current_user.username+klasa[0][0]+letter
+					# 	query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text,punkty text)"
+					# 	c.execute(query)
+					# 	conn.commit()
+					# 	while(inc2 < klasa[0][2] and j<len(uczniowie)):
+					# 		query = "INSERT INTO "+nazwaNowejKlasy+" ('Imię','Nazwisko','Kod_pocztowy','Miejscowość','Ulica','Nr_budynku','Nr_mieszkania','Kod_pocztowy2','Miejscowość2','Ulica2','Nr_budynku2','Nr_mieszkania2','polski','angielski','niemiecki','francuski','wloski','hiszpanski','rosyjski','matematyka','fizyka','informatyka','historia','biologia','chemia','geografia','wos','zajęcia_techniczne','zajęcia_artstyczne','edukacja_dla_bezpieczeństwa','plastyka','muzyka','wf','zachowanie','klasa','punkty') "
+					# 		query += "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"
+					# 		c.execute(query,uczniowie[j][1:])
+					# 		c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie[j][0]))
+					# 		conn.commit()
+					# 		j += 1
+					# 		inc2 += 1
+					# 	inc2 = 0
+					# 	inc += 1
+					# 	letter = ord(letter)
+					# 	letter += 1
+					# 	letter = chr(letter)
 
-					c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa[0][5]))
-					conn.commit()
-					conn.close()
+					# c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa[0][5]))
+					# conn.commit()
+					# conn.close()
 
 
 					context={
