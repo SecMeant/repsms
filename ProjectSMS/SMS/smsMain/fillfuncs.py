@@ -27,6 +27,19 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
 		uczniowie[buff].append(points)
 		buff += 1
 
+	#Im not sure if this move is OK...
+	#However it works, so at least now Ill leave it
+	#I did this cuz sorted() throwed some errors like it cant
+	#compare Nonetype and str etc
+	#I dont even remember why I need to call sorted()
+	##################################
+	#			DIRTY TRICKS		 #
+	for i,s in enumerate(uczniowie):
+			for j,v in enumerate(s):
+				if(v == None):
+					s[j] = '0'	
+	##################################
+
 	uczniowie = sorted(uczniowie,key=itemgetter(18),reverse=True)
 
 	letter = klasa[0][4]

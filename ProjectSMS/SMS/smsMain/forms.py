@@ -64,7 +64,7 @@ class addStudent(forms.Form):
 		
 	)
 
-	nrbudynku = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+	nrbudynku = forms.CharField(label='Nr.bud', required=False, max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
 		'id':'nrbud',
@@ -72,7 +72,7 @@ class addStudent(forms.Form):
 		'placeholder':"Nr.bud"})
 		
 	)
-	nrmieszkania = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+	nrmieszkania = forms.CharField(label='Nr.miesz', required=False, max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
 		'id':'nrmiesz',
@@ -103,7 +103,7 @@ class addStudent(forms.Form):
 		
 	)
 
-	nrbudynku2 = forms.CharField(label='Nr.bud', max_length=48, widget=forms.TextInput(
+	nrbudynku2 = forms.CharField(label='Nr.bud', required=False, max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
 		'id':'nrbud2',
@@ -112,7 +112,7 @@ class addStudent(forms.Form):
 		
 	)
 
-	nrmieszkania2 = forms.CharField(label='Nr.miesz', max_length=48, widget=forms.TextInput(
+	nrmieszkania2 = forms.CharField(label='Nr.miesz', required=False, max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
 		'id':'nrmiesz2',

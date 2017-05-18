@@ -76,6 +76,14 @@ def smsApp(request):
 			if "addStudent" in request.POST:
 				formAddStudent = addStudent(request.POST)
 				if formAddStudent.is_valid():
+
+
+					#There was one csv that instead of blank fields had actual 'null' string in it
+					#It causes some problems in fill / opt functions
+					for key,value in formAddStudent.cleaned_data.items():
+						if(value == 'null'):
+							formAddStudent.cleaned_data[key] = 0
+
 					imieUcznia = formAddStudent.cleaned_data['imie']
 					nazwiskoUcznia = formAddStudent.cleaned_data['nazwisko']
 					kod1Ucznia = formAddStudent.cleaned_data['kod1']
@@ -97,6 +105,11 @@ def smsApp(request):
 					ocenaAngielskiUcznia = formAddStudent.cleaned_data['ocenAng']
 					ocenaNiemieckiUcznia = formAddStudent.cleaned_data['ocenNiem']
 
+					c = conn.cursor()
+					c.execute("INSERT INTO uczniowie (Imię,Nazwisko,Kod_pocztowy,Miejscowość,Ulica,Nr_budynku,Nr_mieszkania,Kod_pocztowy2,Miejscowość2,Ulica2,Nr_budynku2,Nr_mieszkania2,polski,matematyka,angielski,niemiecki) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia))
+					conn.commit()
+					conn.close()
+					
 					context={
 						"current_user" : current_user,
 						"formAddProfile":formAddProfile,
@@ -171,7 +184,7 @@ def smsApp(request):
 						fillclasses(c,conn,klasa,uczniowie,current_user,odp)
 
 					else:
-						fillclasses(c,conn,klasa,uczniowie,current_user)
+						fillclasses(c,conn,klasa,uczniowie,current_user,0)
 					# end of implementation
 
 					context={
@@ -521,3 +534,4 @@ def showAllStudentsWithNoClass(request):
 		}
 
 		return render (request, "studentsWithNoClass.html", context)
+

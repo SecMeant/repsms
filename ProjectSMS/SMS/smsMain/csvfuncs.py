@@ -75,6 +75,13 @@ def importcsv(colms,offset,file,cursor):
 	
 	while(line):
 		string = generateValue(fline,offset)
+
+		#For loop changes all fields from 'null' to 0
+		#nulls causes some problems in fill / opt functions
+		for i,s in enumerate(string):
+			if(s == 'null'):
+				string[i] = 0
+				
 		cursor.execute(query ,string)
 		line = file.readline().decode('utf-8')
 		fline = line.split(";")
