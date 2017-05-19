@@ -1,0 +1,24 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Wszyscy uczniowie</title>
+		<link rel="stylesheet" href="{% static '/smscss.css' %}">
+	</head>
+	<body>
+		<table >
+			<tr>
+				{% for every in headerTable %}
+					<td>{{ every }}</td>
+				{% endfor %}
+			</tr>
+			{% for student in allStudents %}
+				<tr>
+					{% for info in student%}
+						<td>{{ info }}</td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>

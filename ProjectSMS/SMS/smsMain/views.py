@@ -448,6 +448,34 @@ def showAllStudentsWithNoClass(request):
 
 		return render (request, "studentsWithNoClass.html", context)
 
+def test(request, klasa):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+	current_user = request.user
+
+	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+	dbname = current_user.username
+	dbname += ".sqlite3"
+	conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+	c = conn.cursor()
+
+	query = "SELECT * FROM uczniowie WHERE klasa='"+klasa+"'"
+	c.execute(query)
+	allStudents = c.fetchall()
+	headerTable = [description[0] for description in c.description]
+
+	context = {
+		"allStudents":allStudents,
+		"headerTable":headerTable,
+		"klasa":klasa,
+	}
+
+	return render(request, "studentsInClass.html" , context)
+
 def vectorContains(tab,phrase):
 	for each in tab:
 		if(each == phrase):
