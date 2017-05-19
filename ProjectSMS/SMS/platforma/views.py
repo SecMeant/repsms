@@ -243,7 +243,7 @@ def preRegister(Data):
 
 	
 	tUser.execute("INSERT INTO tempUsers ('username','nazwaSzkoly','email','password','phoneNumber','created','activCode','expired') VALUES(?,?,?,?,?,?,?,?)",
-				(username,nazwaSzkoly,email,password,phoneNumber,created,activateCode,created + timedelta(days=1)))
+				(username,nazwaSzkoly,email,password,phoneNumber,created,activateCode,created + timedelta(days=365)))
 	conn.commit()
 	conn.close()
 	me = "sagan.pawel1000@gmail.com"
