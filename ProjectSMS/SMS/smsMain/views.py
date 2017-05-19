@@ -31,6 +31,7 @@ def smsApp(request):
 		dbname = current_user.username
 		dbname += ".sqlite3"
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		
 
 		c = conn.cursor()
 
@@ -62,6 +63,13 @@ def smsApp(request):
 		for cols in klasy:
 			klasypass.append((str(cols[5])+"-"+cols[0]).split("-"))
 
+		c.execute("SELECT * FROM uczniowie")
+		uczniowie = c.fetchall()
+		klasyPostfix = []
+		for uczen in uczniowie:
+			if( not( vectorContains(klasyPostfix,uczen[len(uczen)-1]) ) ):
+				klasyPostfix.append(uczen[len(uczen)-1])
+
 		formAddProfile = addProfile
 		formAddStudent = addStudent
 		formAddAlgorithm = addAlgorithm
@@ -70,6 +78,19 @@ def smsApp(request):
 		formRemoveClass = removeClass(klasy=(klasypass))
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
+
+		context={
+			"current_user":current_user,
+			"formAddProfile":formAddProfile,
+			"formAddStudent":formAddStudent,
+			"formAddClass":formAddClass,
+			"formAddAlgorithm":formAddAlgorithm,
+			"formRemoveClass":formRemoveClass,
+			"formRemoveProfile":formRemoveProfile,
+			"formRemoveAlgorithm":formRemoveAlgorithm,
+			"formFillClass":formFillClass,
+			"klasyPostfix":klasyPostfix,
+		}
 
 		if request.method == 'POST':
 			# Dodawanie ucznia, pojedyncze
@@ -110,17 +131,7 @@ def smsApp(request):
 					conn.commit()
 					conn.close()
 					
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
+					context.update({"formAddStudent":formAddStudent})
 					return HttpResponseRedirect("/sms/extended")
 
 					# Dodawanie klasy
@@ -136,18 +147,8 @@ def smsApp(request):
 					c.execute("INSERT INTO klasy VALUES(?,?,?,?,?,?)",(nazwaKlasy,profil,liczebnosc,algorytm,'A',None))
 					conn.commit()
 					conn.close()
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
 
+					context.update({"formAddClass":formAddClass})
 					return HttpResponseRedirect("/sms/extended")
 
 					# Wypelnianie klasy
@@ -164,6 +165,7 @@ def smsApp(request):
 
 					uczniowie = c.fetchall()
 					uczniowie = list(map(list,uczniowie))
+
 					# start of implementation of opti functions from php
 					ile = len(uczniowie)
 					if(ile>=1 and sposob==True):
@@ -187,18 +189,7 @@ def smsApp(request):
 						fillclasses(c,conn,klasa,uczniowie,current_user,0)
 					# end of implementation
 
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
-
+					context.update({"formFillClass":formFillClass})
 					return HttpResponseRedirect("/sms/extended")
 
 					# Usuwanie klasy
@@ -214,18 +205,7 @@ def smsApp(request):
 					conn.commit()
 					conn.close()
 
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,	
-					}
-
+					context.update({"formRemoveClass":formRemoveClass})
 					return HttpResponseRedirect("/sms/extended")
 
 				# Usuwanie profilu
@@ -241,22 +221,8 @@ def smsApp(request):
 					conn.commit()
 					conn.close()
 
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
-
+					context.update({"formRemoveProfile":formRemoveProfile})
 					return HttpResponseRedirect("/sms/extended")
-
-
-
 					# Dodawanie ucznia / uczniow poprzez plik
 
 			elif "studentFile" in request.POST:
@@ -310,20 +276,8 @@ def smsApp(request):
 
 				conn.commit()
 				conn.close()
-				context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
 
 				return HttpResponseRedirect("/sms/extended")
-
 				# Dodawanie profilu
 
 			elif "addProfile" in request.POST:
@@ -342,18 +296,8 @@ def smsApp(request):
 						c.execute("INSERT INTO profile VALUES(?,?)",(shortname,fullname))
 					conn.commit()
 					conn.close()
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"same":same,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
+
+					context.update({"formAddProfile":formAddProfile,"same":same})
 					return HttpResponseRedirect("/sms/extended")
 
 					# Dodawanie algorytmu
@@ -378,17 +322,8 @@ def smsApp(request):
 						c.execute("INSERT INTO algorytmy VALUES(?,?,?,?,?,?)",(None,nazwaAlgo,matematyka,jpolski,jangielski,jniemiecki))
 					conn.commit()
 					conn.close()
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,
-					}
+
+					context.update({"formAddAlgorithm":formAddAlgorithm})
 					return HttpResponseRedirect("/sms/extended")
 
 					# Usuwanie profilu
@@ -405,31 +340,9 @@ def smsApp(request):
 					conn.commit()
 					conn.close()
 
-					context={
-						"current_user" : current_user,
-						"formAddProfile":formAddProfile,
-						"formAddStudent":formAddStudent,
-						"formAddClass":formAddClass,
-						"formAddAlgorithm":formAddAlgorithm,
-						"formRemoveClass":formRemoveClass,
-						"formRemoveProfile":formRemoveProfile,
-						"formRemoveAlgorithm":formRemoveAlgorithm,
-						"formFillClass":formFillClass,			
-					}
-
+					context.update({"formRemoveAlgorithm":formRemoveAlgorithm})
 					return HttpResponseRedirect("/sms/extended")
 
-		context={
-			"current_user" : current_user,
-			"formAddProfile":formAddProfile,
-			"formAddStudent":formAddStudent,
-			"formAddClass":formAddClass,
-			"formAddAlgorithm":formAddAlgorithm,
-			"formRemoveClass":formRemoveClass,
-			"formRemoveProfile":formRemoveProfile,
-			"formRemoveAlgorithm":formRemoveAlgorithm,
-			"formFillClass":formFillClass,	
-		}
 		return render (request, "SMS.html", context)
 
 def showAllStudents(request):
@@ -535,3 +448,8 @@ def showAllStudentsWithNoClass(request):
 
 		return render (request, "studentsWithNoClass.html", context)
 
+def vectorContains(tab,phrase):
+	for each in tab:
+		if(each == phrase):
+			return 1
+	return 0
