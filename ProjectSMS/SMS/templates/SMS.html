@@ -75,23 +75,19 @@
 						<a href="/sms/extended/uczniowienieprzydzieleni"><div class="showStudentWithNoClass centerOption">UCZNIOWIE NIEPRZYDZIELENI DO KLASY</div></a>
 					</center>
 					{% if klasyPostfix|length > 0 %}
-						{% if klasyPostfix.index0 is not none %}
-						<div class="klasyTop">
-							<p>Klasy</p>
-						</div>
+						{% for klasa in klasyPostfix %}
+							{% if klasa != None%}
+								<div class="klasyTop">
+									<p>Klasy</p>
+								</div>
 
-						<div class="innerKlasy">
-
-							<ul>
-								{% for klasa in klasyPostfix %}
-
-								<li><a href="/sms/extended/test/{{klasa}}">{{ klasa }}</a></li>
-
-								{% endfor %}
-							</ul>
-
-						</div>
-						{% endif %}
+								<div class="innerKlasy">
+									<ul>	
+										<li><a href="/sms/extended/test/{{klasa}}">{{ klasa }}</a></li>
+									</ul>
+								</div>
+							{% endif %}	
+						{% endfor %}
 					{% endif %}
 				</div>
 				
