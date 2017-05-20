@@ -67,7 +67,7 @@ def smsApp(request):
 		uczniowie = c.fetchall()
 		klasyPostfix = []
 		for uczen in uczniowie:
-			if( not( vectorContains(klasyPostfix,uczen[len(uczen)-1]) ) ):
+			if( not( vectorContains(klasyPostfix,uczen[len(uczen)-1]) ) and uczen[len(uczen)-1] != None ):
 				klasyPostfix.append(uczen[len(uczen)-1])
 
 		formAddProfile = addProfile
