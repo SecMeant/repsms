@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
@@ -31,9 +31,9 @@ def smsApp(request):
 		dbname = current_user.username
 		dbname += ".sqlite3"
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
-		
 
 		c = conn.cursor()
+		c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text)")
 
 		# Preparing data to send it to forms
 		# Algorithms choicefield
@@ -49,7 +49,7 @@ def smsApp(request):
 		c.execute("SELECT * FROM profile")
 		profiles = c.fetchall()
 		# Classes choicefield (removal)
-		# I want to leave a nice comment to line under for loop, becouse its a true beauty !
+		# I want to leave a nice comment for line under for loop, becouse its a true beauty !
 		# im iterating data in loop as usual, appending a ClassId just after casting to string from integer
 		# than adding a '-' and concatenating name of the class to display it in a list, 
 		# the class id is the value passed to remove method later
@@ -447,6 +447,51 @@ def showAllStudentsWithNoClass(request):
 		}
 
 		return render (request, "studentsWithNoClass.html", context)
+
+def manageStudents(request):
+	
+	return render(request, "", context)
+
+def deleteStudentsFromClass(request, id):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+	query = "SELECT * FROM uczniowie WHERE id="+id
+	c.execute(query)
+	uczen = c.fetchall()
+	
+
+
+	if(len(uczen) != 1):
+		print("Error when deleting student")
+		return redirect(smsApp)
+
+	print("DEBUG:?",len(uczen))
+	print("DEBUG:?",uczen[0][len(uczen[0])-1])
+
+	klasa = uczen[0][len(uczen[0])-1]
+
+	query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
+	c.execute(query)
+	conn.commit()
+
+	query = "UPDATE uczniowie SET klasa = NULL WHERE id="+id #Usuwa wartosc z kolumny klasa usuniętgo ucznia
+	c.execute(query)
+	conn.commit()
+	conn.close()
+
+	return redirect(smsApp)
 
 def test(request, klasa):
 	if request.user.is_authenticated:
