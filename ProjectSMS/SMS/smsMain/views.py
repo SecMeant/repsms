@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass
+from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
 from .funkcjeopty import dejnumer, optymalizuj, rest
 from .fillfuncs import fillclasses 
 import os
@@ -448,8 +448,32 @@ def showAllStudentsWithNoClass(request):
 		return render (request, "studentsWithNoClass.html", context)
 
 def manageStudents(request):
-	
-	return render(request, "", context)
+
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+		c.execute("SELECT * FROM uczniowie")
+		allStudents = c.fetchall()
+
+		headerTable = [description[0] for description in c.description]
+
+	context={
+		"allStudents":allStudents,
+		"headerTable":headerTable,
+	}
+
+	return render(request, "manageStudent.html", context)
 
 def deleteStudentsFromClass(request, id):
 	if request.user.is_authenticated:
@@ -466,29 +490,29 @@ def deleteStudentsFromClass(request, id):
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
 
-	query = "SELECT * FROM uczniowie WHERE id="+id
-	c.execute(query)
-	uczen = c.fetchall()
-	
+		query = "SELECT * FROM uczniowie WHERE id="+id
+		c.execute(query)
+		uczen = c.fetchall()
+		
 
 
-	if(len(uczen) != 1):
-		print("Error when deleting student")
-		return redirect(smsApp)
+		if(len(uczen) != 1):
+			print("Error when deleting student")
+			return redirect(smsApp)
 
-	print("DEBUG:?",len(uczen))
-	print("DEBUG:?",uczen[0][len(uczen[0])-1])
+		print("DEBUG:?",len(uczen))
+		print("DEBUG:?",uczen[0][len(uczen[0])-1])
 
-	klasa = uczen[0][len(uczen[0])-1]
+		klasa = uczen[0][len(uczen[0])-1]
 
-	query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
-	c.execute(query)
-	conn.commit()
+		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
+		c.execute(query)
+		conn.commit()
 
-	query = "UPDATE uczniowie SET klasa = NULL WHERE id="+id #Usuwa wartosc z kolumny klasa usuniętgo ucznia
-	c.execute(query)
-	conn.commit()
-	conn.close()
+		query = "UPDATE uczniowie SET klasa = NULL WHERE id="+id #Usuwa wartosc z kolumny klasa usuniętgo ucznia
+		c.execute(query)
+		conn.commit()
+		conn.close()
 
 	return redirect(smsApp)
 
@@ -499,26 +523,123 @@ def test(request, klasa):
 			logout(request)
 			HttpResponseRedirect('/')
 
-	current_user = request.user
+		current_user = request.user
 
-	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-	dbname = current_user.username
-	dbname += ".sqlite3"
-	conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
-	c = conn.cursor()
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
 
-	query = "SELECT * FROM uczniowie WHERE klasa='"+klasa+"'"
-	c.execute(query)
-	allStudents = c.fetchall()
-	headerTable = [description[0] for description in c.description]
+		query = "SELECT * FROM uczniowie WHERE klasa='"+klasa+"'"
+		c.execute(query)
+		allStudents = c.fetchall()
+		headerTable = [description[0] for description in c.description]
 
-	context = {
-		"allStudents":allStudents,
-		"headerTable":headerTable,
-		"klasa":klasa,
-	}
+		context = {
+			"allStudents":allStudents,
+			"headerTable":headerTable,
+			"klasa":klasa,
+		}
 
 	return render(request, "studentsInClass.html" , context)
+
+def editStudent(request,id):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+		# Edytowanie danych studenta klasy
+
+		if "formEditStudent" in request.POST:
+			EditStudent =  formEditStudent(request.POST)
+			if EditStudent.is_valid():
+				imieUcznia = EditStudent.cleaned_data['imie']
+				nazwiskoUcznia = EditStudent.cleaned_data['nazwisko']
+				kod1Ucznia = EditStudent.cleaned_data['kod1']
+				kod2Ucznia = EditStudent.cleaned_data['kod2']
+				kodUcznia1 = kod1Ucznia +'-'+ kod2Ucznia
+				miejscowoscUcznia = EditStudent.cleaned_data['miejscowosc']
+				ulicaUcznia = EditStudent.cleaned_data['ulica']
+				nrbudynkuUcznia = EditStudent.cleaned_data['nrbudynku']
+				nrmieszkaniaUcznia = EditStudent.cleaned_data['nrmieszkania']
+				kod12Ucznia = EditStudent.cleaned_data['kod12']
+				kod22Ucznia = EditStudent.cleaned_data['kod22']
+				kodUcznia2 = kod12Ucznia +'-'+ kod22Ucznia
+				miejscowosc2Ucznia = EditStudent.cleaned_data['miejscowosc2']
+				ulica2Ucznia = EditStudent.cleaned_data['ulica2']
+				nrbudynku2Ucznia = EditStudent.cleaned_data['nrbudynku2']
+				nrmieszkania2Ucznia = EditStudent.cleaned_data['nrmieszkania2']
+				ocenaPolskiUcznia = EditStudent.cleaned_data['ocenPol']
+				ocenaMatematykaUcznia = EditStudent.cleaned_data['ocenMat']
+				ocenaAngielskiUcznia = EditStudent.cleaned_data['ocenAng']
+				ocenaNiemieckiUcznia = EditStudent.cleaned_data['ocenNiem']	
+				iducznia = EditStudent.cleaned_data['iducznia']
+
+				c = conn.cursor()
+				query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,iducznia)
+				c.execute(query)
+				conn.commit()
+				
+		query = "SELECT * FROM uczniowie WHERE id="+id
+		c.execute(query)
+
+		student = c.fetchall()
+		student = student[0]
+		try:
+			kod = student[3].split("-")
+		except:
+			kod = []
+			kod.append(None)
+			kod.append(None)
+		try:
+			kod2 = student[8].split("-")
+		except:
+			kod2 = []
+			kod2.append(None)
+			kod2.append(None)
+
+		instanceEditStudent=formEditStudent(initial={
+			'imie':student[1],
+			'nazwisko':student[2],
+			'kod1':kod[0],
+			'kod2':kod[1],
+			'miejscowosc':student[4],
+			'ulica':student[5],
+			'nrbudynku':student[6],
+			'nrmieszkania':student[7],
+			'kod12':kod2[0],
+			'kod22':kod2[1],
+			'miejscowosc2':student[9],
+			'ulica2':student[10],
+			'nrbudynku2':student[11],
+			'nrmieszkania2':student[12],
+			'ocenPol':student[13],
+			'ocenMat':student[20],
+			'ocenAng':student[14],
+			'ocenNiem':student[15],
+			'iducznia':id,
+			})
+
+		context = {
+			"formEditStudent":instanceEditStudent,
+		}
+
+		conn.close()
+
+		return render(request, "editStudent.html" , context)
+					
+	return render(request, "editStudent.html" , context)
 
 def vectorContains(tab,phrase):
 	for each in tab:

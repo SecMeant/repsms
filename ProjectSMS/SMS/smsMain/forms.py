@@ -153,6 +153,144 @@ class addStudent(forms.Form):
 		
 	)
 
+class formEditStudent(forms.Form):
+	imie = forms.CharField(label='Imie', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'class':'',
+		'id':'imieUcznia',
+		'size':'20',
+		'placeholder':"np. Paweł"})
+		
+	)
+
+	nazwisko = forms.CharField(label='Nazwisko', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nazwiskoUcznia',
+		'size':'20',
+		'placeholder':"np. Sagan"})
+		
+	)
+
+	# ADRES ZAMIESZKANIA
+	kod1 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p1','class':'kodp','maxlength':'2','size':'1'}))
+	kod2 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p2','class':'kodp','maxlength':'3','size':'2'}))
+
+	miejscowosc = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'miejscowosc',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
+		
+	)
+
+	ulica = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku = forms.CharField(label='Nr.bud', required=False, max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrbud',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+	nrmieszkania = forms.CharField(label='Nr.miesz', required=False, max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrmiesz',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
+	# ADRES ZAMELDOWANIA
+	kod12 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p21','class':'kodp','maxlength':'2','size':'1'}))
+	kod22 = forms.CharField(widget=forms.TextInput(attrs={'id':'kod_p22','class':'kodp','maxlength':'3','size':'1'}))
+
+	miejscowosc2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'miejscowosc2',
+		'size':'20',
+		'placeholder':"Miejscowosc"})
+		
+	)
+
+	ulica2 = forms.CharField(max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ulica2',
+		'size':'20',
+		'placeholder':"ulica"})
+		
+	)
+
+	nrbudynku2 = forms.CharField(label='Nr.bud', required=False, max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrbud2',
+		'size':'4',
+		'placeholder':"Nr.bud"})
+		
+	)
+
+	nrmieszkania2 = forms.CharField(label='Nr.miesz', required=False, max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'nrmiesz2',
+		'size':'5',
+		'placeholder':"Nr.miesz"})
+		
+	)
+
+	ocenPol = forms.CharField(label='Ocena Polski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenPol',
+		'size':'1'})
+		
+	)
+
+	ocenMat = forms.CharField(label='Ocena Matematyka', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenMat',
+		'size':'1'})
+		
+	)
+
+	ocenAng = forms.CharField(label='Ocena Angielski', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenAng',
+		'size':'1'})
+		
+	)
+
+	ocenNiem = forms.CharField(label='Ocena Niemiecki', max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'ocenNiem',
+		'size':'1'})
+		
+	)
+
+	iducznia = forms.CharField(max_length=32, widget=forms.TextInput(
+		attrs={
+		'type':"text", 
+		'id':'iducznia',
+		'hidden':'True'})
+		
+	)
 
 class removeClass(forms.Form):
 	klasy = forms.ChoiceField(label='Usun')

@@ -1,0 +1,28 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Wszyscy uczniowie</title>
+		<link rel="stylesheet" href="{% static '/smscss.css' %}">
+	</head>
+	<body>
+		<table >
+			<tr>
+				<td>Edytuj</td>
+				<td>Imię</td>
+				<td>Nazwisko</td>
+				<td>klasa</td>
+			</tr>
+			{% for student in allStudents %}
+				<tr>
+					<td><a href="edytujucznia/{{student.0}}">Edytuj</a></td>
+					
+						<td>{{ student.1 }}</td>
+						<td>{{ student.1 }}</td>
+						<td>{{ student.35 }}</td>
+					
+				</tr>
+			{% endfor %}
+		</table>
+	</body>
+</html>
