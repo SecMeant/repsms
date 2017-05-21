@@ -252,6 +252,8 @@ class formEditStudent(forms.Form):
 		
 	)
 
+	klasa = forms.ChoiceField(label='klasa')
+
 	ocenPol = forms.CharField(label='Ocena Polski', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
@@ -291,6 +293,11 @@ class formEditStudent(forms.Form):
 		'hidden':'True'})
 		
 	)
+
+	def __init__(self,*args, **kwargs):
+		klasyVar = kwargs.pop('klasy', None)
+		super(formEditStudent, self).__init__(*args, **kwargs)
+		self.fields['klasa'].choices = klasyVar
 
 class removeClass(forms.Form):
 	klasy = forms.ChoiceField(label='Usun')

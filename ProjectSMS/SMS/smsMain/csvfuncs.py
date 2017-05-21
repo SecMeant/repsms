@@ -1,5 +1,4 @@
 def searchcsv(phrase,file):
-				# file = open(filename,"r+",encoding="utf8")
 				file.seek(0)
 				line = file.readline().decode('utf-8')
 				fline = line.split(";")

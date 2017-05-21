@@ -62,12 +62,19 @@ def smsApp(request):
 		for cols in klasy:
 			klasypass.append((str(cols[5])+"-"+cols[0]).split("-"))
 
+		
+
+		#Im getting class names from db from every student
+		#then every unique class is appended to klasyPostfix which will contain
+		#list of all existing classes
 		c.execute("SELECT * FROM uczniowie")
 		uczniowie = c.fetchall()
 		klasyPostfix = []
+
 		for uczen in uczniowie:
-			if( not( vectorContains(klasyPostfix,uczen[len(uczen)-1]) ) and uczen[len(uczen)-1] != None ):
-				klasyPostfix.append(uczen[len(uczen)-1])
+			if( not( vectorContains(klasyPostfix,uczen[35]) ) and uczen[35] != None ):
+				klasyPostfix.append(uczen[35])
+
 
 		formAddProfile = addProfile
 		formAddStudent = addStudent
@@ -501,9 +508,9 @@ def deleteStudentsFromClass(request, id):
 			return redirect(smsApp)
 
 		print("DEBUG:?",len(uczen))
-		print("DEBUG:?",uczen[0][len(uczen[0])-1])
+		print("DEBUG:?",uczen[0][35])
 
-		klasa = uczen[0][len(uczen[0])-1]
+		klasa = uczen[0][35]
 
 		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
 		c.execute(query)
@@ -514,7 +521,7 @@ def deleteStudentsFromClass(request, id):
 		conn.commit()
 		conn.close()
 
-	return redirect(smsApp)
+	return redirect(test, klasa)
 
 def test(request, klasa):
 	if request.user.is_authenticated:
@@ -559,10 +566,22 @@ def editStudent(request,id):
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
 
+		#Im getting class names from db from every student
+		#then every unique class is appended to klasyPostfix which will contain
+		#list of all existing classes
+		c.execute("SELECT * FROM uczniowie")
+		uczniowie = c.fetchall()
+		klasyPostfix = []
+		klasyPostfix.append(("Brak","Brak"))
+
+		for uczen in uczniowie:
+			if( not( choiceFieldTupleContains(klasyPostfix,uczen[35]) ) and uczen[35] != None ):
+				klasyPostfix.append((uczen[35],uczen[35]))
+
 		# Edytowanie danych studenta klasy
 
 		if "formEditStudent" in request.POST:
-			EditStudent =  formEditStudent(request.POST)
+			EditStudent =  formEditStudent(request.POST,klasy=(klasyPostfix))
 			if EditStudent.is_valid():
 				imieUcznia = EditStudent.cleaned_data['imie']
 				nazwiskoUcznia = EditStudent.cleaned_data['nazwisko']
@@ -583,11 +602,25 @@ def editStudent(request,id):
 				ocenaPolskiUcznia = EditStudent.cleaned_data['ocenPol']
 				ocenaMatematykaUcznia = EditStudent.cleaned_data['ocenMat']
 				ocenaAngielskiUcznia = EditStudent.cleaned_data['ocenAng']
-				ocenaNiemieckiUcznia = EditStudent.cleaned_data['ocenNiem']	
+				ocenaNiemieckiUcznia = EditStudent.cleaned_data['ocenNiem']
+				klasaucznia = EditStudent.cleaned_data['klasa']	
 				iducznia = EditStudent.cleaned_data['iducznia']
 
-				c = conn.cursor()
-				query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,iducznia)
+				c.execute("SELECT * FROM uczniowie WHERE id={}".format(id))
+				uczen = c.fetchall()
+
+				if(len(uczen) == 1):
+					if(uczen[0][35] != klasaucznia):
+						klasaOld = uczen[0][35]
+						if(klasaOld != None and klasaOld != 'Brak'):
+							c.execute("DELETE FROM {} WHERE iducznia={}".format(klasaOld,id))
+							conn.commit()
+						if(klasaucznia != None and klasaucznia != 'Brak'):
+							query = "INSERT INTO {} (iducznia,Imię,Nazwisko,Kod_pocztowy,Miejscowość,Ulica,Nr_budynku,Nr_mieszkania,Kod_pocztowy2,Miejscowość2,Ulica2,Nr_budynku2,Nr_mieszkania2,matematyka,polski,angielski,niemiecki) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia)
+							c.execute(query)
+							conn.commit()
+
+				query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia,iducznia)
 				c.execute(query)
 				conn.commit()
 				
@@ -628,8 +661,9 @@ def editStudent(request,id):
 			'ocenMat':student[20],
 			'ocenAng':student[14],
 			'ocenNiem':student[15],
-			'iducznia':id,
-			})
+			'klasa':student[35],
+			'iducznia':id
+			},klasy=(klasyPostfix))
 
 		context = {
 			"formEditStudent":instanceEditStudent,
@@ -644,5 +678,11 @@ def editStudent(request,id):
 def vectorContains(tab,phrase):
 	for each in tab:
 		if(each == phrase):
+			return 1
+	return 0
+
+def choiceFieldTupleContains(myTuple,phrase):
+	for each in myTuple:
+		if(each[1] == phrase):
 			return 1
 	return 0
