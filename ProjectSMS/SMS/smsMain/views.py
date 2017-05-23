@@ -12,6 +12,7 @@ import math
 from .csvfuncs import searchcsv, importcsv
 from django.contrib.auth import logout
 from operator import itemgetter
+from .dbfuncs import sqlDict
 
 @login_required
 @transaction.atomic
@@ -33,7 +34,7 @@ def smsApp(request):
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 
 		c = conn.cursor()
-
+		
 		# Preparing data to send it to forms
 		# Algorithms choicefield
 		# Need to do this that way because of the manner of django functions.
