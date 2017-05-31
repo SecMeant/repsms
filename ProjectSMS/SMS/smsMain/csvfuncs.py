@@ -1,14 +1,14 @@
 def searchcsv(phrase,file):
-				file.seek(0)
-				line = file.readline().decode('utf-8')
-				fline = line.split(";")
-				i=0
-				for word in fline:
-					if(word == phrase):
-						return i
-					i+=1
+	file.seek(0)
+	line = file.readline().decode('utf-8')
+	fline = line.split(";")
+	i=0
+	for word in fline:
+		if(word == phrase):
+			return i
+		i+=1
 
-				return None
+	return None
 
 def fixnames(table):
 	strtable = ''

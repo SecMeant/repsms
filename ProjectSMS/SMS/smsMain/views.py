@@ -6,6 +6,7 @@ from django.db import transaction
 from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
 from .funkcjeopty import dejnumer, optymalizuj, rest
 from .fillfuncs import fillclasses 
+from .vec import vectorContains, choiceFieldTupleContains
 import os
 import sqlite3
 import math
@@ -44,7 +45,7 @@ def smsApp(request):
 		algorithms = c.fetchall()	
 		algorithmspass = []
 		for cols in algorithms:
-			algorithmspass.append(cols[0:2]) 
+			algorithmspass.append(cols[0:2])
 		# Profiles choicefield
 		c.execute("SELECT * FROM profile")
 		profiles = c.fetchall()
@@ -57,24 +58,22 @@ def smsApp(request):
 		# make this work like this [(a),(b)] - like multidimensinal array, because the choiceField function requires that
 		# so by adding a dash im making sure that the split will happen just between right data.
 		# After all im not sure of im doing this concatenate the right way, but im just a python begginer so..
-		c.execute("SELECT * FROM klasy")
-		klasy = c.fetchall()
+		klasy = sqlDict(c, "SELECT * FROM klasy")
 		klasypass = []
-		for cols in klasy:
-			klasypass.append((str(cols[5])+"-"+cols[0]).split("-"))
-
-		
+		#nk - name of class
+		#idk - id of class
+		for nk, idk in zip(klasy['nazwaKlasy'],klasy['id']):
+			klasypass.append((str(idk)+"-"+nk).split("-"))
 
 		#Im getting class names from db from every student
 		#then every unique class is appended to klasyPostfix which will contain
 		#list of all existing classes
-		c.execute("SELECT * FROM uczniowie")
-		uczniowie = c.fetchall()
+		uczniowie = sqlDict(c, "SELECT * FROM uczniowie")
 		klasyPostfix = []
 
-		for uczen in uczniowie:
-			if( not( vectorContains(klasyPostfix,uczen[35]) ) and uczen[35] != None ):
-				klasyPostfix.append(uczen[35])
+		for klasa in uczniowie['klasa']:
+			if( not( vectorContains(klasyPostfix,klasa) ) and klasa != None ):
+				klasyPostfix.append(klasa)
 
 
 		formAddProfile = addProfile
@@ -522,9 +521,9 @@ def deleteStudentsFromClass(request, id):
 		conn.commit()
 		conn.close()
 
-	return redirect(test, klasa)
+	return redirect(showSpecificClass, klasa)
 
-def test(request, klasa):
+def showSpecificClass(request, klasa):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
 			print(request.user.is_active)
@@ -675,15 +674,3 @@ def editStudent(request,id):
 		return render(request, "editStudent.html" , context)
 					
 	return render(request, "editStudent.html" , context)
-
-def vectorContains(tab,phrase):
-	for each in tab:
-		if(each == phrase):
-			return 1
-	return 0
-
-def choiceFieldTupleContains(myTuple,phrase):
-	for each in myTuple:
-		if(each[1] == phrase):
-			return 1
-	return 0
