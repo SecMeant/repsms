@@ -1,0 +1,3 @@
+Jinja nadal uzywa wyluskania po intexie numerycznym
+
+Haslo dla nowego uzytkownika jest hashowane sha-1
