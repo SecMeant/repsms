@@ -21,7 +21,15 @@
 							
 								<td>{{ student.2 }}</td>
 								<td>{{ student.3 }}</td>
+
+								<!-- Checks if class isnt NULL -->
+								{% if student.36 %} 
 								<td>{{ student.36 }}</td>
+
+								{% else %}
+								<td>Brak</td>
+
+								{% endif %}
 							
 						</tr>
 					{% endfor %}

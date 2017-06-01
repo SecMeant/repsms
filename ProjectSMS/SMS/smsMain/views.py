@@ -407,12 +407,14 @@ def showAllStudentsWithClass(request):
 		# THIS QUERY IS TEMPORARY !!! THIS CAN PROVIDE CRASHES IN THE FUTUTRE
 		# Im getting all the fields with NULL
 		# but this value for no class might change in the future
-		# so im just targeting it worth looking sometime when crash occurs.,
+		# so im just targeting it worth looking sometime when crash occurs.
 		classes = []
 		for each in classList:
 			query = "SELECT * FROM uczniowie WHERE klasa='"+each+"'"
-			c.execute(query) 
-			classes.append(c.fetchall())
+			c.execute(query)
+			result = c.fetchall()
+			if result:
+				classes.append(result)
 
 		context={
 			"classes":classes,
@@ -492,8 +494,7 @@ def deleteStudentsFromClass(request, id):
 		c = conn.cursor()
 
 		query = "SELECT * FROM uczniowie WHERE id="+id
-		c.execute(query)
-		uczen = c.fetchall()
+		uczen = sqlDict(c, query)
 		
 
 
@@ -501,7 +502,7 @@ def deleteStudentsFromClass(request, id):
 			print("Error when deleting student")
 			return redirect(smsApp)
 
-		klasa = uczen[0][36]
+		klasa = uczen['klasa'][0]
 
 		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
 		c.execute(query)
@@ -534,9 +535,12 @@ def showSpecificClass(request, klasa):
 		allStudents = c.fetchall()
 		headerTable = [description[0] for description in c.description]
 
+		headerWidth = len(headerTable) + 1
+
 		context = {
 			"allStudents":allStudents,
 			"headerTable":headerTable,
+			"headerWidth":headerWidth,
 			"klasa":klasa,
 		}
 
@@ -560,14 +564,14 @@ def editStudent(request,id):
 		#Im getting class names from db from every student
 		#then every unique class is appended to klasyPostfix which will contain
 		#list of all existing classes
-		c.execute("SELECT * FROM uczniowie")
-		uczniowie = c.fetchall()
+		query = "SELECT * FROM uczniowie"
+		uczniowie = sqlDict(c, query)
 		klasyPostfix = []
 		klasyPostfix.append(("Brak","Brak"))
 
-		for uczen in uczniowie:
-			if( not( choiceFieldTupleContains(klasyPostfix,uczen[36]) ) and uczen[36] != None ):
-				klasyPostfix.append((uczen[36],uczen[36]))
+		for klasa in uczniowie['klasa']:
+			if( not( choiceFieldTupleContains(klasyPostfix,klasa) ) and klasa != None ):
+				klasyPostfix.append((klasa,klasa))
 
 		# Edytowanie danych studenta klasy
 
@@ -597,12 +601,13 @@ def editStudent(request,id):
 				klasaucznia = EditStudent.cleaned_data['klasa']	
 				iducznia = EditStudent.cleaned_data['iducznia']
 
-				c.execute("SELECT * FROM uczniowie WHERE id={}".format(id))
-				uczen = c.fetchall()
 
-				if(len(uczen) == 1):
-					if(uczen[0][36] != klasaucznia):
-						klasaOld = uczen[0][36]
+				query = "SELECT * FROM uczniowie WHERE id={}".format(id)
+				uczen = sqlDict(c, query)
+
+				if(len(uczen['id']) == 1):
+					if(uczen['klasa'][0] != klasaucznia):
+						klasaOld = uczen['klasa'][0]
 						if(klasaOld != None and klasaOld != 'Brak'):
 							c.execute("DELETE FROM {} WHERE iducznia={}".format(klasaOld,id))
 							conn.commit()
@@ -610,8 +615,10 @@ def editStudent(request,id):
 							query = "INSERT INTO {} (iducznia,Imię,Nazwisko) VALUES('{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia)
 							c.execute(query)
 							conn.commit()
-
-				query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia,iducznia)
+				if(klasaucznia != None and klasaucznia != 'Brak'):
+					query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia,iducznia)
+				else:
+					query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa=NULL WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,iducznia)
 				c.execute(query)
 				conn.commit()
 				

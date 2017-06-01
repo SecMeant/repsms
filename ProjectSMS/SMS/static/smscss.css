@@ -4,12 +4,13 @@ body{
 }
 
 table *{
-	padding:7px;
+	padding:5px;
 	border:2px solid white;
 }
 div.container{
 	width:100%;
 }
+
 .tableHeader{
 	text-align: center;
 	font-size: 22px;
@@ -22,6 +23,7 @@ table td{
 }
 table{
 	border:4px solid white;
+	margin-bottom: 60px;
 }
 table tr a{
 	color:white;

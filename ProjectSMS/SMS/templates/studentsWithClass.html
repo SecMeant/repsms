@@ -6,16 +6,17 @@
 	<link rel="stylesheet" href="{% static '/smscss.css' %}">
 </head>
 <body>
-	<table >
-		<tr>
-			{% for every in headerTable %}
-				<td>{{ every }}</td>
-			{% endfor %}
-		</tr>
+	
 		{% for class in classes %}
+			<table>
+			<tr>
+				{% for every in headerTable %}
+					<td>{{ every }}</td>
+				{% endfor %}
+			</tr>
 			<tr>
 				{% if class.0.35 %}
-					<td colspan="{{class|length}}"><center>{{ class.0.36 }}, Wielkosc:{{ class|length }}</center></td>
+					<td colspan="{{headerTable|length}}"><center>{{ class.0.36 }}, Wielkosc:{{ class|length }}</center></td>
 				{% endif %}
 			</tr>
 			<tr>
@@ -27,7 +28,8 @@
 					</tr>
 				{% endfor %}
 			</tr>
+			</table>
 		{% endfor %}
-	</table>
+	
 </body>
 </html>
