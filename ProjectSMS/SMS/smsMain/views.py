@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
 from .funkcjeopty import dejnumer, optymalizuj, rest
-from .fillfuncs import fillclasses 
+from .fillfuncs import fillclasses, fillclasses_sqlDict
 from .vec import vectorContains, choiceFieldTupleContains
 import os
 import sqlite3
@@ -13,7 +13,7 @@ import math
 from .csvfuncs import searchcsv, importcsv
 from django.contrib.auth import logout
 from operator import itemgetter
-from .dbfuncs import sqlDict
+from .dbfuncs import sqlDict, sqlDict_sort
 
 @login_required
 @transaction.atomic
@@ -35,7 +35,7 @@ def smsApp(request):
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 
 		c = conn.cursor()
-		
+
 		# Preparing data to send it to forms
 		# Algorithms choicefield
 		# Need to do this that way because of the manner of django functions.
@@ -164,8 +164,7 @@ def smsApp(request):
 				if formFillClass.is_valid():
 					c = conn.cursor()
 					sposob = formFillClass.cleaned_data['sposob']
-					c.execute("SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
-					klasa = c.fetchall()
+					klasa = sqlDict(c, "SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
 
 					c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
 
@@ -177,22 +176,16 @@ def smsApp(request):
 					if(ile>=1 and sposob==True):
 						odp = []
 						odpowiedzi = [] # I have no idea why i chose similar names. Have no time to figure it out right now
-						sizeofclass = int(klasa[0][2])
+						sizeofclass = int(klasa['liczebnosc'][0])
 						odpowiedzi.append(dejnumer(ile,sizeofclass)) # First argument is size of all students to sort out, secound is size of class
 						odp.append(optymalizuj(odpowiedzi[0],sizeofclass)) # Same arguments as above here
-						print("DEBUG INFORMATION:")
-						print("odp1:")
-						print(odp)
 						odp[0] = rest(odp[0]) # Here as argument I need returned value from optymalizuj function
-						print("odpowiedzi:")
-						print(odpowiedzi)
-						print("odp:")
-						print(odp)
-						print("END OF DEBUG")
-						fillclasses(c,conn,klasa,uczniowie,current_user,odp)
+						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
+						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,odp)
 
 					else:
-						fillclasses(c,conn,klasa,uczniowie,current_user,0)
+						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
+						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,0)
 					# end of implementation
 
 					context.update({"formFillClass":formFillClass})
@@ -236,35 +229,36 @@ def smsApp(request):
 				#Tablica szukanych kolumn w pliku csv
 
 				wantedtable = [
-					"Imię", #1
-					"Nazwisko",#2
-					"Kod pocztowy",#3
-					"Miejscowość",#4
-					"Ulica",#5
-					"Nr budynku",#6
-					"Nr mieszkania",#7
-					"polski",#8
-					"angielski",#9
-					"niemiecki",#10
-					"francuski",#11
-					"wloski",#12
-					"hiszpanski",#13
-					"rosyjski",#14
-					"matematyka",#15
-					"fizyka",#16
-					"informatyka",#17
-					"historia",#18
-					"biologia",#19
-					"chemia",#20
-					"geografia",#21
-					"wos",#22
-					"zajęcia techniczne",#23
-					"zajęcia artstyczne",#24
-					"edukacja dla bezpieczeństwa",#25
-					"plastyka",#26
-					"muzyka",#27
-					"wf",#28
-					"zachowanie",#29
+					"Imię",
+					"Pesel",
+					"Nazwisko",
+					"Kod pocztowy",
+					"Miejscowość",
+					"Ulica",
+					"Nr budynku",
+					"Nr mieszkania",
+					"polski",
+					"angielski",
+					"niemiecki",
+					"francuski",
+					"wloski",
+					"hiszpanski",
+					"rosyjski",
+					"matematyka",
+					"fizyka",
+					"informatyka",
+					"historia",
+					"biologia",
+					"chemia",
+					"geografia",
+					"wos",
+					"zajęcia techniczne",
+					"zajęcia artstyczne",
+					"edukacja dla bezpieczeństwa",
+					"plastyka",
+					"muzyka",
+					"wf",
+					"zachowanie",
 					]
 
 				answer = []
@@ -507,10 +501,7 @@ def deleteStudentsFromClass(request, id):
 			print("Error when deleting student")
 			return redirect(smsApp)
 
-		print("DEBUG:?",len(uczen))
-		print("DEBUG:?",uczen[0][35])
-
-		klasa = uczen[0][35]
+		klasa = uczen[0][36]
 
 		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
 		c.execute(query)
@@ -575,8 +566,8 @@ def editStudent(request,id):
 		klasyPostfix.append(("Brak","Brak"))
 
 		for uczen in uczniowie:
-			if( not( choiceFieldTupleContains(klasyPostfix,uczen[35]) ) and uczen[35] != None ):
-				klasyPostfix.append((uczen[35],uczen[35]))
+			if( not( choiceFieldTupleContains(klasyPostfix,uczen[36]) ) and uczen[36] != None ):
+				klasyPostfix.append((uczen[36],uczen[36]))
 
 		# Edytowanie danych studenta klasy
 
@@ -610,13 +601,13 @@ def editStudent(request,id):
 				uczen = c.fetchall()
 
 				if(len(uczen) == 1):
-					if(uczen[0][35] != klasaucznia):
-						klasaOld = uczen[0][35]
+					if(uczen[0][36] != klasaucznia):
+						klasaOld = uczen[0][36]
 						if(klasaOld != None and klasaOld != 'Brak'):
 							c.execute("DELETE FROM {} WHERE iducznia={}".format(klasaOld,id))
 							conn.commit()
 						if(klasaucznia != None and klasaucznia != 'Brak'):
-							query = "INSERT INTO {} (iducznia,Imię,Nazwisko,Kod_pocztowy,Miejscowość,Ulica,Nr_budynku,Nr_mieszkania,Kod_pocztowy2,Miejscowość2,Ulica2,Nr_budynku2,Nr_mieszkania2,matematyka,polski,angielski,niemiecki) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia)
+							query = "INSERT INTO {} (iducznia,Imię,Nazwisko) VALUES('{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia)
 							c.execute(query)
 							conn.commit()
 
@@ -625,43 +616,41 @@ def editStudent(request,id):
 				conn.commit()
 				
 		query = "SELECT * FROM uczniowie WHERE id="+id
-		c.execute(query)
+		student = sqlDict(c, query)
 
-		student = c.fetchall()
-		student = student[0]
 		try:
-			kod = student[3].split("-")
+			kod = student['Kod_pocztowy'][0].split("-")
 		except:
 			kod = []
 			kod.append(None)
 			kod.append(None)
 		try:
-			kod2 = student[8].split("-")
+			kod2 = student['Kod_pocztowy2'][0].split("-")
 		except:
 			kod2 = []
 			kod2.append(None)
 			kod2.append(None)
 
 		instanceEditStudent=formEditStudent(initial={
-			'imie':student[1],
-			'nazwisko':student[2],
+			'imie':student['Imię'][0],
+			'nazwisko':student['Nazwisko'][0],
 			'kod1':kod[0],
 			'kod2':kod[1],
-			'miejscowosc':student[4],
-			'ulica':student[5],
-			'nrbudynku':student[6],
-			'nrmieszkania':student[7],
+			'miejscowosc':student['Miejscowość'][0],
+			'ulica':student['Ulica'][0],
+			'nrbudynku':student['Nr_budynku'][0],
+			'nrmieszkania':student['Nr_mieszkania'][0],
 			'kod12':kod2[0],
 			'kod22':kod2[1],
-			'miejscowosc2':student[9],
-			'ulica2':student[10],
-			'nrbudynku2':student[11],
-			'nrmieszkania2':student[12],
-			'ocenPol':student[13],
-			'ocenMat':student[20],
-			'ocenAng':student[14],
-			'ocenNiem':student[15],
-			'klasa':student[35],
+			'miejscowosc2':student['Miejscowość2'][0],
+			'ulica2':student['Ulica2'][0],
+			'nrbudynku2':student['Nr_budynku2'][0],
+			'nrmieszkania2':student['Nr_mieszkania2'][0],
+			'ocenPol':student['polski'][0],
+			'ocenMat':student['matematyka'][0],
+			'ocenAng':student['angielski'][0],
+			'ocenNiem':student['niemiecki'][0],
+			'klasa':student['klasa'][0],
 			'iducznia':id
 			},klasy=(klasyPostfix))
 

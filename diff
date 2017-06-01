@@ -1,0 +1,485 @@
+diff --git a/ProjectSMS/SMS/db.sqlite3 b/ProjectSMS/SMS/db.sqlite3
+index 3f2c541..cdf4c35 100644
+Binary files a/ProjectSMS/SMS/db.sqlite3 and b/ProjectSMS/SMS/db.sqlite3 differ
+diff --git a/ProjectSMS/SMS/platforma/views.py b/ProjectSMS/SMS/platforma/views.py
+index 1784521..1c1fcfc 100644
+--- a/ProjectSMS/SMS/platforma/views.py
++++ b/ProjectSMS/SMS/platforma/views.py
+@@ -52,12 +52,12 @@ def index(request,typeMethod=None,activeid=None):
+ 				c.execute('CREATE TABLE IF NOT EXISTS "algorytmy" ( id integer NOT NULL PRIMARY KEY AUTOINCREMENT, nazwa text, jpolski integer, matematyka integer, jangielski integer, jniemiecki integer )')
+ 				c.execute('CREATE TABLE IF NOT EXISTS "profile" ( shortname text, fullname text )')
+ 				c.execute("CREATE TABLE IF NOT EXISTS klasy(nazwaKlasy text NOT NULL, profil text NOT NULL, liczebnosc integer NOT NULL, algorytm integer NOT NULL,litera text NOT NULL, id integer NOT NULL PRIMARY KEY AUTOINCREMENT )")
+-				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text)")
++				c.execute("CREATE TABLE IF NOT EXISTS uczniowie(id integer NOT NULL PRIMARY KEY AUTOINCREMENT, Pesel text, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text, UNIQUE(Pesel) ON CONFLICT REPLACE)")
+ 				conn.commit()
+ 				conn.close()
+ 				isReady=True
+ 			except:
+-				raise Http404("Coś poszło nie tak !!")
++				raise Http404("Coś poszło nie tak :(")
+ 
+ 			# return redirect('/',isReady=True)
+ 	elif typeMethod == "changepassword":
+diff --git a/ProjectSMS/SMS/smsMain/dbfuncs.py b/ProjectSMS/SMS/smsMain/dbfuncs.py
+index e9cb6da..2a8474e 100644
+--- a/ProjectSMS/SMS/smsMain/dbfuncs.py
++++ b/ProjectSMS/SMS/smsMain/dbfuncs.py
+@@ -1,4 +1,5 @@
+ import sqlite3
++from operator import itemgetter
+ 
+ #Taking cursor to database and query that will be runned
+ #Returns dictionary that have indexes named like columns from database
+@@ -30,4 +31,43 @@ def sqlDict(cursor, query):
+ 		sDict.update({ each:data[j] })
+ 		j = j+1
+ 
+-	return sDict
+\ No newline at end of file
++	return sDict
++
++#This funtions takes sqlDict and returns normal table of tables
++#This is usefull when u need to call sorted on sqlDict
++#entries is number of most elements that key points to
++def sqlDict_toSortableTable(instance_sqlDict,entries):
++	stab = []
++	xtab = []
++	i = 0
++	while(i<entries):
++		for each in instance_sqlDict:
++			try:
++				stab.append(instance_sqlDict[each][i])
++			except:
++				stab.append(None)
++		xtab.append(stab)
++		stab = []
++		i = i+1
++
++	return xtab
++
++def sqlDict_sort(instance_sqlDict,entries,itemget):
++	tab = sqlDict_toSortableTable(instance_sqlDict, entries)
++	tab = sorted(tab,key=lambda l:l[itemget],reverse=True) # Sortowane po punktach
++	i = 0
++	j = 0
++
++	for each in instance_sqlDict:
++		instance_sqlDict[each] = []
++
++
++	while(i < entries):
++		for each in instance_sqlDict:
++			instance_sqlDict[each].append(tab[i][j])
++			j+=1
++		j=0
++		i+=1
++
++	return instance_sqlDict
++
+diff --git a/ProjectSMS/SMS/smsMain/fillfuncs.py b/ProjectSMS/SMS/smsMain/fillfuncs.py
+index 427b52d..466476f 100644
+--- a/ProjectSMS/SMS/smsMain/fillfuncs.py
++++ b/ProjectSMS/SMS/smsMain/fillfuncs.py
+@@ -1,4 +1,5 @@
+ from operator import itemgetter
++from .dbfuncs import sqlDict_toSortableTable, sqlDict, sqlDict_sort
+ import math
+ 
+ # ARGS:
+@@ -30,8 +31,7 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
+ 	#Im not sure if this move is OK...
+ 	#However it works, so at least now Ill leave it
+ 	#I did this cuz sorted() throwed some errors like it cant
+-	#compare Nonetype and str etc
+-	#I dont even remember why I need to call sorted()
++	#compare Nonetype and str etc so this simply cast None to '0'
+ 	##################################
+ 	#			DIRTY TRICKS		 #
+ 	for i,s in enumerate(uczniowie):
+@@ -104,4 +104,116 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
+ 		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa[0][5]))
+ 		conn.commit()
+ 		conn.close()
++	return 0
++
++
++
++#The same but takes sqlDict values as arguments
++def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
++	algo = sqlDict(c, "SELECT * FROM algorytmy WHERE id="+str(klasa['algorytm'][0]))
++
++	uczniowie.update({'punkty':[]}) #Nowa kolumna potrzebna przy sortowaniu po najlepszych wynikach
++	points = 0
++	buff = 0
++	while(buff < len(uczniowie['id'])):
++		if(uczniowie['polski'][buff]):
++			points = int(uczniowie['polski'][buff]) * algo['jpolski'][0]
++		if(uczniowie['angielski'][buff]):
++			points += int(uczniowie['angielski'][buff]) * algo['jangielski'][0]
++		if(uczniowie['niemiecki'][buff]):
++			points += int(uczniowie['niemiecki'][buff]) * algo['jniemiecki'][0]
++		if(uczniowie['matematyka'][buff]):
++			points += int(uczniowie['matematyka'][buff]) * algo['matematyka'][0]
++
++		uczniowie['punkty'].append(points)
++		buff += 1
++
++	uczniowieInd = sqlDict_toSortableTable(uczniowie,len(uczniowie['id']))
++	#Im not sure if this move is OK...
++	#However it works, so at least now Ill leave it
++	#I did this cuz sorted() throwed some errors like it cant
++	#compare Nonetype and str etc so this simply cast None to '0'
++	##################################
++	#			DIRTY TRICKS		 #
++	for i,s in enumerate(uczniowieInd):
++			for j,v in enumerate(s):
++				if(v == None):
++					s[j] = '0'	
++	##################################
++
++
++	
++	uczniowieInd = sorted(uczniowieInd,key=lambda l:l[len(uczniowieInd[0])-1],reverse=True) # Sortowane po punktach
++	testtab = sqlDict_sort(uczniowie,len(uczniowie['punkty']),len(uczniowie)-1)
++
++	letter = klasa['litera'][0]
++
++	inc = 0
++	inc2 = 0
++	j = 0
++
++	if(odp==0):
++		perclass = math.ceil(len(uczniowie['punkty'])/klasa['liczebnosc'][0])
++
++		while(inc < perclass):
++			if(ord(letter)>90):
++				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
++				return 1
++			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
++			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
++			c.execute(query)
++			conn.commit()
++			while(inc2 < klasa['liczebnosc'][0] and j<len(uczniowie['punkty'])):
++				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
++				wrapper = []
++
++				#execute() takes as argument table of arguments ¯\_(ツ)_/¯
++				wrapper.append(uczniowie['id'][j])
++				wrapper.append(uczniowie['Pesel'][j])
++				wrapper.append(uczniowie['Imię'][j])
++				wrapper.append(uczniowie['Nazwisko'][j])
++				wrapper.append(uczniowie['punkty'][j])
++
++				c.execute(query,wrapper)
++				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
++				conn.commit()
++				j += 1
++				inc2 += 1
++			inc2 = 0
++			inc += 1
++			letter = ord(letter)
++			letter += 1
++			letter = chr(letter)
++
++		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa['id'][0]))
++		conn.commit()
++		conn.close()
++	else:
++		n = 0
++		while(inc < len(odp[0])):
++			if(ord(letter)>90):
++				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
++				c.rollback()
++				return 1
++			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
++			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
++			c.execute(query)
++			conn.commit()
++			while(inc2 < odp[0][n] and j<len(uczniowie['punkty'])):
++				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
++				c.execute(query,uczniowie['id'][j],uczniowie['Pesel'][j],uczniowie['Imię'][j],uczniowie['Nazwisko'][j],uczniowie['punkty'][j])
++				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
++				conn.commit()
++				j += 1
++				inc2 += 1
++			n += 1
++			inc2 = 0
++			inc += 1
++			letter = ord(letter)
++			letter += 1
++			letter = chr(letter)
++
++		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa['id'][0]))
++		conn.commit()
++		conn.close()
+ 	return 0
+\ No newline at end of file
+diff --git a/ProjectSMS/SMS/smsMain/views.py b/ProjectSMS/SMS/smsMain/views.py
+index 77d82ce..3f51868 100644
+--- a/ProjectSMS/SMS/smsMain/views.py
++++ b/ProjectSMS/SMS/smsMain/views.py
+@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
+ from django.db import transaction
+ from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
+ from .funkcjeopty import dejnumer, optymalizuj, rest
+-from .fillfuncs import fillclasses 
++from .fillfuncs import fillclasses, fillclasses_sqlDict
+ from .vec import vectorContains, choiceFieldTupleContains
+ import os
+ import sqlite3
+@@ -13,7 +13,7 @@ import math
+ from .csvfuncs import searchcsv, importcsv
+ from django.contrib.auth import logout
+ from operator import itemgetter
+-from .dbfuncs import sqlDict
++from .dbfuncs import sqlDict, sqlDict_sort
+ 
+ @login_required
+ @transaction.atomic
+@@ -35,7 +35,7 @@ def smsApp(request):
+ 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+ 
+ 		c = conn.cursor()
+-		
++
+ 		# Preparing data to send it to forms
+ 		# Algorithms choicefield
+ 		# Need to do this that way because of the manner of django functions.
+@@ -164,8 +164,7 @@ def smsApp(request):
+ 				if formFillClass.is_valid():
+ 					c = conn.cursor()
+ 					sposob = formFillClass.cleaned_data['sposob']
+-					c.execute("SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
+-					klasa = c.fetchall()
++					klasa = sqlDict(c, "SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
+ 
+ 					c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
+ 
+@@ -177,22 +176,16 @@ def smsApp(request):
+ 					if(ile>=1 and sposob==True):
+ 						odp = []
+ 						odpowiedzi = [] # I have no idea why i chose similar names. Have no time to figure it out right now
+-						sizeofclass = int(klasa[0][2])
++						sizeofclass = int(klasa['liczebnosc'][0])
+ 						odpowiedzi.append(dejnumer(ile,sizeofclass)) # First argument is size of all students to sort out, secound is size of class
+ 						odp.append(optymalizuj(odpowiedzi[0],sizeofclass)) # Same arguments as above here
+-						print("DEBUG INFORMATION:")
+-						print("odp1:")
+-						print(odp)
+ 						odp[0] = rest(odp[0]) # Here as argument I need returned value from optymalizuj function
+-						print("odpowiedzi:")
+-						print(odpowiedzi)
+-						print("odp:")
+-						print(odp)
+-						print("END OF DEBUG")
+-						fillclasses(c,conn,klasa,uczniowie,current_user,odp)
++						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
++						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,odp)
+ 
+ 					else:
+-						fillclasses(c,conn,klasa,uczniowie,current_user,0)
++						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
++						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,0)
+ 					# end of implementation
+ 
+ 					context.update({"formFillClass":formFillClass})
+@@ -236,35 +229,36 @@ def smsApp(request):
+ 				#Tablica szukanych kolumn w pliku csv
+ 
+ 				wantedtable = [
+-					"Imię", #1
+-					"Nazwisko",#2
+-					"Kod pocztowy",#3
+-					"Miejscowość",#4
+-					"Ulica",#5
+-					"Nr budynku",#6
+-					"Nr mieszkania",#7
+-					"polski",#8
+-					"angielski",#9
+-					"niemiecki",#10
+-					"francuski",#11
+-					"wloski",#12
+-					"hiszpanski",#13
+-					"rosyjski",#14
+-					"matematyka",#15
+-					"fizyka",#16
+-					"informatyka",#17
+-					"historia",#18
+-					"biologia",#19
+-					"chemia",#20
+-					"geografia",#21
+-					"wos",#22
+-					"zajęcia techniczne",#23
+-					"zajęcia artstyczne",#24
+-					"edukacja dla bezpieczeństwa",#25
+-					"plastyka",#26
+-					"muzyka",#27
+-					"wf",#28
+-					"zachowanie",#29
++					"Imię",
++					"Pesel",
++					"Nazwisko",
++					"Kod pocztowy",
++					"Miejscowość",
++					"Ulica",
++					"Nr budynku",
++					"Nr mieszkania",
++					"polski",
++					"angielski",
++					"niemiecki",
++					"francuski",
++					"wloski",
++					"hiszpanski",
++					"rosyjski",
++					"matematyka",
++					"fizyka",
++					"informatyka",
++					"historia",
++					"biologia",
++					"chemia",
++					"geografia",
++					"wos",
++					"zajęcia techniczne",
++					"zajęcia artstyczne",
++					"edukacja dla bezpieczeństwa",
++					"plastyka",
++					"muzyka",
++					"wf",
++					"zachowanie",
+ 					]
+ 
+ 				answer = []
+@@ -507,10 +501,7 @@ def deleteStudentsFromClass(request, id):
+ 			print("Error when deleting student")
+ 			return redirect(smsApp)
+ 
+-		print("DEBUG:?",len(uczen))
+-		print("DEBUG:?",uczen[0][35])
+-
+-		klasa = uczen[0][35]
++		klasa = uczen[0][36]
+ 
+ 		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
+ 		c.execute(query)
+@@ -575,8 +566,8 @@ def editStudent(request,id):
+ 		klasyPostfix.append(("Brak","Brak"))
+ 
+ 		for uczen in uczniowie:
+-			if( not( choiceFieldTupleContains(klasyPostfix,uczen[35]) ) and uczen[35] != None ):
+-				klasyPostfix.append((uczen[35],uczen[35]))
++			if( not( choiceFieldTupleContains(klasyPostfix,uczen[36]) ) and uczen[36] != None ):
++				klasyPostfix.append((uczen[36],uczen[36]))
+ 
+ 		# Edytowanie danych studenta klasy
+ 
+@@ -610,13 +601,13 @@ def editStudent(request,id):
+ 				uczen = c.fetchall()
+ 
+ 				if(len(uczen) == 1):
+-					if(uczen[0][35] != klasaucznia):
+-						klasaOld = uczen[0][35]
++					if(uczen[0][36] != klasaucznia):
++						klasaOld = uczen[0][36]
+ 						if(klasaOld != None and klasaOld != 'Brak'):
+ 							c.execute("DELETE FROM {} WHERE iducznia={}".format(klasaOld,id))
+ 							conn.commit()
+ 						if(klasaucznia != None and klasaucznia != 'Brak'):
+-							query = "INSERT INTO {} (iducznia,Imię,Nazwisko,Kod_pocztowy,Miejscowość,Ulica,Nr_budynku,Nr_mieszkania,Kod_pocztowy2,Miejscowość2,Ulica2,Nr_budynku2,Nr_mieszkania2,matematyka,polski,angielski,niemiecki) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia)
++							query = "INSERT INTO {} (iducznia,Imię,Nazwisko) VALUES('{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia)
+ 							c.execute(query)
+ 							conn.commit()
+ 
+@@ -625,43 +616,41 @@ def editStudent(request,id):
+ 				conn.commit()
+ 				
+ 		query = "SELECT * FROM uczniowie WHERE id="+id
+-		c.execute(query)
++		student = sqlDict(c, query)
+ 
+-		student = c.fetchall()
+-		student = student[0]
+ 		try:
+-			kod = student[3].split("-")
++			kod = student['Kod_pocztowy'][0].split("-")
+ 		except:
+ 			kod = []
+ 			kod.append(None)
+ 			kod.append(None)
+ 		try:
+-			kod2 = student[8].split("-")
++			kod2 = student['Kod_pocztowy2'][0].split("-")
+ 		except:
+ 			kod2 = []
+ 			kod2.append(None)
+ 			kod2.append(None)
+ 
+ 		instanceEditStudent=formEditStudent(initial={
+-			'imie':student[1],
+-			'nazwisko':student[2],
++			'imie':student['Imię'][0],
++			'nazwisko':student['Nazwisko'][0],
+ 			'kod1':kod[0],
+ 			'kod2':kod[1],
+-			'miejscowosc':student[4],
+-			'ulica':student[5],
+-			'nrbudynku':student[6],
+-			'nrmieszkania':student[7],
++			'miejscowosc':student['Miejscowość'][0],
++			'ulica':student['Ulica'][0],
++			'nrbudynku':student['Nr_budynku'][0],
++			'nrmieszkania':student['Nr_mieszkania'][0],
+ 			'kod12':kod2[0],
+ 			'kod22':kod2[1],
+-			'miejscowosc2':student[9],
+-			'ulica2':student[10],
+-			'nrbudynku2':student[11],
+-			'nrmieszkania2':student[12],
+-			'ocenPol':student[13],
+-			'ocenMat':student[20],
+-			'ocenAng':student[14],
+-			'ocenNiem':student[15],
+-			'klasa':student[35],
++			'miejscowosc2':student['Miejscowość2'][0],
++			'ulica2':student['Ulica2'][0],
++			'nrbudynku2':student['Nr_budynku2'][0],
++			'nrmieszkania2':student['Nr_mieszkania2'][0],
++			'ocenPol':student['polski'][0],
++			'ocenMat':student['matematyka'][0],
++			'ocenAng':student['angielski'][0],
++			'ocenNiem':student['niemiecki'][0],
++			'klasa':student['klasa'][0],
+ 			'iducznia':id
+ 			},klasy=(klasyPostfix))
+ 
+diff --git a/ProjectSMS/SMS/templates/manageStudent.html b/ProjectSMS/SMS/templates/manageStudent.html
+index fbed840..58e3da0 100644
+--- a/ProjectSMS/SMS/templates/manageStudent.html
++++ b/ProjectSMS/SMS/templates/manageStudent.html
+@@ -19,9 +19,9 @@
+ 						<tr>
+ 							<td><a href="edytujucznia/{{student.0}}">Edytuj</a></td>
+ 							
+-								<td>{{ student.1 }}</td>
+ 								<td>{{ student.2 }}</td>
+-								<td>{{ student.35 }}</td>
++								<td>{{ student.3 }}</td>
++								<td>{{ student.36 }}</td>
+ 							
+ 						</tr>
+ 					{% endfor %}
+diff --git a/ProjectSMS/SMS/templates/studentsWithClass.html b/ProjectSMS/SMS/templates/studentsWithClass.html
+index 37424c2..f010e45 100644
+--- a/ProjectSMS/SMS/templates/studentsWithClass.html
++++ b/ProjectSMS/SMS/templates/studentsWithClass.html
+@@ -15,7 +15,7 @@
+ 		{% for class in classes %}
+ 			<tr>
+ 				{% if class.0.35 %}
+-					<td colspan="36"><center>{{ class.0.35 }}, Wielkosc:{{ class|length }}</center></td>
++					<td colspan="{{class|length}}"><center>{{ class.0.36 }}, Wielkosc:{{ class|length }}</center></td>
+ 				{% endif %}
+ 			</tr>
+ 			<tr>
+diff --git a/ProjectSMS/SMS/userData/hlz.sqlite3 b/ProjectSMS/SMS/userData/hlz.sqlite3
+index c83072c..f7b6edd 100644
+Binary files a/ProjectSMS/SMS/userData/hlz.sqlite3 and b/ProjectSMS/SMS/userData/hlz.sqlite3 differ
