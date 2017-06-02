@@ -28,24 +28,18 @@
 			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary"style=" margin-left:0px;width: 300px" href="/">SMS</a></div>
 
 							<p><li><a href="#" class="optionDodajKlase">
-							<span class="glyphicon glyphicon-plus"></span> Klasy
+							<span class="glyphicon glyphicon-plus"></span> Dodaj klase
 							</a></li></p>
 
-							<p><li><a href="#" class="optionWypelnijKlase">
-							<span class="glyphicon glyphicon-equalizer"></span> Wypelnij Klasę
-							</a></li></p>
 
 							<p><li><a href="#" class="optionDodajUcznia">
-							<span class="glyphicon glyphicon-user"></span> Uczniowie
+							<span class="glyphicon glyphicon-user"></span> Dodaj ucznia
 							</a></li></p>
 
 							<p><li><a href="#" class="optionDodajProfil">
-							<span class="glyphicon glyphicon-star"></span> Profile
+							<span class="glyphicon glyphicon-star"></span> Unuń wszystkich
 							</a></li></p>
 
-							<p><li><a href="#" class="optionDodajAlgorytm">
-							<span class="glyphicon glyphicon-plus"></span> Algorytmy rekrutacyjne
-							</a></li></p>
 
 			         </ul>
 			        </div>
@@ -74,8 +68,8 @@
 						<a href="/sms/extended/uczniowieprzydzieleni"><div class="showStudentWithClass centerOption">UCZNIOWIE PRZYDZIELENI DO KLASY</div></a>
 						<a href="/sms/extended/uczniowienieprzydzieleni"><div class="showStudentWithNoClass centerOption">UCZNIOWIE NIEPRZYDZIELENI DO KLASY</div></a>
 					</center>
-					{% if klasyPostfix|length > 0 %}
-						{% if klasyPostfix.index0 is not none %}
+					{% if proflie_druk|length > 0 %}
+						
 						<div class="klasyTop">
 							<p>Klasy</p>
 						</div>
@@ -83,15 +77,15 @@
 						<div class="innerKlasy">
 
 							<ul>
-								{% for klasa in klasyPostfix %}
+								{% for profil in proflie_druk %}
 
-								<li><a href="/sms/extended/test/{{klasa}}">{{ klasa }}</a></li>
+								<li><a href="/sms/simple/{{profil}}">{{ profil }}</a></li>
 
 								{% endfor %}
 							</ul>
 
 						</div>
-						{% endif %}
+						
 					{% endif %}
 				</div>
 				
@@ -116,67 +110,73 @@
 						<h4><span class="glyphicon glyphicon-th-list"></span>TWORZENIE KLASY</h4>
 					</div>
 					<div class="modal-body" style="padding:40px 50px;">
+					<!-- carusel start -->
+						<div id="StepsToAdd" class="carousel slide" data-ride="carousel">
+						  <!-- Indicators -->
+						  <ol class="carousel-indicators">
+						    <li data-target="#StepsToAdd" data-slide-to="0" class="active"></li>
+						    <li data-target="#StepsToAdd" data-slide-to="1"></li>
+						    <li data-target="#StepsToAdd" data-slide-to="2"></li>
+						  </ol>
 
-						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+						  <!-- Wrapper for slides -->
+						  <div class="carousel-inner">
+						    <div class="item active">
+						      <h3>Nazwa prfilu dla twojej klasy :</h3>
+						      <form method="post" enctype="multipart/form-data" onsubmit="CpySUB()"> {% csrf_token %}
+						      <div class="form-group has-error has-feedback">
+						      	{{formProfil.profil}}
+						      	{{formProfil.wielkosc}}
+						      	{% if formProfil.profil.errors %}
+						      		
+								   	   <label class=" control-label" for="inputError">{{ formProfil.profil.errors.0 }}</label>
+									
+						      	{% endif %}
+						      </div>
+						      
+						      <div class="btn-group btn-group-justified btn-down well">
+							   <button class="btn-sm btn-info disabled " name="idprev" disabled="true" href="#StepsToAdd" role="button" data-slide="prev" style="margin-right: 60%">Poprzednie</button>
+							   <button class="btn-sm btn-primary " name="idnext" href="#StepsToAdd" role="button" data-slide="next">Następne</button>
+							 </div>
+						    </div>
+
+						    <div class="item">
+						    <div id="Subjects" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+						    {{formProfil.przedmioty}}
+						    {{formProfil.CopySubjects}}
+						    
+						      <div class="btn-group btn-group-justified btn-down well">
+							   <button class="btn-sm btn-info " name="idprev"  href="#StepsToAdd" role="button" data-slide="prev" style="margin-right: 60%">Poprzednie</button>
+							   <button class="btn-sm btn-primary " name="idnext" href="#StepsToAdd" role="button" data-slide="next">Następne</button>
+							 </div>
+						    </div>
+
+						    <div class="item">
+						    	Wybierz plik csv z odpowiednia klasa:
+						    	{{formProfil.studentFile}}
+								
+						      <div class="btn-group btn-group-justified btn-down well">
+							   <button class="btn-sm btn-info " name="idprev"  href="#StepsToAdd" role="button" data-slide="prev" style="margin-right: 60%">Poprzednie</button>
+							   <input class="btn-sm btn-primary" name="importFile" type ="submit" value="Zatwierdź">
+							   </form>
+							 </div>
+						    </div>
+						  </div>
+
+						  <!-- Left and right controls -->
+						  
+						  	
 							
 
-
-								{{formAddClass.as_p}}
-
-
-
-
-
-							<input type="submit" class="btn btn-default" name="addClass" value="Zatwierdź"/>
-						</form>
-							<hr/>
-
-						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
-							
-							
-							<h4><span class="glyphicon glyphicon-remove"></span>USUŃ KLASĘ</h4>
-
-								{{formRemoveClass.as_p}}
-
-
-
-
-
-							<input type="submit" class="btn btn-default" name="removeClass" value="Zatwierdź"/>
-						</form>
+						</div>
 					</div>
+					<!-- end of carusel -->
 				</div>
 			</div>
 		</div> 
 													<!-- END DODAJ KLASE MODAL BOX -->
 
-													<!-- START WYPELNIJ KLASE MODAL BOX -->
-		<div class="modal fade" id="wypelnijKlaseModal" role="dialog">
-    		<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header" style="padding:35px 50px;">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4><span class="glyphicon glyphicon-th-list"></span>Holz to bog</h4>
-					</div>
-					<div class="modal-body" style="padding:40px 50px;">
 
-						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
-							
-
-
-								{{ formFillClass.as_p }}
-
-
-
-
-
-							<input type="submit" class="btn btn-default" name="fillClass" value="Zatwierdź"/>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div> 
-													<!-- END WYPELNIJ KLASE MODAL BOX -->
 
 													<!-- START DODAJ UCZNIA MODAL BOX -->
 		<div class="modal fade" id="dodajUczniaModal" role="dialog">
@@ -248,16 +248,7 @@
 
 						</form>
 
-								<div class="importFile">
-
-									<p class="text-center">IMPORTUJ UCZNIOW Z PLIKU</p>
-
-									<form method="post" enctype="multipart/form-data"> {% csrf_token %}
-										<input type="file" name="studentFile" />
-										<input type="submit" name="studentFile" value="Upload" />
-									</form>
-
-								</div>
+								
 					
 					</div>
 				</div>
@@ -265,77 +256,23 @@
 		</div> 
 													<!-- END DODAJ UCZNIA MODAL BOX -->
 
-													<!-- START DODAJ PROFIL MODAL BOX -->
-		<div class="modal fade" id="dodajProfilModal" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header" style="padding:35px 50px;">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4><span class="glyphicon glyphicon-th-list"></span>TWORZENIE PROFILU</h4>
-					</div>
-					<div class="modal-body" style="padding:40px 50px;">
-
-						<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
-
-								{{formAddProfile.as_p}}
-								
-
-							<input type="submit" class="btn btn-default" name="addProfile" value="Zatwierdź"/>
-						</form>
-
-						<hr/>
-
-						<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
-
-								{{formRemoveProfile.as_p}}
-								
-
-							<input type="submit" class="btn btn-default" name="removeProfile" value="Zatwierdź"/>
-						</form>
-
-					</div>
-				</div>
-			</div>
-		</div> 
-													<!-- END DODAJ PROFILE MODAL BOX -->
-
-													<!-- START DODAJ ALGORYTM MODAL BOX -->
-		<div class="modal fade" id="dodajAlgorytmModal" role="dialog">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header" style="padding:35px 50px;">
-						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4><span class="glyphicon glyphicon-th-list"></span>TWORZENIE ALGORYTMU</h4>
-					</div>
-					<div class="modal-body" style="padding:40px 50px;">
-
-						<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
-
-								{{formAddAlgorithm.as_p}}
-								
-
-							<input type="submit" class="btn btn-default" name="addAlgorithm" value="Zatwierdź"/>
-
-						</form>
-						
-							<hr/>
-
-							<form method="POST" action='' enctype='multipart/form-data' class="menuForms"> {% csrf_token %}
-
-								{{formRemoveAlgorithm.as_p}}
-								
-
-							<input type="submit" class="btn btn-default" name="removeAlgorithm" value="Zatwierdź"/>
-
-						</form>
-					</div>
-				</div>
-			</div>
-		</div> 
-													<!-- END DODAJ ALGORYTM MODAL BOX -->
-		
+													
+													
 
 <script type="text/javascript">
+
+	SubjectTaken=Array();
+	k =0;
+	function not_In(v, tabV){
+		check =true;
+		for(var i = 0 in tabV){
+			if(tabV[i] == v){
+				return false;
+			}
+			
+		}
+		return true;
+	}
 
 	$(document).ready(function(){
 		$(".optionDodajKlase").click(function(){
@@ -350,14 +287,80 @@
 			$("#dodajUczniaModal").modal();
 		});
 
-		$(".optionDodajAlgorytm").click(function(){
-			$("#dodajAlgorytmModal").modal();
-		});
-
-		$(".optionWypelnijKlase").click(function(){
-			$("#wypelnijKlaseModal").modal();
+		$("#StepsToAdd").carousel({interval: false, wrap: false});
+		
+		$('#subject').change(function(){
+			
+    		 if(this.value !='s' && not_In(this.value, SubjectTaken) )
+    		 {
+    		 	var element1 = document.createElement("input");
+    		 	
+    		 	element1.value =this.value;
+    		 	element1.setAttribute("id","smp"+k);
+    		 	element1.setAttribute("class","element");
+    		 	element1.setAttribute("name","przedmiotyy");
+    		 	element1.setAttribute("draggable","true");
+    		 	element1.setAttribute("readonly","readonly");
+    		 	element1.setAttribute("ondragstart","drag(event)");
+    		 	SubjectTaken.push(this.value);
+    		 	document.getElementById("Subjects").appendChild(element1);
+    		 	k++;
+    		 }
 		});
 	});
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+function CpySUB() {
+	alert(SubjectTaken.join());
+	document.getElementById("AllSubjects").value = SubjectTaken.join();
+	return true;
+}
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+    tmp = "#" + ev.target.id;
+    $(tmp).css("opacity", 0.4)
+}
+//ev is object that i try to put element
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    if (ev.target.id == "Subjects")
+   		ev.target.appendChild(document.getElementById(data));
+   	else{
+   		
+   		SwapSubjects(data,ev.target.id);
+   		SWAPArrayElements(document.getElementById(data).value,ev.target.value)
+
+   	}
+
+}
+function SWAPArrayElements(v1, v2){
+	idx1 = SubjectTaken.indexOf(v1, 0);
+	idx2 = SubjectTaken.indexOf(v2, 0);
+	SubjectTaken[idx1] = v2;
+	SubjectTaken[idx2] = v1;
+
+}
+function SwapSubjects(from , to) {  //from == Data, to == ev.target
+	id_from = "#" + from;
+	id_to = "#" + to;
+	var temp_from = $(id_from);
+	var temp_to = $(id_to);
+
+	var element_to_swap1 = document.createElement("INPUT");
+	element_to_swap1.setAttribute("id","temp1");
+	var element_to_swap2 = document.createElement("INPUT");
+	element_to_swap2.setAttribute("id","temp2");
+
+	document.getElementById(from).parentNode.insertBefore(element_to_swap1, document.getElementById(from));
+	document.getElementById(to).parentNode.insertBefore(element_to_swap2, document.getElementById(to));
+	$( "#temp1" ).replaceWith( temp_to );
+	$( "#temp2" ).replaceWith( temp_from );
+	$(id_from).css("opacity", 1);
+}
+	
 </script>
 	</body>
 </html>

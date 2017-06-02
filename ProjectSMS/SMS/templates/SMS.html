@@ -73,26 +73,26 @@
 						<a href="/sms/extended/wszyscyuczniowie"><div class="showAllStudents centerOption">WSZYSCY UCZNIOWIE</div></a>
 						<a href="/sms/extended/uczniowieprzydzieleni"><div class="showStudentWithClass centerOption">UCZNIOWIE PRZYDZIELENI DO KLASY</div></a>
 						<a href="/sms/extended/uczniowienieprzydzieleni"><div class="showStudentWithNoClass centerOption">UCZNIOWIE NIEPRZYDZIELENI DO KLASY</div></a>
+						<a href="/sms/extended/zarzadzanieuczniami"><div class="showAllStudents centerOption">ZARZĄDZANIE UCZNIAMI</div></a>
 					</center>
+
+					
 					{% if klasyPostfix|length > 0 %}
-						{% if klasyPostfix.index0 is not none %}
 						<div class="klasyTop">
 							<p>Klasy</p>
 						</div>
 
 						<div class="innerKlasy">
-
 							<ul>
-								{% for klasa in klasyPostfix %}
-
-								<li><a href="/sms/extended/test/{{klasa}}">{{ klasa }}</a></li>
-
-								{% endfor %}
+							{% for klasa in klasyPostfix %}
+								{% if klasa != None%}
+									<li><a href="/sms/extended/test/{{klasa}}">{{ klasa }}</a></li>	
+								{% endif %}	
+							{% endfor %}
 							</ul>
-
 						</div>
-						{% endif %}
 					{% endif %}
+					
 				</div>
 				
 			<!-- LEFT CONTAINER -->

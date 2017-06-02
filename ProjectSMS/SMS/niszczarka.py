@@ -11,7 +11,7 @@ def destroyAfterExpire():
 	try:
 		users = c.fetchall()
 		if(len(users) == 0):
-			sqlite3.Error += "Brak uzytkowniko"
+			sqlite3.Error += "Brak uzytkownikow"
 			raise sqlite3.Error
 
 		for user in users:

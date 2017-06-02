@@ -8,12 +8,14 @@
 	<body>
 		<table >
 			<tr>
+				<td>Usuń</td>
 				{% for every in headerTable %}
 					<td>{{ every }}</td>
 				{% endfor %}
 			</tr>
 			{% for student in allStudents %}
 				<tr>
+					<td><a href="../usunucznia/{{student.0}}">Usuń</a></td>
 					{% for info in student%}
 						<td>{{ info }}</td>
 					{% endfor %}

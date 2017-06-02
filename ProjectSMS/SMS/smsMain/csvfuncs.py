@@ -40,10 +40,12 @@ def generateQuery(tablename,columns,numOfValues,prefix):
 def generateValue(values,offset):
 	query = ""
 	i=0
+	
 	while(i<len(offset)-1):
 		query += values[offset[i]] + ","
 		i+=1
 	query += values[offset[i]]
+
 	return query.split(",")
 
 def fixWanted(wanted,offset):
@@ -57,22 +59,21 @@ def fixWanted(wanted,offset):
 	return wanted
 
 
-def importcsv(colms,offset,file,cursor):
+def importcsv(colms,offset,file,cursor,table_name="uczniowie"):
 	fixnames(colms) # Naprawiam niektore nazwy bo sqlite nie lubi ze spacjami
 	colms = fixWanted(colms,offset) # Wyrzucam z wanted table kolumny ktorych nie znalazlem poniewaz nie beda one uzyte w kwerendzie
 	print("colms:  ",colms)
 	print("offset:  ",offset)
-	cursor.execute("CREATE TABLE IF NOT EXISTS uczniowie(id INTEGER PRIMARY KEY AUTOINCREMENT)")
+	cursor.execute("CREATE TABLE IF NOT EXISTS "+ table_name+"(id INTEGER PRIMARY KEY AUTOINCREMENT)")
 	for word in colms:
 		try:
-			cursor.execute("ALTER TABLE uczniowie ADD " + word + " text")
+			cursor.execute("ALTER TABLE "+table_name+" ADD " + word + " text")
 		except :
 			print("Column " + word + " exists !")
 	
-	query = generateQuery("uczniowie",colms,len(colms),"INSERT INTO")
+	query = generateQuery(table_name,colms,len(colms),"INSERT INTO")
 	line = file.readline().decode('utf-8')
 	fline = line.split(";")
-	
 	while(line):
 		string = generateValue(fline,offset)
 
@@ -81,7 +82,7 @@ def importcsv(colms,offset,file,cursor):
 		for i,s in enumerate(string):
 			if(s == 'null'):
 				string[i] = 0
-				
+		
 		cursor.execute(query ,string)
 		line = file.readline().decode('utf-8')
 		fline = line.split(";")
