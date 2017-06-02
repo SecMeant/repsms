@@ -85,6 +85,11 @@ def smsApp(request):
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
 
+		#Gets the value of session variable that fillclass will set to 1 if overflow in class index occurs
+		#So the value will be passed once to the jinja to display notification
+		fillclassOF = request.session.get('SfillClassOF')
+		request.session['SfillClassOF'] = 0
+
 		context={
 			"current_user":current_user,
 			"formAddProfile":formAddProfile,
@@ -96,6 +101,7 @@ def smsApp(request):
 			"formRemoveAlgorithm":formRemoveAlgorithm,
 			"formFillClass":formFillClass,
 			"klasyPostfix":klasyPostfix,
+			"fillclassOF":fillclassOF,
 		}
 
 		if request.method == 'POST':
@@ -181,18 +187,21 @@ def smsApp(request):
 						odp.append(optymalizuj(odpowiedzi[0],sizeofclass)) # Same arguments as above here
 						odp[0] = rest(odp[0]) # Here as argument I need returned value from optymalizuj function
 						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
-						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,odp)
+						fillclassOF = fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,odp) #fillclasses_sqlDict returns 0 when no errors occur and 1 when index to class is above 'Z'
 
 					else:
 						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
-						fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,0)
+						fillclassOF = fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,0) #fillclasses_sqlDict returns 0 when no errors occur and 1 when index to class is above 'Z'
 					# end of implementation
+
+					#setting the session variable to return value of fillclasses_sqlDict funtion
+					#It will trigger the pop-up in jinja to display message to user that index in class have overflowed
+					request.session['SfillClassOF'] = fillclassOF
 
 					context.update({"formFillClass":formFillClass})
 					return HttpResponseRedirect("/sms/extended")
 
-					# Usuwanie klasy
-
+			# Usuwanie klasy
 			elif "removeClass" in request.POST:
 				formRemoveClass =  removeClass(request.POST,klasy=(klasypass))
 				if formRemoveClass.is_valid():

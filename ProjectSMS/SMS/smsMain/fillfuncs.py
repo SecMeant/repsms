@@ -158,11 +158,11 @@ def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
 		while(inc < perclass):
 			if(ord(letter)>90):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
+				conn.rollback()
 				return 1
 			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
 			c.execute(query)
-			conn.commit()
 			while(inc2 < klasa['liczebnosc'][0] and j<len(uczniowie['punkty'])):
 				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
 				wrapper = []
@@ -176,7 +176,6 @@ def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
 
 				c.execute(query,wrapper)
 				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
-				conn.commit()
 				j += 1
 				inc2 += 1
 			inc2 = 0
@@ -193,17 +192,24 @@ def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
 		while(inc < len(odp[0])):
 			if(ord(letter)>90):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
-				c.rollback()
+				conn.rollback()
 				return 1
 			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
 			c.execute(query)
-			conn.commit()
 			while(inc2 < odp[0][n] and j<len(uczniowie['punkty'])):
 				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
-				c.execute(query,uczniowie['id'][j],uczniowie['Pesel'][j],uczniowie['Imię'][j],uczniowie['Nazwisko'][j],uczniowie['punkty'][j])
+				wrapper = []
+
+				#execute() takes as argument table of arguments ¯\_(ツ)_/¯
+				wrapper.append(uczniowie['id'][j])
+				wrapper.append(uczniowie['Pesel'][j])
+				wrapper.append(uczniowie['Imię'][j])
+				wrapper.append(uczniowie['Nazwisko'][j])
+				wrapper.append(uczniowie['punkty'][j])
+
+				c.execute(query,wrapper)
 				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
-				conn.commit()
 				j += 1
 				inc2 += 1
 			n += 1

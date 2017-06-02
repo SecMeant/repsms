@@ -14,7 +14,7 @@
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	</head>
 	<body>
-		
+
 		<br/>
 		<br/>
 		<dir class="row">
@@ -75,7 +75,26 @@
 						<a href="/sms/extended/uczniowienieprzydzieleni"><div class="showStudentWithNoClass centerOption">UCZNIOWIE NIEPRZYDZIELENI DO KLASY</div></a>
 						<a href="/sms/extended/zarzadzanieuczniami"><div class="showAllStudents centerOption">ZARZĄDZANIE UCZNIAMI</div></a>
 					</center>
+					
+					{% if fillclassOF %}
+						<div class="modal fade" id="classIndexOF" role="dialog">OVERFLOW
+				    		<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header" style="padding:35px 50px;">
+										<button type="button" class="close" data-dismiss="modal">&times;</button>
+										<h4><span class="glyphicon glyphicon-remove-sign"></span>NIESTETY  !</h4>
+									</div>
+									<div class="modal-body" style="padding:40px 50px;font-size: 18px;">
 
+									Nie udało sie wypełnić klas ponieważ w trakcie operacji index klasy zajął już ostatnią literę 'Z'.<br>
+									Prosimy stworzyć nową klasę i spróbować na nowo.<br><br>
+									<b>WSZELKIE ZMIANY NIE ZOSTAŁY POCZYNIONE</b>
+
+									</div>
+								</div>
+							</div>
+						</div> 						
+					{% endif %}
 					
 					{% if klasyPostfix|length > 0 %}
 						<div class="klasyTop">
@@ -356,6 +375,10 @@
 
 		$(".optionWypelnijKlase").click(function(){
 			$("#wypelnijKlaseModal").modal();
+		});
+
+		$( document ).ready(function(){
+			$("#classIndexOF").modal();
 		});
 	});
 </script>
