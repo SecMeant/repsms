@@ -2,11 +2,12 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Wszyscy uczniowie</title>
+		<title>Klasa {{klasa}}</title>
 		<link rel="stylesheet" href="{% static '/smscss.css' %}">
 	</head>
 	<body>
 		<table >
+			<tr><td style="text-align: center;" colspan="{{headerWidth}}">{{klasa}}</td></tr>
 			<tr>
 				<td>Usuń</td>
 				{% for every in headerTable %}

@@ -3,15 +3,17 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass
+from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
 from .funkcjeopty import dejnumer, optymalizuj, rest
-from .fillfuncs import fillclasses 
+from .fillfuncs import fillclasses, fillclasses_sqlDict
+from .vec import vectorContains, choiceFieldTupleContains
 import os
 import sqlite3
 import math
 from .csvfuncs import searchcsv, importcsv
 from django.contrib.auth import logout
 from operator import itemgetter
+from .dbfuncs import sqlDict, sqlDict_sort
 
 @login_required
 @transaction.atomic
@@ -43,7 +45,7 @@ def smsApp(request):
 		algorithms = c.fetchall()	
 		algorithmspass = []
 		for cols in algorithms:
-			algorithmspass.append(cols[0:2]) 
+			algorithmspass.append(cols[0:2])
 		# Profiles choicefield
 		c.execute("SELECT * FROM profile")
 		profiles = c.fetchall()
@@ -56,18 +58,22 @@ def smsApp(request):
 		# make this work like this [(a),(b)] - like multidimensinal array, because the choiceField function requires that
 		# so by adding a dash im making sure that the split will happen just between right data.
 		# After all im not sure of im doing this concatenate the right way, but im just a python begginer so..
-		c.execute("SELECT * FROM klasy")
-		klasy = c.fetchall()
+		klasy = sqlDict(c, "SELECT * FROM klasy")
 		klasypass = []
-		for cols in klasy:
-			klasypass.append((str(cols[5])+"-"+cols[0]).split("-"))
+		#nk - name of class
+		#idk - id of class
+		for nk, idk in zip(klasy['nazwaKlasy'],klasy['id']):
+			klasypass.append((str(idk)+"-"+nk).split("-"))
 
-		c.execute("SELECT * FROM uczniowie")
-		uczniowie = c.fetchall()
+		#Im getting class names from db from every student
+		#then every unique class is appended to klasyPostfix which will contain
+		#list of all existing classes
+		uczniowie = sqlDict(c, "SELECT * FROM uczniowie")
 		klasyPostfix = []
-		for uczen in uczniowie:
-			if( not( vectorContains(klasyPostfix,uczen[len(uczen)-1]) ) and uczen[len(uczen)-1] != None ):
-				klasyPostfix.append(uczen[len(uczen)-1])
+
+		for klasa in uczniowie['klasa']:
+			if( not( vectorContains(klasyPostfix,klasa) ) and klasa != None ):
+				klasyPostfix.append(klasa)
 
 		formAddProfile = addProfile
 		formAddStudent = addStudent
@@ -77,6 +83,11 @@ def smsApp(request):
 		formRemoveClass = removeClass(klasy=(klasypass))
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
+
+		#Gets the value of session variable that fillclass will set to 1 if overflow in class index occurs
+		#So the value will be passed once to the jinja to display notification
+		fillclassOF = request.session.get('SfillClassOF')
+		request.session['SfillClassOF'] = 0
 
 		context={
 			"current_user":current_user,
@@ -89,6 +100,7 @@ def smsApp(request):
 			"formRemoveAlgorithm":formRemoveAlgorithm,
 			"formFillClass":formFillClass,
 			"klasyPostfix":klasyPostfix,
+			"fillclassOF":fillclassOF,
 		}
 
 		if request.method == 'POST':
@@ -157,8 +169,7 @@ def smsApp(request):
 				if formFillClass.is_valid():
 					c = conn.cursor()
 					sposob = formFillClass.cleaned_data['sposob']
-					c.execute("SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
-					klasa = c.fetchall()
+					klasa = sqlDict(c, "SELECT * FROM klasy WHERE id=" + formFillClass.cleaned_data['klasy'])
 
 					c.execute("SELECT * FROM uczniowie WHERE klasa IS NULL")
 
@@ -170,29 +181,26 @@ def smsApp(request):
 					if(ile>=1 and sposob==True):
 						odp = []
 						odpowiedzi = [] # I have no idea why i chose similar names. Have no time to figure it out right now
-						sizeofclass = int(klasa[0][2])
+						sizeofclass = int(klasa['liczebnosc'][0])
 						odpowiedzi.append(dejnumer(ile,sizeofclass)) # First argument is size of all students to sort out, secound is size of class
 						odp.append(optymalizuj(odpowiedzi[0],sizeofclass)) # Same arguments as above here
-						print("DEBUG INFORMATION:")
-						print("odp1:")
-						print(odp)
 						odp[0] = rest(odp[0]) # Here as argument I need returned value from optymalizuj function
-						print("odpowiedzi:")
-						print(odpowiedzi)
-						print("odp:")
-						print(odp)
-						print("END OF DEBUG")
-						fillclasses(c,conn,klasa,uczniowie,current_user,odp)
+						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
+						fillclassOF = fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,odp) #fillclasses_sqlDict returns 0 when no errors occur and 1 when index to class is above 'Z'
 
 					else:
-						fillclasses(c,conn,klasa,uczniowie,current_user,0)
+						uczniowie = sqlDict(c,"SELECT * FROM uczniowie WHERE klasa IS NULL")
+						fillclassOF = fillclasses_sqlDict(c,conn,klasa,uczniowie,current_user,0) #fillclasses_sqlDict returns 0 when no errors occur and 1 when index to class is above 'Z'
 					# end of implementation
+
+					#setting the session variable to return value of fillclasses_sqlDict funtion
+					#It will trigger the pop-up in jinja to display message to user that index in class have overflowed
+					request.session['SfillClassOF'] = fillclassOF
 
 					context.update({"formFillClass":formFillClass})
 					return HttpResponseRedirect("/sms/extended")
 
-					# Usuwanie klasy
-
+			# Usuwanie klasy
 			elif "removeClass" in request.POST:
 				formRemoveClass =  removeClass(request.POST,klasy=(klasypass))
 				if formRemoveClass.is_valid():
@@ -229,35 +237,36 @@ def smsApp(request):
 				#Tablica szukanych kolumn w pliku csv
 
 				wantedtable = [
-					"Imię", #1
-					"Nazwisko",#2
-					"Kod pocztowy",#3
-					"Miejscowość",#4
-					"Ulica",#5
-					"Nr budynku",#6
-					"Nr mieszkania",#7
-					"polski",#8
-					"angielski",#9
-					"niemiecki",#10
-					"francuski",#11
-					"wloski",#12
-					"hiszpanski",#13
-					"rosyjski",#14
-					"matematyka",#15
-					"fizyka",#16
-					"informatyka",#17
-					"historia",#18
-					"biologia",#19
-					"chemia",#20
-					"geografia",#21
-					"wos",#22
-					"zajęcia techniczne",#23
-					"zajęcia artstyczne",#24
-					"edukacja dla bezpieczeństwa",#25
-					"plastyka",#26
-					"muzyka",#27
-					"wf",#28
-					"zachowanie",#29
+					"Imię",
+					"Pesel",
+					"Nazwisko",
+					"Kod pocztowy",
+					"Miejscowość",
+					"Ulica",
+					"Nr budynku",
+					"Nr mieszkania",
+					"polski",
+					"angielski",
+					"niemiecki",
+					"francuski",
+					"wloski",
+					"hiszpanski",
+					"rosyjski",
+					"matematyka",
+					"fizyka",
+					"informatyka",
+					"historia",
+					"biologia",
+					"chemia",
+					"geografia",
+					"wos",
+					"zajęcia techniczne",
+					"zajęcia artstyczne",
+					"edukacja dla bezpieczeństwa",
+					"plastyka",
+					"muzyka",
+					"wf",
+					"zachowanie",
 					]
 
 				answer = []
@@ -406,12 +415,14 @@ def showAllStudentsWithClass(request):
 		# THIS QUERY IS TEMPORARY !!! THIS CAN PROVIDE CRASHES IN THE FUTUTRE
 		# Im getting all the fields with NULL
 		# but this value for no class might change in the future
-		# so im just targeting it worth looking sometime when crash occurs.,
+		# so im just targeting it worth looking sometime when crash occurs.
 		classes = []
 		for each in classList:
 			query = "SELECT * FROM uczniowie WHERE klasa='"+each+"'"
-			c.execute(query) 
-			classes.append(c.fetchall())
+			c.execute(query)
+			result = c.fetchall()
+			if result:
+				classes.append(result)
 
 		context={
 			"classes":classes,
@@ -448,8 +459,32 @@ def showAllStudentsWithNoClass(request):
 		return render (request, "studentsWithNoClass.html", context)
 
 def manageStudents(request):
-	
-	return render(request, "", context)
+
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+		c.execute("SELECT * FROM uczniowie")
+		allStudents = c.fetchall()
+
+		headerTable = [description[0] for description in c.description]
+
+	context={
+		"allStudents":allStudents,
+		"headerTable":headerTable,
+	}
+
+	return render(request, "manageStudent.html", context)
 
 def deleteStudentsFromClass(request, id):
 	if request.user.is_authenticated:
@@ -466,62 +501,180 @@ def deleteStudentsFromClass(request, id):
 		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
 		c = conn.cursor()
 
-	query = "SELECT * FROM uczniowie WHERE id="+id
-	c.execute(query)
-	uczen = c.fetchall()
-	
+		query = "SELECT * FROM uczniowie WHERE id="+id
+		uczen = sqlDict(c, query)
+		
 
 
-	if(len(uczen) != 1):
-		print("Error when deleting student")
-		return redirect(smsApp)
+		if(len(uczen) != 1):
+			print("Error when deleting student")
+			return redirect(smsApp)
 
-	print("DEBUG:?",len(uczen))
-	print("DEBUG:?",uczen[0][len(uczen[0])-1])
+		klasa = uczen['klasa'][0]
 
-	klasa = uczen[0][len(uczen[0])-1]
+		query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
+		c.execute(query)
+		conn.commit()
 
-	query = "DELETE FROM "+ klasa +" WHERE iducznia="+id #Usuwa ucznia z tabeli klasy do ktorej nalezy
-	c.execute(query)
-	conn.commit()
+		query = "UPDATE uczniowie SET klasa = NULL WHERE id="+id #Usuwa wartosc z kolumny klasa usuniętgo ucznia
+		c.execute(query)
+		conn.commit()
+		conn.close()
 
-	query = "UPDATE uczniowie SET klasa = NULL WHERE id="+id #Usuwa wartosc z kolumny klasa usuniętgo ucznia
-	c.execute(query)
-	conn.commit()
-	conn.close()
+	return redirect(showSpecificClass, klasa)
 
-	return redirect(smsApp)
-
-def test(request, klasa):
+def showSpecificClass(request, klasa):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
 			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
-	current_user = request.user
+		current_user = request.user
 
-	BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-	dbname = current_user.username
-	dbname += ".sqlite3"
-	conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
-	c = conn.cursor()
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
 
-	query = "SELECT * FROM uczniowie WHERE klasa='"+klasa+"'"
-	c.execute(query)
-	allStudents = c.fetchall()
-	headerTable = [description[0] for description in c.description]
+		query = "SELECT * FROM uczniowie WHERE klasa='"+klasa+"'"
+		c.execute(query)
+		allStudents = c.fetchall()
+		headerTable = [description[0] for description in c.description]
 
-	context = {
-		"allStudents":allStudents,
-		"headerTable":headerTable,
-		"klasa":klasa,
-	}
+		headerWidth = len(headerTable) + 1
+
+		context = {
+			"allStudents":allStudents,
+			"headerTable":headerTable,
+			"headerWidth":headerWidth,
+			"klasa":klasa,
+		}
 
 	return render(request, "studentsInClass.html" , context)
 
-def vectorContains(tab,phrase):
-	for each in tab:
-		if(each == phrase):
-			return 1
-	return 0
+def editStudent(request,id):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			print(request.user.is_active)
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+		#Im getting class names from db from every student
+		#then every unique class is appended to klasyPostfix which will contain
+		#list of all existing classes
+		query = "SELECT * FROM uczniowie"
+		uczniowie = sqlDict(c, query)
+		klasyPostfix = []
+		klasyPostfix.append(("Brak","Brak"))
+
+		for klasa in uczniowie['klasa']:
+			if( not( choiceFieldTupleContains(klasyPostfix,klasa) ) and klasa != None ):
+				klasyPostfix.append((klasa,klasa))
+
+		# Edytowanie danych studenta klasy
+
+		if "formEditStudent" in request.POST:
+			EditStudent =  formEditStudent(request.POST,klasy=(klasyPostfix))
+			if EditStudent.is_valid():
+				imieUcznia = EditStudent.cleaned_data['imie']
+				nazwiskoUcznia = EditStudent.cleaned_data['nazwisko']
+				kod1Ucznia = EditStudent.cleaned_data['kod1']
+				kod2Ucznia = EditStudent.cleaned_data['kod2']
+				kodUcznia1 = kod1Ucznia +'-'+ kod2Ucznia
+				miejscowoscUcznia = EditStudent.cleaned_data['miejscowosc']
+				ulicaUcznia = EditStudent.cleaned_data['ulica']
+				nrbudynkuUcznia = EditStudent.cleaned_data['nrbudynku']
+				nrmieszkaniaUcznia = EditStudent.cleaned_data['nrmieszkania']
+				kod12Ucznia = EditStudent.cleaned_data['kod12']
+				kod22Ucznia = EditStudent.cleaned_data['kod22']
+				kodUcznia2 = kod12Ucznia +'-'+ kod22Ucznia
+				miejscowosc2Ucznia = EditStudent.cleaned_data['miejscowosc2']
+				ulica2Ucznia = EditStudent.cleaned_data['ulica2']
+				nrbudynku2Ucznia = EditStudent.cleaned_data['nrbudynku2']
+				nrmieszkania2Ucznia = EditStudent.cleaned_data['nrmieszkania2']
+				ocenaPolskiUcznia = EditStudent.cleaned_data['ocenPol']
+				ocenaMatematykaUcznia = EditStudent.cleaned_data['ocenMat']
+				ocenaAngielskiUcznia = EditStudent.cleaned_data['ocenAng']
+				ocenaNiemieckiUcznia = EditStudent.cleaned_data['ocenNiem']
+				klasaucznia = EditStudent.cleaned_data['klasa']	
+				iducznia = EditStudent.cleaned_data['iducznia']
+
+
+				query = "SELECT * FROM uczniowie WHERE id={}".format(id)
+				uczen = sqlDict(c, query)
+
+				if(len(uczen['id']) == 1):
+					if(uczen['klasa'][0] != klasaucznia):
+						klasaOld = uczen['klasa'][0]
+						if(klasaOld != None and klasaOld != 'Brak'):
+							c.execute("DELETE FROM {} WHERE iducznia={}".format(klasaOld,id))
+							conn.commit()
+						if(klasaucznia != None and klasaucznia != 'Brak'):
+							query = "INSERT INTO {} (iducznia,Imię,Nazwisko) VALUES('{}','{}','{}')".format(klasaucznia,iducznia,imieUcznia,nazwiskoUcznia)
+							c.execute(query)
+							conn.commit()
+				if(klasaucznia != None and klasaucznia != 'Brak'):
+					query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa='{}' WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,klasaucznia,iducznia)
+				else:
+					query = "UPDATE uczniowie SET Imię='{}',Nazwisko='{}',Kod_pocztowy='{}',Miejscowość='{}',Ulica='{}',Nr_budynku='{}',Nr_mieszkania='{}',Kod_pocztowy2='{}',Miejscowość2='{}',Ulica2='{}',Nr_budynku2='{}',Nr_mieszkania2='{}',polski='{}',matematyka='{}',angielski='{}',niemiecki='{}',klasa=NULL WHERE id={}".format(imieUcznia,nazwiskoUcznia,kodUcznia1,miejscowoscUcznia,ulicaUcznia,nrbudynkuUcznia,nrmieszkaniaUcznia,kodUcznia2,miejscowosc2Ucznia,ulica2Ucznia,nrbudynku2Ucznia,nrmieszkania2Ucznia,ocenaMatematykaUcznia,ocenaPolskiUcznia,ocenaAngielskiUcznia,ocenaNiemieckiUcznia,iducznia)
+				c.execute(query)
+				conn.commit()
+				
+		query = "SELECT * FROM uczniowie WHERE id="+id
+		student = sqlDict(c, query)
+
+		try:
+			kod = student['Kod_pocztowy'][0].split("-")
+		except:
+			kod = []
+			kod.append(None)
+			kod.append(None)
+		try:
+			kod2 = student['Kod_pocztowy2'][0].split("-")
+		except:
+			kod2 = []
+			kod2.append(None)
+			kod2.append(None)
+
+		instanceEditStudent=formEditStudent(initial={
+			'imie':student['Imię'][0],
+			'nazwisko':student['Nazwisko'][0],
+			'kod1':kod[0],
+			'kod2':kod[1],
+			'miejscowosc':student['Miejscowość'][0],
+			'ulica':student['Ulica'][0],
+			'nrbudynku':student['Nr_budynku'][0],
+			'nrmieszkania':student['Nr_mieszkania'][0],
+			'kod12':kod2[0],
+			'kod22':kod2[1],
+			'miejscowosc2':student['Miejscowość2'][0],
+			'ulica2':student['Ulica2'][0],
+			'nrbudynku2':student['Nr_budynku2'][0],
+			'nrmieszkania2':student['Nr_mieszkania2'][0],
+			'ocenPol':student['polski'][0],
+			'ocenMat':student['matematyka'][0],
+			'ocenAng':student['angielski'][0],
+			'ocenNiem':student['niemiecki'][0],
+			'klasa':student['klasa'][0],
+			'iducznia':id
+			},klasy=(klasyPostfix))
+
+		context = {
+			"formEditStudent":instanceEditStudent,
+		}
+
+		conn.close()
+
+		return render(request, "editStudent.html" , context)
+					
+	return render(request, "editStudent.html" , context)

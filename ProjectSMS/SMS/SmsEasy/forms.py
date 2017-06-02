@@ -176,7 +176,10 @@ class profilAndChoice(forms.Form):
 	'size':'20',
 	'placeholder':"Profil"
 	}))
-	wielkosc = forms.CharField(required=True, max_length= 2,widget= forms.TextInput(
+	
+	stala_wielkosc= forms.BooleanField(required=False, label="Stała wielkość")
+	
+	wielkosc = forms.CharField( max_length= 2,widget= forms.TextInput(
 	attrs= {
 	'type':"text", 
 	'id':'profile',

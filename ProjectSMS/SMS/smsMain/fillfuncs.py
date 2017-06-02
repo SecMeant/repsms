@@ -1,4 +1,5 @@
 from operator import itemgetter
+from .dbfuncs import sqlDict_toSortableTable, sqlDict, sqlDict_sort
 import math
 
 # ARGS:
@@ -30,8 +31,7 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
 	#Im not sure if this move is OK...
 	#However it works, so at least now Ill leave it
 	#I did this cuz sorted() throwed some errors like it cant
-	#compare Nonetype and str etc
-	#I dont even remember why I need to call sorted()
+	#compare Nonetype and str etc so this simply cast None to '0'
 	##################################
 	#			DIRTY TRICKS		 #
 	for i,s in enumerate(uczniowie):
@@ -102,6 +102,124 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
 			letter = chr(letter)
 
 		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa[0][5]))
+		conn.commit()
+		conn.close()
+	return 0
+
+
+
+#The same but takes sqlDict values as arguments
+def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
+	algo = sqlDict(c, "SELECT * FROM algorytmy WHERE id="+str(klasa['algorytm'][0]))
+
+	uczniowie.update({'punkty':[]}) #Nowa kolumna potrzebna przy sortowaniu po najlepszych wynikach
+	points = 0
+	buff = 0
+	while(buff < len(uczniowie['id'])):
+		if(uczniowie['polski'][buff]):
+			points = int(uczniowie['polski'][buff]) * algo['jpolski'][0]
+		if(uczniowie['angielski'][buff]):
+			points += int(uczniowie['angielski'][buff]) * algo['jangielski'][0]
+		if(uczniowie['niemiecki'][buff]):
+			points += int(uczniowie['niemiecki'][buff]) * algo['jniemiecki'][0]
+		if(uczniowie['matematyka'][buff]):
+			points += int(uczniowie['matematyka'][buff]) * algo['matematyka'][0]
+
+		uczniowie['punkty'].append(points)
+		buff += 1
+
+	uczniowieInd = sqlDict_toSortableTable(uczniowie,len(uczniowie['id']))
+	#Im not sure if this move is OK...
+	#However it works, so at least now Ill leave it
+	#I did this cuz sorted() throwed some errors like it cant
+	#compare Nonetype and str etc so this simply cast None to '0'
+	##################################
+	#			DIRTY TRICKS		 #
+	for i,s in enumerate(uczniowieInd):
+			for j,v in enumerate(s):
+				if(v == None):
+					s[j] = '0'	
+	##################################
+
+
+	
+	uczniowieInd = sorted(uczniowieInd,key=lambda l:l[len(uczniowieInd[0])-1],reverse=True) # Sortowane po punktach
+	testtab = sqlDict_sort(uczniowie,len(uczniowie['punkty']),len(uczniowie)-1)
+
+	letter = klasa['litera'][0]
+
+	inc = 0
+	inc2 = 0
+	j = 0
+
+	if(odp==0):
+		perclass = math.ceil(len(uczniowie['punkty'])/klasa['liczebnosc'][0])
+
+		while(inc < perclass):
+			if(ord(letter)>90):
+				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
+				conn.rollback()
+				return 1
+			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
+			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
+			c.execute(query)
+			while(inc2 < klasa['liczebnosc'][0] and j<len(uczniowie['punkty'])):
+				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
+				wrapper = []
+
+				#execute() takes as argument table of arguments ¯\_(ツ)_/¯
+				wrapper.append(uczniowie['id'][j])
+				wrapper.append(uczniowie['Pesel'][j])
+				wrapper.append(uczniowie['Imię'][j])
+				wrapper.append(uczniowie['Nazwisko'][j])
+				wrapper.append(uczniowie['punkty'][j])
+
+				c.execute(query,wrapper)
+				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
+				j += 1
+				inc2 += 1
+			inc2 = 0
+			inc += 1
+			letter = ord(letter)
+			letter += 1
+			letter = chr(letter)
+
+		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa['id'][0]))
+		conn.commit()
+		conn.close()
+	else:
+		n = 0
+		while(inc < len(odp[0])):
+			if(ord(letter)>90):
+				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
+				conn.rollback()
+				return 1
+			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
+			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
+			c.execute(query)
+			while(inc2 < odp[0][n] and j<len(uczniowie['punkty'])):
+				query = "INSERT INTO "+nazwaNowejKlasy+" ('iducznia','Pesel','Imię','Nazwisko','punkty') VALUES(?,?,?,?,?)"
+				wrapper = []
+
+				#execute() takes as argument table of arguments ¯\_(ツ)_/¯
+				wrapper.append(uczniowie['id'][j])
+				wrapper.append(uczniowie['Pesel'][j])
+				wrapper.append(uczniowie['Imię'][j])
+				wrapper.append(uczniowie['Nazwisko'][j])
+				wrapper.append(uczniowie['punkty'][j])
+
+				c.execute(query,wrapper)
+				c.execute("UPDATE uczniowie SET klasa=? WHERE id=?",(nazwaNowejKlasy,uczniowie['id'][j]))
+				j += 1
+				inc2 += 1
+			n += 1
+			inc2 = 0
+			inc += 1
+			letter = ord(letter)
+			letter += 1
+			letter = chr(letter)
+
+		c.execute("UPDATE klasy SET litera=\'"+letter+"\' WHERE id="+str(klasa['id'][0]))
 		conn.commit()
 		conn.close()
 	return 0

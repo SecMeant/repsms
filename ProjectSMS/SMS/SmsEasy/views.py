@@ -4,7 +4,7 @@ from .forms import addStudent, profilAndChoice
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 import sqlite3,os
-from smsMain import csvfuncs
+from smsMain import csvfuncs, funkcjeopty
 # Create your views here.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -33,9 +33,9 @@ def main(request):
 			userConfInstance =  profilAndChoice(request.POST or None,request.FILES,initial=request.POST)
 			if userConfInstance.is_valid():
 				profName = cleanString(userConfInstance.cleaned_data['profil'])
+				subName = userConfInstance.cleaned_data['CopySubjects'].split(",")
 				classSize = cleanString(userConfInstance.cleaned_data['wielkosc'])
-				subName = userConfInstance.cleaned_data['CopySubjects'].split(",");
-				fileName = request.FILES['studentFile'];
+				fileName = request.FILES['studentFile']
 				sign_ask = "?" * (len(subName)+1)
 				# querry prepare first set name id's of column, then amount of sign '?', finally all values
 				querryPreparation =[ "(id, " + ",".join(subName).replace(' ','_') + ")", "(" + ",".join(sign_ask) + ")" ,tuple([None] +list( i+1 for i in reversed(range(len(subName)))))  ]
@@ -45,7 +45,7 @@ def main(request):
 				c.execute(querry,querryPreparation[2])
 				last_insterted =c.execute('SELECT last_insert_rowid()');
 				last_insterted_id =last_insterted.fetchone()[0]
-				c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName,classSize))
+				
 				# conn.commit();
 				wantedtable = [
 				"Imię", #1
@@ -94,6 +94,21 @@ def main(request):
 				csvfuncs.importcsv(wantedtable,answer,fileName,c,profName)
 
 				conn.commit()
+			
+			# insert rest of data to table after determine best class size
+			odp = []
+			odpowiedzi = []
+			ilosc = c.execute("SELECT COUNT(id) FROM ?",(profName,)).fetchone()[0]
+			if not userConfInstance.cleaned_data['stala_wielkosc']:
+				
+				odpowiedzi.append(funkcjeopty.dejnumer(ilosc,int(classSize)))
+				odp.append(funkcjeopty.optymalizuj(odpowiedzi[0],int(classSize)))
+				odp[0] = rest(odp[0])
+			else:
+				odp.append(funkcjeopty.simpleodp(ilosc,int(classSize)))
+				odpowiedzi.append(funkcjeopty.simpleodpowiedzi(ilosc,int(classSize)))
+					
+			c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName,classSize))
 
 		all_prof = c.execute("SELECT * FROM profile")
 		drukuj_profile = all_prof.fetchall()
@@ -153,7 +168,6 @@ def renderclass(request, classPro):
 						
 		
 		label = [ l[0] for l in order_stuff]
-		print(label)
 		c.execute("SELECT * FROM " + classPro + " ORDER BY " + ",".join(label))
 		allStudents = c.fetchall()
 		headerTable = [description[0] for description in c.description]

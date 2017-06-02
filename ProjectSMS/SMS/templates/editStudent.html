@@ -1,0 +1,73 @@
+{% load staticfiles %}
+{% load formtemplates %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Edytuj ucznia</title>
+		<link rel="stylesheet" href="{% static '/smscss.css' %}">
+		<script src="{% static '/sameAddress.js' %}"></script>
+	</head>
+	<body>
+		<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+			<div class="formAddStudent">
+				
+				<div class="labelform"><div class="innerLabel">Imie:</div><div class="innerInput">{{formEditStudent.imie}}</div></div>
+				<div class="labelform"><div class="innerLabel">Nazwisko:</div><div class="innerInput">{{formEditStudent.nazwisko}}</div></div>
+
+				<div class="labelform">
+					<div class="innerLabel">Adres zamieszkania:</div>{{formEditStudent.kod1}}- {{formEditStudent.kod2}}{{formEditStudent.miejscowosc}}
+				</div>
+
+				<div class="labelform innerInput ulicadom">
+					
+					{{formEditStudent.ulica}}
+					{{formEditStudent.nrbudynku}}
+					{{formEditStudent.nrmieszkania}}
+				</div>
+
+				<div class="innerLabel">
+					<br><br>
+						<button onclick="sameAddress()" type="button">Przepisz</button>
+				</div>
+
+				<div class="labelform">
+					<br>
+					<br>
+					<div class="innerLabel">Adres zameldowania:</div>{{formEditStudent.kod12}}- {{formEditStudent.kod22}}{{formEditStudent.miejscowosc2}}
+				</div>
+
+				<div class="labelform innerInput ulicadom">
+					{{formEditStudent.ulica2}}
+					{{formEditStudent.nrbudynku2}}
+					{{formEditStudent.nrmieszkania2}}	
+				</div>
+
+				<div class="labelform">
+					<br>
+					<br>
+					<div class="innerLabel">Klasa:</div>{{formEditStudent.klasa}}
+				</div>
+
+				<div class="labelform">
+					<br>
+					<div class="innerLabel">Ocena Angielski:</div>{{formEditStudent.ocenAng}}
+				</div>
+
+				<div class="labelform">
+					<div class="innerLabel">Ocena Niemiecki:</div>{{formEditStudent.ocenNiem}}
+				</div>
+
+				<div class="labelform">
+					<div class="innerLabel">Ocena Polski:</div>{{formEditStudent.ocenPol}}
+				</div>
+
+				<div class="labelform">
+					<div class="innerLabel">Ocena Matematyka:</div>{{formEditStudent.ocenMat}}
+				</div>
+				{{formEditStudent.iducznia}}
+			</div>
+			<input type="submit" name="formEditStudent" value="Zatwierdź">
+		</form>
+		<a href="../zarzadzanieuczniami" style="color:white;">Powrót</a>
+	</body>
+</html>
