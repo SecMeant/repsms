@@ -361,3 +361,27 @@ class fillClass(forms.Form):
 		klasyVar = kwargs.pop('klasy', None)
 		super(fillClass, self).__init__(*args, **kwargs)
 		self.fields['klasy'].choices = klasyVar
+
+class removeCopy(forms.Form):
+	nazwaKopii = forms.ChoiceField(label = '',widget=forms.Select(attrs={'class':'selectUsunKopie'}))
+
+	def __init__(self,*args, **kwargs):
+		kopieVar = kwargs.pop('kopie', None)
+		super(removeCopy, self).__init__(*args, **kwargs)
+		self.fields['nazwaKopii'].choices = kopieVar
+
+class makeCopy(forms.Form):
+	nazwaKopii = forms.CharField(label='',max_length=48, widget=forms.TextInput(
+		attrs={
+		'type':'text',
+		'placeholder':'Nazwa kopii'
+		})
+	)
+
+class restoreCopy(forms.Form):
+	nazwaKopii = forms.ChoiceField(label = '',widget=forms.Select(attrs={'class':'selectUsunKopie'}))
+
+	def __init__(self,*args, **kwargs):
+		kopieVar = kwargs.pop('kopie', None)
+		super(restoreCopy, self).__init__(*args, **kwargs)
+		self.fields['nazwaKopii'].choices = kopieVar

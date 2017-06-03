@@ -47,6 +47,10 @@
 							<span class="glyphicon glyphicon-plus"></span> Algorytmy rekrutacyjne
 							</a></li></p>
 
+							<p><li><a href="#" class="optionZrobKopie">
+							<span class="glyphicon glyphicon-floppy-saved"></span> Kopia zapasowa bazy danych
+							</a></li></p>
+
 			         </ul>
 			        </div>
 			    </div>
@@ -177,7 +181,7 @@
 				<div class="modal-content">
 					<div class="modal-header" style="padding:35px 50px;">
 						<button type="button" class="close" data-dismiss="modal">&times;</button>
-						<h4><span class="glyphicon glyphicon-th-list"></span>Holz to bog</h4>
+						<h4><span class="glyphicon glyphicon-th-list"></span>Wypełnij klase</h4>
 					</div>
 					<div class="modal-body" style="padding:40px 50px;">
 
@@ -198,6 +202,75 @@
 			</div>
 		</div> 
 													<!-- END WYPELNIJ KLASE MODAL BOX -->
+
+													<!-- START ZROB KOPIE MODAL BOX -->
+		<div class="modal fade wide" id="zrobKopieModal" role="dialog">
+    		<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header" style="padding:35px 50px;">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4><span class="glyphicon glyphicon-floppy-saved"></span>Kopia zapasowa bazy danych</h4>
+					</div>
+					<div class="modal-body modal-body-custom" style="padding:40px 50px;">
+
+					<div class="outerKopieIstniejace">
+						<div class="kopiaTop">
+							<p>Istniejące kopie zapasowe</p>
+						</div>
+						<div class="innerKopia">
+							<ul>
+							{% for copy in dbCopies %}
+
+									<li style="font-size: 22px">{{ copy }}</li>	
+									
+							{% endfor %}
+							</ul>
+						</div>
+
+					</div>
+
+					<div class="outerIleKopii">
+						Ilość możliwych kopii: 5
+					</div>
+
+					<div class="outerUsunKopie">
+						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+							{{formRemoveCopy.as_p}}
+							<button type="submit" class="UsunKopieButt btn btn-danger pull-right" name="removeCopy"><span class="glyphicon glyphicon-remove-sign"></span>Usuń</button>
+						</form>
+					</div>
+
+					<div class="outerDodajKopie">
+						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+							{{formMakeCopy.as_p}}
+							<button type="submit" class="UsunKopieButt btn btn-success pull-right" name="makeCopy"><span class="glyphicon glyphicon-ok-sign"></span>Stwórz Kopię</button>
+						</form>
+					</div>
+
+					<div class="outerUsunKopie">
+						<form method="POST" action='' enctype='multipart/form-data'> {% csrf_token %}
+							{{formRestoreCopy.as_p}}
+							<button type="submit" class="UsunKopieButt btn btn-info pull-right" name="restoreCopy"><span class="glyphicon glyphicon-repeat"></span>Przyróć Kopię</button>
+						</form>
+					</div>
+
+<!-- 						<div class="outerKopieIstniejace">
+							
+
+							
+						</div>
+
+						<div class="outerIleKopii">
+							asdf
+						</div>
+
+						<input type="submit" class="btn btn-default" name="" value="Zatwierdź"/> -->
+					</div>
+				</div>
+			</div>
+		</div> 
+													<!-- END ZROB KOPIE MODAL BOX -->
+
 
 													<!-- START DODAJ UCZNIA MODAL BOX -->
 		<div class="modal fade" id="dodajUczniaModal" role="dialog">
@@ -377,6 +450,10 @@
 
 		$(".optionWypelnijKlase").click(function(){
 			$("#wypelnijKlaseModal").modal();
+		});
+
+		$(".optionZrobKopie").click(function(){
+			$("#zrobKopieModal").modal();
 		});
 
 		$( document ).ready(function(){
