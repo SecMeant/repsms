@@ -5,6 +5,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 import sqlite3,os
 from smsMain import csvfuncs, funkcjeopty
+from math import floor 
 # Create your views here.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,7 +25,7 @@ def main(request):
 		currentUser = request.user.username
 		conn = sqlite3.connect(os.path.join(BASE_DIR+"\\SimpleData",currentUser +'.db'))
 		c = conn.cursor()
-		c.execute('CREATE TABLE IF NOT EXISTS "profile"( id integer , nazwa_profilu text,wielkosc_klasy integer)')
+		c.execute('CREATE TABLE IF NOT EXISTS "profile"( id integer , nazwa_profilu text, formatowanie text)')
 		
 		c.execute('CREATE TABLE IF NOT EXISTS algorytm (id integer  NOT NULL PRIMARY KEY AUTOINCREMENT, polski integer,   angielski integer,   niemiecki integer,   francuski integer,   wloski integer,   hiszpanski integer,   rosyjski integer,   matematyka integer,   fizyka integer,   informatyka integer,   historia integer,   biologia integer,   chemia integer,   geografia integer,   wos integer,   zajęcia_techniczne integer,   zajęcia_artystyczne integer,   edukacja_dla_bezpieczeństwa integer,   plastyka integer,   muzyka integer,   wf integer,   religia integer,   zachowanie integer, Wynik_egzaminu_gimnazjalnego_z_języka_polskiego integer,   Wynik_egzaminu_gimnazjalnego_z_matematyki integer,   Wynik_egzaminu_gimnazjalnego_z_historii_i_wosu integer,   Wynik_egzaminu_gimnazjalnego_z_przedmiotów_przyrodniczych integer,   poziomie_podstawowym integer,   Wynik_egzaminu_gimnazjalnego_z_języka_obcego_na_poziomie_rozszerzonym integer)')
 		
@@ -88,27 +89,37 @@ def main(request):
 						answer.append(csvfuncs.searchcsv(word,fileName))
 					else:
 						answer.append('')
-
-					print(answer)
 				
 				csvfuncs.importcsv(wantedtable,answer,fileName,c,profName)
 
 				conn.commit()
 			
 			# insert rest of data to table after determine best class size
-			odp = []
-			odpowiedzi = []
-			ilosc = c.execute("SELECT COUNT(id) FROM ?",(profName,)).fetchone()[0]
-			if not userConfInstance.cleaned_data['stala_wielkosc']:
+				odp = []
+				odpowiedzi = []
+				strf="";
+				ilosc = c.execute("SELECT COUNT(id) FROM {}".format(profName)).fetchone()[0]
+
+				if not userConfInstance.cleaned_data['stala_wielkosc']:
 				
-				odpowiedzi.append(funkcjeopty.dejnumer(ilosc,int(classSize)))
-				odp.append(funkcjeopty.optymalizuj(odpowiedzi[0],int(classSize)))
-				odp[0] = rest(odp[0])
-			else:
-				odp.append(funkcjeopty.simpleodp(ilosc,int(classSize)))
-				odpowiedzi.append(funkcjeopty.simpleodpowiedzi(ilosc,int(classSize)))
+					odpowiedzi.append(funkcjeopty.dejnumer(ilosc,int(classSize)))
+					odp.append(funkcjeopty.optymalizuj(odpowiedzi[0],int(classSize)))
+					odp[0] = funkcjeopty.rest(odp[0])
+					for s in odp[0]:
+						strf+=str(s)+","
+				else:
+					klasy = floor(ilosc/int(classSize))
+					print(klasy)
+					reszta = str(ilosc - int(classSize) * klasy)
+					classSize += ","
+					strf = (classSize) * klasy;
+					strf += reszta
+
+			
 					
-			c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName,classSize))
+				
+				c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName, strf))		
+				conn.commit()
 
 		all_prof = c.execute("SELECT * FROM profile")
 		drukuj_profile = all_prof.fetchall()
@@ -171,12 +182,22 @@ def renderclass(request, classPro):
 		c.execute("SELECT * FROM " + classPro + " ORDER BY " + ",".join(label))
 		allStudents = c.fetchall()
 		headerTable = [description[0] for description in c.description]
+		formatowanie = c.execute("SELECT formatowanie FROM profile WHERE id =?",(idClass,)).fetchone()[0]
 
+		formatowanie = formatowanie.split(',')
+		form_sum=[]
+		for i,element in enumerate(formatowanie):
+			if i == 0:
+				form_sum.append(int(element))
+			else:
+				form_sum.append(int(element) +form_sum[i-1])
+		print(form_sum)
 		context={
 			"allStudents":allStudents,
 			"headerTable":headerTable,
+			"formatowanie":formatowanie,
 		}
-		return render (request, "allStudents.html",context)
+		return render (request, "printStudents.html",context)
 
 def cleanString(strr):
 	new_str=""

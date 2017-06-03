@@ -1,0 +1,34 @@
+
+{% set testing = 'it worked' %}
+{% set another = testing %}
+{{ another }}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Wszyscy uczniowie</title>
+	<link rel="stylesheet" href="{{ STATIC_URL }}smscss.css">
+</head>
+<body>
+
+	<table >
+		<tr>
+			{% for every in headerTable %}
+				<td>{{ every }}</td>
+			{% endfor %}
+		</tr>
+		{% set class_label = 'A' %}
+		{% for sizeclass in formatowanie %}
+		<tr>
+			<td>KLASA {{class_label}} </td>
+		</tr>
+			{% for i in range(sizeclass) %}
+					<tr>
+						{% for info in student.i %}
+							<td>{{ info }}</td>
+						{% endfor %}
+					</tr>
+			{% endfor %}
+		{% endfor %}
+	</table>
+</body>
+</html>

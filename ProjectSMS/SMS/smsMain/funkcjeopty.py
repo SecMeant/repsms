@@ -97,6 +97,8 @@ def rest(odp):
 
 def simpleodp(ileuczniow,max_i=36):
 	odpowiedz = []
+
+
 	odpowiedz.append(( ileuczniow % max_i )) # reszta
 	odpowiedz.append(max_i) # rozmiar klasy
 	odpowiedz.append(0)
@@ -105,7 +107,7 @@ def simpleodp(ileuczniow,max_i=36):
 	else:
 		odpowiedz[2] = round( ileuczniow / max_i ) # ile klas
 	i = 0;
-	
+	odp = [0 for i in range(odpowiedz[2])]
 	while(i < odpowiedz[2] - 1):
 		odp[i] = max_i; 
 		i+=1;
@@ -118,6 +120,7 @@ def simpleodpowiedzi(ileuczniow,max_i=36):
 	odpowiedz = []
 	odpowiedz.append( ileuczniow % max_i ) # reszta
 	odpowiedz.append( max_i ) # rozmiar klasy
+	odpowiedz.append( 0 ) # to access 3 element
 	if(odpowiedz[0] > 0):
 		odpowiedz[2] = floor( ileuczniow / max_i ) +1 # ile klas
 	else:
