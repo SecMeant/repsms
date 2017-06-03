@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
-from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent
+from .forms import addProfile, addStudent, addClass, addAlgorithm, removeClass, removeProfile, removeAlgorithm, fillClass, formEditStudent, removeCopy, makeCopy, restoreCopy
 from .funkcjeopty import dejnumer, optymalizuj, rest
 from .fillfuncs import fillclasses, fillclasses_sqlDict
 from .vec import vectorContains, choiceFieldTupleContains
@@ -14,6 +14,7 @@ from .csvfuncs import searchcsv, importcsv
 from django.contrib.auth import logout
 from operator import itemgetter
 from .dbfuncs import sqlDict, sqlDict_sort
+from shutil import copyfile
 
 @login_required
 @transaction.atomic
@@ -75,6 +76,17 @@ def smsApp(request):
 			if( not( vectorContains(klasyPostfix,klasa) ) and klasa != None ):
 				klasyPostfix.append(klasa)
 
+		dbCopies = []
+		for name in os.listdir(BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\.'):
+			if os.path.isfile(BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + name):
+				dbCopies.append(name)
+
+		i=0
+		dbCopiesPass = []
+		while(i < len(dbCopies)):
+			dbCopiesPass.append([dbCopies[i],dbCopies[i]])
+			i+=1
+
 		formAddProfile = addProfile
 		formAddStudent = addStudent
 		formAddAlgorithm = addAlgorithm
@@ -83,6 +95,9 @@ def smsApp(request):
 		formRemoveClass = removeClass(klasy=(klasypass))
 		formRemoveAlgorithm = removeAlgorithm(algorytm=(algorithmspass))
 		formFillClass = fillClass(klasy=(klasypass))
+		formRemoveCopy = removeCopy(kopie=(dbCopiesPass))
+		formMakeCopy = makeCopy()
+		formRestoreCopy = restoreCopy(kopie=(dbCopiesPass))
 
 		#Gets the value of session variable that fillclass will set to 1 if overflow in class index occurs
 		#So the value will be passed once to the jinja to display notification
@@ -101,6 +116,10 @@ def smsApp(request):
 			"formFillClass":formFillClass,
 			"klasyPostfix":klasyPostfix,
 			"fillclassOF":fillclassOF,
+			"formRemoveCopy":formRemoveCopy,
+			"formMakeCopy":formMakeCopy,
+			"formRestoreCopy":formRestoreCopy,
+			"dbCopies":dbCopies,
 		}
 
 		if request.method == 'POST':
@@ -279,7 +298,6 @@ def smsApp(request):
 					else:
 						answer.append('')
 
-				print(answer)
 				importcsv(wantedtable,answer,request.FILES['studentFile'],c)
 
 				conn.commit()
@@ -343,7 +361,6 @@ def smsApp(request):
 					c = conn.cursor()
 					query = ""
 					query = "DELETE FROM algorytmy WHERE id =" + algoName
-					print(query)
 					c.execute(query)
 					conn.commit()
 					conn.close()
@@ -351,12 +368,45 @@ def smsApp(request):
 					context.update({"formRemoveAlgorithm":formRemoveAlgorithm})
 					return HttpResponseRedirect("/sms/extended")
 
+			elif "removeCopy" in request.POST:
+				formRemoveCopy =  removeCopy(request.POST,kopie=(dbCopiesPass))
+				if formRemoveCopy.is_valid():
+					nazwaKopii = formRemoveCopy.cleaned_data['nazwaKopii']
+					path = BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + nazwaKopii
+					try:
+						os.remove(path)
+					except:
+						pass
+
+					context.update({"formRemoveCopy":formRemoveCopy})
+					return HttpResponseRedirect("/sms/extended")			
+
+			elif "makeCopy" in request.POST:
+				formMakeCopy = makeCopy(request.POST)
+				if(formMakeCopy.is_valid()):
+					nazwaKopii = formMakeCopy.cleaned_data['nazwaKopii']
+					src = BASE_DIR + '\\userData\\' + current_user.username + ".sqlite3"
+					dst = BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + nazwaKopii
+					copyfile(src, dst)
+					context.update({"formMakeCopy":formMakeCopy})
+					return HttpResponseRedirect("/sms/extended")
+
+			elif "restoreCopy" in request.POST:
+				formRestoreCopy =  restoreCopy(request.POST,kopie=(dbCopiesPass))
+				if formRestoreCopy.is_valid():
+					nazwaKopii = formRestoreCopy.cleaned_data['nazwaKopii']
+					dst = BASE_DIR + '\\userData\\' + current_user.username + ".sqlite3"
+					src = BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + nazwaKopii
+					copyfile(src, dst)
+
+					context.update({"formRestoreCopy":formRestoreCopy})
+					return HttpResponseRedirect("/sms/extended")
+
 		return render (request, "SMS.html", context)
 
 def showAllStudents(request):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -394,7 +444,6 @@ def collectclasses(c,current_user):
 def showAllStudentsWithClass(request):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -434,7 +483,6 @@ def showAllStudentsWithClass(request):
 def showAllStudentsWithNoClass(request):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -462,7 +510,6 @@ def manageStudents(request):
 
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -489,7 +536,6 @@ def manageStudents(request):
 def deleteStudentsFromClass(request, id):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -526,7 +572,6 @@ def deleteStudentsFromClass(request, id):
 def showSpecificClass(request, klasa):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -557,7 +602,6 @@ def showSpecificClass(request, klasa):
 def editStudent(request,id):
 	if request.user.is_authenticated:
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 

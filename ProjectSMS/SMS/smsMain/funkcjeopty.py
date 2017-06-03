@@ -29,8 +29,6 @@ def dejnumer(ileuczniow,max_i=36):
 	return odpowiedz		
 
 def optymalizuj(tab,max_i=36):
-	print("tab:")
-	print(tab)
 	if(tab[1]!=0):
 		i=0
 		tabklas = [0] * tab[2]

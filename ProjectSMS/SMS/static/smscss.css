@@ -7,9 +7,6 @@ table *{
 	padding:5px;
 	border:2px solid white;
 }
-div.container{
-	width:100%;
-}
 
 .tableHeader{
 	text-align: center;
@@ -122,6 +119,31 @@ table tr a{
 	overflow-x: auto;
 }
 
+.kopiaTop{
+	color:white;
+	margin-top: 0px;
+	width: 300px;
+	height: 30px;
+	font-size:16px;
+	font-weight: bold;
+	letter-spacing: 2px;
+	text-align: center;
+	background-color: #d3d3d3;
+	border-style: solid;
+	border-color: black;
+	border-bottom-style: none;
+
+}
+
+.innerKopia{
+	width: 300px;
+	height: 400px;
+	border-style: solid;
+	margin-bottom: 15px;
+	overflow-y: auto;
+	overflow-x: auto;
+}
+
 
 
 .topBar >p {
@@ -147,6 +169,9 @@ hr.style-four {
 }
 .modal h4 span{
 	margin-right:40px;
+}
+.modal-body-custom{
+	height: 500px;
 }
 .importFile{
 	margin: auto;
@@ -242,5 +267,87 @@ input{
 .element.over {
   border: 2px dashed #000;
 }
-
 /*Smsm simple css END*/
+
+.outerKopieIstniejace{
+	float: left;
+	width:300px;
+}
+.outerIleKopii{
+	border-style: solid;
+	border-width: 1px;
+	border-color: #d3d3d3;
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	float: left;
+	margin-left: 20px;
+	margin-bottom: 30px;
+	width:170px;
+}
+
+.outerUsunKopie{
+	font-size: 16px;
+	border-style: solid;
+	border-width: 2px;
+	border-radius: 15px;
+	border-color: #d3d3d3;
+	float: left;
+	margin-left: 20px;
+	margin-bottom: 30px;
+	width:170px;
+	height: 100px;
+}
+
+.outerDodajKopie{
+	border-style: solid;
+	border-width: 2px;
+	border-radius: 15px;
+	border-color: #d3d3d3;
+	float: left;
+	padding-left: 10px;
+	padding-bottom: 20px;
+	padding-top: 20px;
+	margin-left: 20px;
+	margin-bottom: 30px;
+	width:170px;
+}
+
+.UsunKopieButt{
+	font-weight: bold;
+	padding:4px;
+	font-size: 14px;
+}
+.UsunKopieButt span{
+	margin-right: 8px;
+}
+
+.selectUsunKopie{
+	width:120px;
+	text-align: center;
+	margin-left: 15px;
+	margin-top: 15px;
+}
+
+.DodajKopieButt{
+	font-weight: bold;
+	padding:4px;
+	font-size: 14px;
+}
+
+.DodajKopieButt span{
+	margin-right: 8px;
+}
+
+.outerRestoreCopy{
+	font-size: 16px;
+	border-style: solid;
+	border-width: 2px;
+	border-radius: 15px;
+	border-color: #d3d3d3;
+	float: left;
+	margin-left: 20px;
+	
+	width:170px;
+	height: 100px;
+}

@@ -9,6 +9,7 @@ import math
 # uczniowie are rows from database that contains all of the students that will be part of a class
 # user is name of user who is running this function, name of the table will contain users name
 # odp is table that was returned from optimaizing functions, it contains size of optimized classes
+# DEPRECATED ! Use fillcalsses_sqlDict instead 
 def fillclasses(c,conn,klasa,uczniowie,user,odp):
 	c.execute("SELECT * FROM algorytmy WHERE id="+str(klasa[0][3]))
 	algo = c.fetchall()
