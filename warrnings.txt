@@ -1,3 +1,5 @@
 Jinja nadal uzywa wyluskania po intexie numerycznym
 
 Haslo dla nowego uzytkownika jest hashowane sha-1
+
+Path-traversal w czesci od zarzadzania kopiami bazy danych
