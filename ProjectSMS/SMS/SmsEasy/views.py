@@ -185,17 +185,28 @@ def renderclass(request, classPro):
 		formatowanie = c.execute("SELECT formatowanie FROM profile WHERE id =?",(idClass,)).fetchone()[0]
 
 		formatowanie = formatowanie.split(',')
-		form_sum=[]
+		base_ptr=[]
+		top_ptr =[]
 		for i,element in enumerate(formatowanie):
+			if element is '': continue
 			if i == 0:
-				form_sum.append(int(element))
+				top_ptr.append(int(element))
+				base_ptr.append(0)
 			else:
-				form_sum.append(int(element) +form_sum[i-1])
-		print(form_sum)
+				
+				top_ptr.append(int(element) + int(top_ptr[i-1]))
+				base_ptr.append(top_ptr[i-1])
+		letters = ['A']
+		for i in range(len(formatowanie)-1):
+			letters.append(chr(ord(letters[i]) + 1) )
+		
+		formatowanie=[base_ptr,top_ptr]
+		print(formatowanie)
 		context={
 			"allStudents":allStudents,
 			"headerTable":headerTable,
 			"formatowanie":formatowanie,
+			"litery":letters,
 		}
 		return render (request, "printStudents.html",context)
 
