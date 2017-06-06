@@ -1,0 +1,2 @@
+-wyswietlanie kolumn, jest ich za duzo. nalezy daæ swobode u¿ytkownikowi i pozwolic mu 
+na ustawienie w³asnego zestawu kolumn 

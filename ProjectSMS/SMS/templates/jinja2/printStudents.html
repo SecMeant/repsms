@@ -1,0 +1,47 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Wszyscy uczniowie</title>
+	<link rel="stylesheet" href="{{ STATIC_URL }}smscss.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+{% set student = allStudents %}
+{% set class_label = litery %}
+
+
+
+	<table >
+		<tr>
+			{% for every in headerTable %}
+				<td>{{ every }}</td>
+			{% endfor %}
+		</tr>
+		
+	
+		{% for base,top in zip(formatowanie[0],formatowanie[1]) %}
+		
+
+		<tr>
+			<td style="text-align: center" colspan="30">KLASA {{class_label[loop.index-1]}} </td>
+
+		</tr>
+
+			{% for i in range(base|int,top|int) %}
+					<tr>
+						{% for info in student[i|int] %}
+							<td>{{ info }}</td>
+						{% endfor %}
+					</tr>
+
+			{% endfor %}
+			
+				{% endfor %}
+	</table>
+</body>
+</html>
