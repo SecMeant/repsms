@@ -82,9 +82,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 		return False
 		
-	
-		
-		
-			
-
-

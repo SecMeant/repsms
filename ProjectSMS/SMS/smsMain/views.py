@@ -104,6 +104,11 @@ def smsApp(request):
 		fillclassOF = request.session.get('SfillClassOF')
 		request.session['SfillClassOF'] = 0
 
+		#Gets the value of session variable that makeCopy sets to 1 if there is already
+		#a copy of database with name that user inserted 
+		resultMakeCopy = request.session.get('resultMakeCopy')
+		request.session['resultMakeCopy'] = 0
+
 		context={
 			"current_user":current_user,
 			"formAddProfile":formAddProfile,
@@ -119,6 +124,7 @@ def smsApp(request):
 			"formRemoveCopy":formRemoveCopy,
 			"formMakeCopy":formMakeCopy,
 			"formRestoreCopy":formRestoreCopy,
+			"resultMakeCopy":resultMakeCopy,
 			"dbCopies":dbCopies,
 		}
 
@@ -385,9 +391,20 @@ def smsApp(request):
 				formMakeCopy = makeCopy(request.POST)
 				if(formMakeCopy.is_valid()):
 					nazwaKopii = formMakeCopy.cleaned_data['nazwaKopii']
-					src = BASE_DIR + '\\userData\\' + current_user.username + ".sqlite3"
-					dst = BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + nazwaKopii
-					copyfile(src, dst)
+
+					#Checks if the copy with that name already exists
+					#If so, will set variable to 1 and pass it to jinja
+					#Jinja will popup modal box with error
+					
+					for copy in dbCopies:
+						if copy == nazwaKopii:
+							request.session['resultMakeCopy'] = 1
+
+					if(not request.session['resultMakeCopy']):
+						src = BASE_DIR + '\\userData\\' + current_user.username + ".sqlite3"
+						dst = BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\' + nazwaKopii
+						copyfile(src, dst)
+
 					context.update({"formMakeCopy":formMakeCopy})
 					return HttpResponseRedirect("/sms/extended")
 
