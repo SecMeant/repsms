@@ -6,9 +6,41 @@ from django.contrib.auth.decorators import login_required
 import sqlite3,os
 from smsMain import csvfuncs, funkcjeopty
 from math import floor 
+from .funcSort import SortPolishString
 # Create your views here.
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+wantedtable = [
+				"Imię", #1
+				"Nazwisko",#2
+				"Kod pocztowy",#3
+				"Miejscowość",#4
+				"Ulica",#5
+				"Nr budynku",#6
+				"Nr mieszkania",#7
+				"polski",#8
+				"angielski",#9
+				"niemiecki",#10
+				"francuski",#11
+				"wloski",#12
+				"hiszpanski",#13
+				"rosyjski",#14
+				"matematyka",#15
+				"fizyka",#16
+				"informatyka",#17
+				"historia",#18
+				"biologia",#19
+				"chemia",#20
+				"geografia",#21
+				"wos",#22
+				"zajęcia techniczne",#23
+				"zajęcia artstyczne",#24
+				"edukacja dla bezpieczeństwa",#25
+				"plastyka",#26
+				"muzyka",#27
+				"wf",#28
+				"zachowanie",#29
+				]
 
 @login_required
 def main(request):
@@ -48,37 +80,7 @@ def main(request):
 				last_insterted_id =last_insterted.fetchone()[0]
 				
 				# conn.commit();
-				wantedtable = [
-				"Imię", #1
-				"Nazwisko",#2
-				"Kod pocztowy",#3
-				"Miejscowość",#4
-				"Ulica",#5
-				"Nr budynku",#6
-				"Nr mieszkania",#7
-				"polski",#8
-				"angielski",#9
-				"niemiecki",#10
-				"francuski",#11
-				"wloski",#12
-				"hiszpanski",#13
-				"rosyjski",#14
-				"matematyka",#15
-				"fizyka",#16
-				"informatyka",#17
-				"historia",#18
-				"biologia",#19
-				"chemia",#20
-				"geografia",#21
-				"wos",#22
-				"zajęcia techniczne",#23
-				"zajęcia artstyczne",#24
-				"edukacja dla bezpieczeństwa",#25
-				"plastyka",#26
-				"muzyka",#27
-				"wf",#28
-				"zachowanie",#29
-				]
+				
 
 				answer = []
 				
@@ -177,8 +179,7 @@ def renderclass(request, classPro):
 					if check_sec_sort ==True:
 						order_stuff.append((column_name[i],item))
 						
-		
-		label = [ l[0] for l in order_stuff]
+		label = [ l[0] +" DESC" for l in order_stuff]
 		c.execute("SELECT * FROM " + classPro + " ORDER BY " + ",".join(label))
 		allStudents = c.fetchall()
 		headerTable = [description[0] for description in c.description]
@@ -196,14 +197,32 @@ def renderclass(request, classPro):
 				
 				top_ptr.append(int(element) + int(top_ptr[i-1]))
 				base_ptr.append(top_ptr[i-1])
+
 		letters = ['A']
 		for i in range(len(formatowanie)-1):
 			letters.append(chr(ord(letters[i]) + 1) )
-		
-		formatowanie=[base_ptr,top_ptr]
-		print(formatowanie)
+
+		# tworzenie listy tuple'ow wraz z iloscia uczniow kazdej klasy potrzebnych do odpowiedniego pogrupowania klas
+		formatowanie=[(base,top)for base,top in zip(base_ptr,top_ptr)]
+		# grupowanie klas bez sortowania na podstawie pogrupowanych rozmiarów klas
+		zgrupowane_klasy = [[allStudents[i] for i in range(formatowanie[j][0],formatowanie[j][1])] for j in range(len(formatowanie)) ]
+		# sortowanie klas --- Domyślnie sortujemy po Nazwisku które ma id nr 2 w naszej bazie danych
+		sort_parametr = "Nazwisko"
+		sort_id = 2
+		if request.method is "GET":
+			sort_parametr = request.GET['sort_param']
+		# id kolumny po ktorej posortujemy ucnziow
+			try:
+				sort_id = column_name.index(sort_parametr)
+			except ValueError:
+				sort_id= 2
+		i=0
+		while (i < len(zgrupowane_klasy)):
+			zgrupowane_klasy[i] = SortPolishString(zgrupowane_klasy[i],sort_id)
+			
+			i += 1
 		context={
-			"allStudents":allStudents,
+			"allStudents":zgrupowane_klasy,
 			"headerTable":headerTable,
 			"formatowanie":formatowanie,
 			"litery":letters,
@@ -219,3 +238,4 @@ def cleanString(strr):
 			new_str+=c
 
 	return new_str
+

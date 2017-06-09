@@ -11,7 +11,6 @@
 </head>
 <body>
 
-{% set student = allStudents %}
 {% set class_label = litery %}
 
 
@@ -24,24 +23,23 @@
 		</tr>
 		
 	
-		{% for base,top in zip(formatowanie[0],formatowanie[1]) %}
+		{% for class in allStudents %}
 		
-
 		<tr>
 			<td style="text-align: center" colspan="30">KLASA {{class_label[loop.index-1]}} </td>
 
 		</tr>
 
-			{% for i in range(base|int,top|int) %}
+			{% for student in class %}
 					<tr>
-						{% for info in student[i|int] %}
+						{% for info in student %}
 							<td>{{ info }}</td>
 						{% endfor %}
 					</tr>
 
 			{% endfor %}
 			
-				{% endfor %}
+		{% endfor %}
 	</table>
 </body>
 </html>
