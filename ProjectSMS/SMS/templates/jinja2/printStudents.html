@@ -5,41 +5,63 @@
 <head>
 	<title>Wszyscy uczniowie</title>
 	<link rel="stylesheet" href="{{ STATIC_URL }}smscss.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 </head>
 <body>
 
-{% set class_label = litery %}
 
 
+		<nav class="navbar navbar-inverse" id ="print-bar" >
+		  <div class="container-fluid">
+		    <div class="navbar-header">
+		      <a class="navbar-brand" href="/" style="background-color: rgb(51,122,183);padding-left: 30px;padding-right: 30px;" >SMS</a>
+		    </div>
+		    <ul class="nav navbar-nav">
+		      <li class="active"><a href="/sms/simple">Powrót</a></li>
+		      <li>
+		      <form method="GET" action="{{page_url|safe}}">
+		      {{sortowanie}}
+		      <input type="submit" name="sortuj" >	
+		      </form>
+		      
+		      </li>
+		      <li><a href="#">Page 2</a></li>
+		      <li><a href="#">Page 3</a></li>
 
-	<table >
-		<tr>
-			{% for every in headerTable %}
-				<td>{{ every }}</td>
-			{% endfor %}
-		</tr>
-		
+		    </ul>
+		  </div>
+		</nav>
+		{% set class_label = litery %}
 	
-		{% for class in allStudents %}
-		
-		<tr>
-			<td style="text-align: center" colspan="30">KLASA {{class_label[loop.index-1]}} </td>
-
-		</tr>
-
-			{% for student in class %}
-					<tr>
-						{% for info in student %}
-							<td>{{ info }}</td>
-						{% endfor %}
-					</tr>
-
-			{% endfor %}
+		<table style="margin-top: -20px;" >
+			<tr>
+				{% for every in headerTable %}
+					<td>{{ every }}</td>
+				{% endfor %}
+			</tr>
 			
-		{% endfor %}
-	</table>
+		
+			{% for class in allStudents %}
+			
+			<tr>
+				<td style="text-align: center" colspan="30">KLASA {{class_label[loop.index-1]}} </td>
+
+			</tr>
+
+				{% for student in class %}
+						<tr>
+							{% for info in student %}
+								<td>{{ info }}</td>
+							{% endfor %}
+						</tr>
+
+				{% endfor %}
+				
+			{% endfor %}
+		</table>
+
 </body>
 </html>

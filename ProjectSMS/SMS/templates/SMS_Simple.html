@@ -12,10 +12,10 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		
 	</head>
 	<body>
-		
-		<br/>
+	<br/>
 		<br/>
 		<dir class="row">
 		<div class ="col-sm-2 menuLeft">
@@ -25,7 +25,7 @@
 			      <div class="collapse navbar-collapse navbar-menubuilder pull-left">
 			         <ul class="nav navbar-nav navbar-left">
 
-			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary"style=" margin-left:0px;width: 300px" href="/">SMS</a></div>
+			         	<div class="navbar-header"><a class="navbar-brand btn btn-primary" style=" margin-left:0px;width: 300px" href="/">SMS</a></div>
 
 							<p><li><a href="#" class="optionDodajKlase">
 							<span class="glyphicon glyphicon-plus"></span> Dodaj klase
@@ -101,6 +101,8 @@
 
 		</div>
 	</div>
+		
+		
 													<!-- START DODAJ KLASE MODAL BOX -->
 		<div class="modal fade" id="dodajKlaseModal" role="dialog">
     		<div class="modal-dialog">
@@ -121,6 +123,7 @@
 
 						  <!-- Wrapper for slides -->
 						  <div class="carousel-inner">
+
 						    <div class="item active">
 						      <h3>Nazwa prfilu dla twojej klasy :</h3>
 						      <form method="post" enctype="multipart/form-data" onsubmit="CpySUB()"> {% csrf_token %}
@@ -250,7 +253,6 @@
 
 						</form>
 
-								
 					
 					</div>
 				</div>
@@ -259,8 +261,6 @@
 													<!-- END DODAJ UCZNIA MODAL BOX -->
 
 													
-													
-
 <script type="text/javascript">
 
 	SubjectTaken=Array();
@@ -277,6 +277,7 @@
 	}
 
 	$(document).ready(function(){
+
 		$(".optionDodajKlase").click(function(){
 			$("#dodajKlaseModal").modal();
 		});

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-from .forms import addStudent, profilAndChoice
+from .forms import addStudent, profilAndChoice, sortowanie
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 import sqlite3,os
@@ -79,50 +79,15 @@ def main(request):
 				last_insterted =c.execute('SELECT last_insert_rowid()');
 				last_insterted_id =last_insterted.fetchone()[0]
 				
-				# conn.commit();
-				
-
-				answer = []
-				
-
-				for word in wantedtable:
-					temp = csvfuncs.searchcsv(word,fileName)
-					if(temp != None):
-						answer.append(csvfuncs.searchcsv(word,fileName))
-					else:
-						answer.append('')
-				
-				csvfuncs.importcsv(wantedtable,answer,fileName,c,profName)
-
-				conn.commit()
-			
-			# insert rest of data to table after determine best class size
-				odp = []
-				odpowiedzi = []
-				strf="";
-				ilosc = c.execute("SELECT COUNT(id) FROM {}".format(profName)).fetchone()[0]
-
-				if not userConfInstance.cleaned_data['stala_wielkosc']:
-				
-					odpowiedzi.append(funkcjeopty.dejnumer(ilosc,int(classSize)))
-					odp.append(funkcjeopty.optymalizuj(odpowiedzi[0],int(classSize)))
-					odp[0] = funkcjeopty.rest(odp[0])
-					for s in odp[0]:
-						strf+=str(s)+","
-				else:
-					klasy = floor(ilosc/int(classSize))
-					print(klasy)
-					reszta = str(ilosc - int(classSize) * klasy)
-					classSize += ","
-					strf = (classSize) * klasy;
-					strf += reszta
+				# make class sorted and divided
+				makeClass(fileName,conn,profName,subName,classSize,last_insterted_id,userConfInstance.cleaned_data['stala_wielkosc'])
+				conn.commit
 
 			
-					
-				
-				c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName, strf))		
-				conn.commit()
+			
 
+
+		
 		all_prof = c.execute("SELECT * FROM profile")
 		drukuj_profile = all_prof.fetchall()
 		
@@ -149,67 +114,43 @@ def renderclass(request, classPro):
 			HttpResponseRedirect('/')
 		currentUser = request.user.username
 
+		sortuj_po = sortowanie()
 		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 		conn = sqlite3.connect(os.path.join(BASE_DIR+"\\SimpleData",currentUser +'.db'))
 		c = conn.cursor()
-		idClass = c.execute("SELECT id FROM profile WHERE nazwa_profilu = (?)",(classPro,)).fetchone()[0]
-		algo = list(c.execute("SELECT * FROM algorytm WHERE id = (?) ",(idClass,)).fetchall())
-		table_info =  c.execute("PRAGMA table_info(algorytm)").fetchall()
-		column_name=[]
-		# get column_names
-		for item in table_info:
-			column_name.append(item[1])
-		# prepare data to make query which will choose students in right order 
-		order_stuff =[]
-
-		for i,item in enumerate(algo[0]):
-			if item is not None and column_name[i] !="id":
-				# until value is biger search index
-				check_sec_sort=True
-				if len(order_stuff) == 0:
-					order_stuff.append((column_name[i],item))
-
-				else:
-					for k in range(len(order_stuff)):
-						if order_stuff[k][1] > item:
-							continue
-						order_stuff.insert(k,(column_name[i],item))
-						check_sec_sort=False
-						break
-					if check_sec_sort ==True:
-						order_stuff.append((column_name[i],item))
-						
-		label = [ l[0] +" DESC" for l in order_stuff]
-		c.execute("SELECT * FROM " + classPro + " ORDER BY " + ",".join(label))
-		allStudents = c.fetchall()
+		
+		query = "SELECT * FROM " + classPro +" ORDER BY klasa_label"
+		all_students= c.execute(query).fetchall()
 		headerTable = [description[0] for description in c.description]
-		formatowanie = c.execute("SELECT formatowanie FROM profile WHERE id =?",(idClass,)).fetchone()[0]
 
-		formatowanie = formatowanie.split(',')
-		base_ptr=[]
-		top_ptr =[]
-		for i,element in enumerate(formatowanie):
-			if element is '': continue
-			if i == 0:
-				top_ptr.append(int(element))
-				base_ptr.append(0)
+		zgrupowane_klasy = []
+		subclass = []
+		letters=[]
+		for i, student in enumerate(all_students):
+			if i is 0:
+				subclass.append(student)
 			else:
-				
-				top_ptr.append(int(element) + int(top_ptr[i-1]))
-				base_ptr.append(top_ptr[i-1])
+				if i is len(all_students)-1:
+					letters.append(subclass[0][-1])
+					subclass.append(student)
+					zgrupowane_klasy.append(subclass)
 
-		letters = ['A']
-		for i in range(len(formatowanie)-1):
-			letters.append(chr(ord(letters[i]) + 1) )
+				elif student[-1] is subclass[0][-1]  :
+					subclass.append(student)
+					
+				else:
+					letters.append(subclass[0][-1])
+					zgrupowane_klasy.append(subclass)
+					subclass = []
+					subclass.append(student)
 
-		# tworzenie listy tuple'ow wraz z iloscia uczniow kazdej klasy potrzebnych do odpowiedniego pogrupowania klas
-		formatowanie=[(base,top)for base,top in zip(base_ptr,top_ptr)]
-		# grupowanie klas bez sortowania na podstawie pogrupowanych rozmiarów klas
-		zgrupowane_klasy = [[allStudents[i] for i in range(formatowanie[j][0],formatowanie[j][1])] for j in range(len(formatowanie)) ]
+		
 		# sortowanie klas --- Domyślnie sortujemy po Nazwisku które ma id nr 2 w naszej bazie danych
 		sort_parametr = "Nazwisko"
 		sort_id = 2
 		if request.method is "GET":
+			sortuj_po = sortowanie(initial = request.GET)
 			sort_parametr = request.GET['sort_param']
 		# id kolumny po ktorej posortujemy ucnziow
 			try:
@@ -219,13 +160,18 @@ def renderclass(request, classPro):
 		i=0
 		while (i < len(zgrupowane_klasy)):
 			zgrupowane_klasy[i] = SortPolishString(zgrupowane_klasy[i],sort_id)
-			
 			i += 1
+
+		page_url = "/sms/simple/"+classPro
+		
+		
 		context={
 			"allStudents":zgrupowane_klasy,
+			"sortowanie" : sortuj_po,
 			"headerTable":headerTable,
-			"formatowanie":formatowanie,
+			
 			"litery":letters,
+			"page_url":page_url,
 		}
 		return render (request, "printStudents.html",context)
 
@@ -239,3 +185,125 @@ def cleanString(strr):
 
 	return new_str
 
+def makeClass(fileName,conn,profName,algo,classSize,last_insterted_id, size_mode):
+	answer = []
+	c = conn.cursor()
+	print(algo)
+	for word in wantedtable:
+		temp = csvfuncs.searchcsv(word,fileName)
+		if(temp != None):
+			answer.append(csvfuncs.searchcsv(word,fileName))
+		else:
+			answer.append('')
+	
+	csvfuncs.importcsv(wantedtable,answer,fileName,c,profName,"Pawel")
+
+	
+	divideClass(conn,profName,classSize,last_insterted_id,size_mode)
+
+	idClass = c.execute("SELECT id FROM profile WHERE nazwa_profilu = (?)",(profName,)).fetchone()[0]
+	
+	
+					
+	label = [ l +" DESC" for l in algo]
+	c.execute("SELECT * FROM " + "t" + profName + " ORDER BY " + ",".join(label))
+	allStudents = c.fetchall()
+	
+	formatowanie = c.execute("SELECT formatowanie FROM profile WHERE id =?",(idClass,)).fetchone()[0]
+	
+	formatowanie = formatowanie.split(',')
+	base_ptr=[]
+	top_ptr =[]
+	for i,element in enumerate(formatowanie):
+		if element is '': continue
+		if i == 0:
+			top_ptr.append(int(element))
+			base_ptr.append(0)
+		else:
+			
+			top_ptr.append(int(element) + int(top_ptr[i-1]))
+			base_ptr.append(top_ptr[i-1])
+
+	letters = ['A']
+	for i in range(len(formatowanie)-1):
+		letters.append(chr(ord(letters[i]) + 1) )
+
+	# tworzenie listy tuple'ow wraz z iloscia uczniow kazdej klasy potrzebnych do odpowiedniego pogrupowania klas
+	formatowanie=[(base,top)for base,top in zip(base_ptr,top_ptr)]
+	# grupowanie klas  na podstawie formatowania
+	zgrupowane_klasy = [[allStudents[i]for i in range(formatowanie[j][0],formatowanie[j][1])] for j in range(len(formatowanie)) ]
+	# przypisanie lietrki kazdemu uczniowi
+	for i , klasa in enumerate(zgrupowane_klasy):
+		tmp_klasa = []
+		for uczen in klasa:
+			uczen = list(uczen)
+			uczen.append(letters[i])
+			del uczen[0]
+			tmp_klasa.append(uczen)
+		zgrupowane_klasy[i] = tmp_klasa
+
+
+	colms =wantedtable
+	print(zgrupowane_klasy)
+	colms.append("klasa_label")
+	for i , klasa in enumerate(zgrupowane_klasy):
+		for uczen in klasa:
+			query = csvfuncs.generateQuery(profName,colms,len(colms),"INSERT INTO")
+			
+			c.execute(query, uczen)
+	c.execute("DROP TABLE t"+profName)		
+	conn.commit()
+
+
+
+
+def divideClass(conn,profName,classSize,last_insterted_id, size_mode):
+	# insert rest of data to table after determine best class size
+	c = conn.cursor()
+	odp = []
+	odpowiedzi = []
+	strf="";
+	ilosc = c.execute("SELECT COUNT(id) FROM {}".format("t"+profName)).fetchone()[0]
+
+	if not size_mode:
+	
+		odpowiedzi.append(funkcjeopty.dejnumer(ilosc,int(classSize)))
+		odp.append(funkcjeopty.optymalizuj(odpowiedzi[0],int(classSize)))
+		odp[0] = funkcjeopty.rest(odp[0])
+		for s in odp[0]:
+			strf+=str(s)+","
+	else:
+		klasy = floor(ilosc/int(classSize))
+		print(klasy)
+		reszta = str(ilosc - int(classSize) * klasy)
+		classSize += ","
+		strf = (classSize) * klasy;
+		strf += reszta
+	
+	c.execute('INSERT INTO profile VALUES(?,?,?)',(last_insterted_id, profName, strf))		
+	conn.commit()
+
+	# table_info =  c.execute("PRAGMA table_info(algorytm)").fetchall()
+	# column_name=[]
+	# # get column_names
+	# for item in table_info:
+	# 	column_name.append(item[1])
+	# # prepare data to make query which will choose students in right order 
+	# order_stuff =[]
+
+	# for i,item in enumerate(algo[0]):
+	# 	if item is not None and column_name[i] !="id":
+	# 		# until value is biger search index
+	# 		check_sec_sort=True
+	# 		if len(order_stuff) == 0:
+	# 			order_stuff.append((column_name[i],item))
+
+	# 		else:
+	# 			for k in range(len(order_stuff)):
+	# 				if order_stuff[k][1] > item:
+	# 					continue
+	# 				order_stuff.insert(k,(column_name[i],item))
+	# 				check_sec_sort=False
+	# 				break
+	# 			if check_sec_sort ==True:
+	# 				order_stuff.append((column_name[i],item))

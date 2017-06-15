@@ -22,8 +22,10 @@ def codeString(word):
 	encodedWord=""
 	VirtualTable = makeVirtualTable(None) 
 	for ch in word:
-		encodedWord+= VirtualTable[ch]
-
+		try:
+			encodedWord += VirtualTable[ch]
+		except:
+			encodedWord += '99/'
 	return encodedWord
 
 # to decode string use this fun, fun uses  above  reverse dictionary
@@ -34,9 +36,12 @@ def decodeString(word):
 	i = 0
 	j = 3
 	while(i < len(word)):
-		decodedWord += VirtualReverse[word[i:j]]
-		i+=3
-		j+=3
+		try:
+			decodedWord += VirtualReverse[word[i:j]]
+			i+=3
+			j+=3
+		except:
+			decodedWord +='-'
 	return decodedWord
 
 # you can use this function only if you have date in this format [(),(),()...] or [[],[],[]...] 
@@ -57,3 +62,6 @@ def SortPolishString(table,sort_id):
 		table[i][sort_id] =  decodeString(word[sort_id])
 		# print(len(table[i][sort_id])/3)
 	return table;
+
+
+
