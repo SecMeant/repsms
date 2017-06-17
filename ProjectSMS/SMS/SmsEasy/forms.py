@@ -214,3 +214,21 @@ class profilAndChoice(forms.Form):
         	'invalid': ('Podaj nazwe prfilu'),
         }, 
     }
+kat = (
+	("Wybierz sortowanie","Wybierz sortowanie"),
+	("Nazwisko","Nazwisko"),
+	("Imię","Imie"),
+	("Miejscowość","Miejscowosc"),
+	
+	)
+class sortowanie(forms.Form):
+	kategoria = forms.ChoiceField(
+		label="Sortuj",
+		choices=kat,
+		widget= forms.Select(attrs = {
+			"class" : "form-control",
+			"id" : "sort_kat",
+			})
+		)
+
+		

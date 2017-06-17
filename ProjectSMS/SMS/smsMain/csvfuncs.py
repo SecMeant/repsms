@@ -58,31 +58,69 @@ def fixWanted(wanted,offset):
 	return wanted
 
 
-def importcsv(colms,offset,file,cursor,table_name="uczniowie"):
+def importcsv(colms,offset,file,cursor,table_name="uczniowie", mode ="HLZ"):
 	fixnames(colms) # Naprawiam niektore nazwy bo sqlite nie lubi ze spacjami
 	colms = fixWanted(colms,offset) # Wyrzucam z wanted table kolumny ktorych nie znalazlem poniewaz nie beda one uzyte w kwerendzie
 	print("colms:  ",colms)
 	print("offset:  ",offset)
-	cursor.execute("CREATE TABLE IF NOT EXISTS "+ table_name+"(id INTEGER PRIMARY KEY AUTOINCREMENT)")
-	for word in colms:
-		try:
-			cursor.execute("ALTER TABLE "+table_name+" ADD " + word + " text")
-		except :
-			print("Column " + word + " exists !")
+	if mode is "HLZ":
+		cursor.execute("CREATE TABLE IF NOT EXISTS "+ table_name+ "(id INTEGER PRIMARY KEY AUTOINCREMENT)")
 	
-	query = generateQuery(table_name,colms,len(colms),"INSERT INTO")
-	line = file.readline().decode('utf-8')
-	fline = line.split(";")
-	while(line):
-		string = generateValue(fline,offset)
+		for word in colms:
+			try:
+				cursor.execute("ALTER TABLE "+table_name+" ADD " + word + " text")
+			except :
+				print("Column " + word + " exists !")
 
-		#For loop changes all fields from 'null' to 0
-		#nulls causes some problems in fill / opt functions
-		for i,s in enumerate(string):
-			if(s == 'null'):
-				string[i] = 0
-		
-		cursor.execute(query ,string)
+		query = generateQuery(table_name,colms,len(colms),"INSERT INTO")
+			
 		line = file.readline().decode('utf-8')
 		fline = line.split(";")
+
+		while(line):
+			string = generateValue(fline,offset)
+
+			#For loop changes all fields from 'null' to 0
+			#nulls causes some problems in fill / opt functions
+			for i,s in enumerate(string):
+				if(s == 'null'):
+					string[i] = 0
+			
+			cursor.execute(query ,string)
+			line = file.readline().decode('utf-8')
+			fline = line.split(";")
+
+	elif mode is "Pawel":
+		cursor.execute("CREATE TABLE IF NOT EXISTS "+ table_name+"(id INTEGER PRIMARY KEY AUTOINCREMENT)")
+		cursor.execute("CREATE TABLE IF NOT EXISTS t"+table_name+" (id INTEGER PRIMARY KEY AUTOINCREMENT)")
+		for word in colms:
+			try:
+				cursor.execute("ALTER TABLE "+ table_name +" ADD " + word + " text")
+				cursor.execute("ALTER TABLE t"+ table_name +" ADD " + word + " text")
+			except :
+				print("Column " + word + " exists !")
+		cursor.execute("ALTER TABLE "+ table_name +" ADD klasa_label text")
+		query = generateQuery("t"+table_name,colms,len(colms),"INSERT INTO")
+			
+		line = file.readline().decode('utf-8')
+		fline = line.split(";")
+
+		while(line):
+			string = generateValue(fline,offset)
+
+			#For loop changes all fields from 'null' to 0
+			#nulls causes some problems in fill / opt functions
+			for i,s in enumerate(string):
+				if(s == 'null'):
+					string[i] = 0
+			
+			cursor.execute(query ,string)
+			line = file.readline().decode('utf-8')
+			fline = line.split(";")
+
+	
+
+			
+		
+
 

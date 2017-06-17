@@ -280,3 +280,4 @@ class ChangePassword(forms.Form):
 				conn.close()
 			except ValueError:
 				self._errors['superKey'] = [u"Niepoprawny kod"]
+				
