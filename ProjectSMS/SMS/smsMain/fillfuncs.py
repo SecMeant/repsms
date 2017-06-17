@@ -56,7 +56,7 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
 			if(ord(letter)>90):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
 				return 1
-			nazwaNowejKlasy = user.username+klasa[0][0]+letter
+			nazwaNowejKlasy = klasa[0][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text,punkty text)"
 			c.execute(query)
 			conn.commit()
@@ -83,7 +83,7 @@ def fillclasses(c,conn,klasa,uczniowie,user,odp):
 			if(ord(letter)>90):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
 				return 1
-			nazwaNowejKlasy = user.username+klasa[0][0]+letter
+			nazwaNowejKlasy = klasa[0][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Imię text, Nazwisko text , Kod_pocztowy text, Miejscowość text, Ulica text, Nr_budynku text, Nr_mieszkania text, Kod_pocztowy2 text, Miejscowość2 text, Ulica2 text, Nr_budynku2 text, Nr_mieszkania2 text, polski text, angielski text, niemiecki text, francuski text, wloski text, hiszpanski text,rosyjski text, matematyka text, fizyka text, informatyka text, historia text, biologia text, chemia text, geografia text, wos text, zajęcia_techniczne text, zajęcia_artstyczne text, edukacja_dla_bezpieczeństwa text, plastyka text, muzyka text, wf text, zachowanie text, klasa text,punkty text)"
 			c.execute(query)
 			conn.commit()
@@ -161,7 +161,7 @@ def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
 				conn.rollback()
 				return 1
-			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
+			nazwaNowejKlasy = klasa['nazwaKlasy'][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
 			c.execute(query)
 			while(inc2 < klasa['liczebnosc'][0] and j<len(uczniowie['punkty'])):
@@ -195,7 +195,7 @@ def fillclasses_sqlDict(c,conn,klasa,uczniowie,user,odp):
 				print("UWAGA INDEX 'Z' PRZY KLASIE. IM KILLING THE ALGORITHM !")
 				conn.rollback()
 				return 1
-			nazwaNowejKlasy = user.username+klasa['nazwaKlasy'][0]+letter
+			nazwaNowejKlasy = klasa['nazwaKlasy'][0]+letter
 			query = "CREATE TABLE IF NOT EXISTS '"+nazwaNowejKlasy+"' (id integer NOT NULL PRIMARY KEY AUTOINCREMENT,iducznia integer NOT NULL, Pesel text, Imię text, Nazwisko text ,punkty text)"
 			c.execute(query)
 			while(inc2 < odp[0][n] and j<len(uczniowie['punkty'])):

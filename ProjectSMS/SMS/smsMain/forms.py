@@ -25,8 +25,8 @@ class addProfile(forms.Form):
 class addStudent(forms.Form):
 	imie = forms.CharField(label='Imie', max_length=48, widget=forms.TextInput(
 		attrs={
-		'type':"text", 
-		'class':'',
+		'type':"text",
+		'class':"form-control",
 		'id':'imieUcznia',
 		'size':'20',
 		'placeholder':"np. Paweł"})
@@ -37,6 +37,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nazwiskoUcznia',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"np. Sagan"})
 		
@@ -50,6 +51,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'miejscowosc',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"Miejscowosc"})
 		
@@ -59,7 +61,8 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ulica',
-		'size':'20',
+		'class':"form-control",
+		'size':'14',
 		'placeholder':"ulica"})
 		
 	)
@@ -68,6 +71,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrbud',
+		'class':"form-control",
 		'size':'4',
 		'placeholder':"Nr.bud"})
 		
@@ -76,6 +80,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrmiesz',
+		'class':"form-control",
 		'size':'5',
 		'placeholder':"Nr.miesz"})
 		
@@ -89,6 +94,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'miejscowosc2',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"Miejscowosc"})
 		
@@ -98,7 +104,8 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ulica2',
-		'size':'20',
+		'class':"form-control",
+		'size':'14',
 		'placeholder':"ulica"})
 		
 	)
@@ -107,6 +114,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrbud2',
+		'class':"form-control",
 		'size':'4',
 		'placeholder':"Nr.bud"})
 		
@@ -116,6 +124,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrmiesz2',
+		'class':"form-control",
 		'size':'5',
 		'placeholder':"Nr.miesz"})
 		
@@ -125,6 +134,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenPol',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -133,6 +143,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenMat',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -141,6 +152,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenAng',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -149,6 +161,7 @@ class addStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenNiem',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -157,7 +170,7 @@ class formEditStudent(forms.Form):
 	imie = forms.CharField(label='Imie', max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':"text", 
-		'class':'',
+		'class':"form-control",
 		'id':'imieUcznia',
 		'size':'20',
 		'placeholder':"np. Paweł"})
@@ -168,6 +181,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nazwiskoUcznia',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"np. Sagan"})
 		
@@ -181,6 +195,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'miejscowosc',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"Miejscowosc"})
 		
@@ -190,6 +205,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ulica',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"ulica"})
 		
@@ -199,6 +215,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrbud',
+		'class':"form-control",
 		'size':'4',
 		'placeholder':"Nr.bud"})
 		
@@ -207,6 +224,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'nrmiesz',
+		'class':"form-control",
 		'size':'5',
 		'placeholder':"Nr.miesz"})
 		
@@ -220,6 +238,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'miejscowosc2',
+		'class':"form-control",
 		'size':'20',
 		'placeholder':"Miejscowosc"})
 		
@@ -230,6 +249,7 @@ class formEditStudent(forms.Form):
 		'type':"text", 
 		'id':'ulica2',
 		'size':'20',
+		'class':"form-control",
 		'placeholder':"ulica"})
 		
 	)
@@ -239,6 +259,7 @@ class formEditStudent(forms.Form):
 		'type':"text", 
 		'id':'nrbud2',
 		'size':'4',
+		'class':"form-control",
 		'placeholder':"Nr.bud"})
 		
 	)
@@ -248,6 +269,7 @@ class formEditStudent(forms.Form):
 		'type':"text", 
 		'id':'nrmiesz2',
 		'size':'5',
+		'class':"form-control",
 		'placeholder':"Nr.miesz"})
 		
 	)
@@ -258,6 +280,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenPol',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -266,6 +289,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenMat',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -274,6 +298,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenAng',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -282,6 +307,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'ocenNiem',
+		'class':"form-control",
 		'size':'1'})
 		
 	)
@@ -290,6 +316,7 @@ class formEditStudent(forms.Form):
 		attrs={
 		'type':"text", 
 		'id':'iducznia',
+		'class':"form-control",
 		'hidden':'True'})
 		
 	)
@@ -347,11 +374,40 @@ class addClass(forms.Form):
 		self.fields['algorytm'].choices = algorytmVar
 
 class addAlgorithm(forms.Form):
-	nazwa = forms.CharField(label='Nazwa algorytmu')
-	matematyka = forms.IntegerField(label='Matematyka')
-	jpolski = forms.IntegerField(label='Język polski')
-	jangielski = forms.IntegerField(label='Język Angielski')
-	jniemiecki = forms.IntegerField(label='Język Niemiecki')
+	nazwa = forms.CharField(label='Nazwa algorytmu',widget=forms.TextInput(
+		attrs={
+		'type':"text",
+		'class':"form-control",
+		'size':'20'})	
+	)
+
+	matematyka = forms.IntegerField(label='Matematyka',widget=forms.TextInput(
+		attrs={
+		'type':"text",
+		'class':"form-control",
+		'size':'20'})
+	)
+
+	jpolski = forms.IntegerField(label='Język polski',widget=forms.TextInput(
+		attrs={
+		'type':"text",
+		'class':"form-control",
+		'size':'20'})
+	)
+
+	jangielski = forms.IntegerField(label='Język Angielski',widget=forms.TextInput(
+		attrs={
+		'type':"text",
+		'class':"form-control",
+		'size':'20'})
+	)
+
+	jniemiecki = forms.IntegerField(label='Język Niemiecki',widget=forms.TextInput(
+		attrs={
+		'type':"text",
+		'class':"form-control",
+		'size':'20'})
+	)
 
 class fillClass(forms.Form):
 	klasy = forms.ChoiceField(label='Wybierz klase')
@@ -374,6 +430,8 @@ class makeCopy(forms.Form):
 	nazwaKopii = forms.CharField(label='',max_length=48, widget=forms.TextInput(
 		attrs={
 		'type':'text',
+		'class':"form-control",
+		'size':'13',
 		'placeholder':'Nazwa kopii'
 		})
 	)

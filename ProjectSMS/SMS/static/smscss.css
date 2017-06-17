@@ -8,11 +8,31 @@ table *{
 	border:2px solid white;
 }
 
+.form-control{
+	width:auto !important;
+	display:inline-block;
+}
+
+.deleteClass{
+	display: inline-block;
+	border:none;
+	margin-left: 20%;
+	padding:5px;
+}
+
+.deleteClass *{
+	border:none;
+}
+
 .tableHeader{
 	text-align: center;
 	font-size: 22px;
 	font-weight: bold;
 	background-color: #454853;
+}
+
+.innerKlasyTable td{
+	width:50%;
 }
 
 table td{
@@ -119,6 +139,10 @@ table tr a{
 	overflow-x: auto;
 }
 
+.innerKlasyTable {
+	width:100%;
+}
+
 .kopiaTop{
 	color:white;
 	margin-top: 0px;
@@ -144,14 +168,25 @@ table tr a{
 	overflow-x: auto;
 }
 
+#btn-safe-delete-class-yes{
+	display: inline-block;
+	width:auto;
+	margin-right: 120px !important;
+	margin-top: 60px;
+}
 
+#btn-safe-delete-class-no{
+	display: inline-block;
+	width:auto;
+	margin-right: 0 !important;
+	margin-top: 60px;
+}
 
 .topBar >p {
 	display: inline;
 	float: left;
 	padding-right: 30px;
 	padding-left: 10px;
-
 }
 .topBar >p:last-child {
 	float: right;
@@ -172,6 +207,12 @@ hr.style-four {
 }
 .modal-body-custom{
 	height: 500px;
+}
+#paragraphSafeDeleteClass{
+	font-size: 24px;
+}
+.modal-body-custom-delete-class{
+	height: 260px;
 }
 .importFile{
 	margin: auto;
