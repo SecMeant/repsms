@@ -10,8 +10,8 @@
 		<script src="{% static '/sameAddress.js' %}"></script>
 		<script type="text/javascript" src="{% static '/SMSAdding.js' %}"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="{% static '/dragAndDrop.js' %}"></script>
 		
 	</head>
 	<body>
@@ -159,7 +159,7 @@
 						    <div class="item">
 						    	Wybierz plik csv z odpowiednia klasa:
 						    	{{formProfil.studentFile}}
-								
+								{{formProfil.copystuff}}
 						      <div class="btn-group btn-group-justified btn-down well">
 							   <button class="btn-sm btn-info " name="idprev"  href="#StepsToAdd" role="button" data-slide="prev" style="margin-right: 60%">Poprzednie</button>
 							   <input class="btn-sm btn-primary" name="importFile" type ="submit" value="Zatwierdź">
@@ -169,9 +169,6 @@
 						  </div>
 
 						  <!-- Left and right controls -->
-						  
-						  	
-							
 
 						</div>
 					</div>
@@ -262,19 +259,8 @@
 
 													
 <script type="text/javascript">
-
-	SubjectTaken=Array();
+	staffTaken=Array();
 	k =0;
-	function not_In(v, tabV){
-		check =true;
-		for(var i = 0 in tabV){
-			if(tabV[i] == v){
-				return false;
-			}
-			
-		}
-		return true;
-	}
 
 	$(document).ready(function(){
 
@@ -294,7 +280,7 @@
 		
 		$('#subject').change(function(){
 			
-    		 if(this.value !='s' && not_In(this.value, SubjectTaken) )
+    		 if(this.value !='s' && not_In(this.value, staffTaken) )
     		 {
     		 	var element1 = document.createElement("input");
     		 	
@@ -305,64 +291,14 @@
     		 	element1.setAttribute("draggable","true");
     		 	element1.setAttribute("readonly","readonly");
     		 	element1.setAttribute("ondragstart","drag(event)");
-    		 	SubjectTaken.push(this.value);
+    		 	staffTaken.push(this.value);
     		 	document.getElementById("Subjects").appendChild(element1);
     		 	k++;
     		 }
 		});
 	});
 
-function allowDrop(ev) {
-    ev.preventDefault();
-}
-function CpySUB() {
-	alert(SubjectTaken.join());
-	document.getElementById("AllSubjects").value = SubjectTaken.join();
-	return true;
-}
-function drag(ev) {
-    ev.dataTransfer.setData("text", ev.target.id);
-    tmp = "#" + ev.target.id;
-    $(tmp).css("opacity", 0.4)
-}
-//ev is object that i try to put element
-function drop(ev) {
-    ev.preventDefault();
-    var data = ev.dataTransfer.getData("text");
-    if (ev.target.id == "Subjects")
-   		ev.target.appendChild(document.getElementById(data));
-   	else{
-   		
-   		SwapSubjects(data,ev.target.id);
-   		SWAPArrayElements(document.getElementById(data).value,ev.target.value)
 
-   	}
-
-}
-function SWAPArrayElements(v1, v2){
-	idx1 = SubjectTaken.indexOf(v1, 0);
-	idx2 = SubjectTaken.indexOf(v2, 0);
-	SubjectTaken[idx1] = v2;
-	SubjectTaken[idx2] = v1;
-
-}
-function SwapSubjects(from , to) {  //from == Data, to == ev.target
-	id_from = "#" + from;
-	id_to = "#" + to;
-	var temp_from = $(id_from);
-	var temp_to = $(id_to);
-
-	var element_to_swap1 = document.createElement("INPUT");
-	element_to_swap1.setAttribute("id","temp1");
-	var element_to_swap2 = document.createElement("INPUT");
-	element_to_swap2.setAttribute("id","temp2");
-
-	document.getElementById(from).parentNode.insertBefore(element_to_swap1, document.getElementById(from));
-	document.getElementById(to).parentNode.insertBefore(element_to_swap2, document.getElementById(to));
-	$( "#temp1" ).replaceWith( temp_to );
-	$( "#temp2" ).replaceWith( temp_from );
-	$(id_from).css("opacity", 1);
-}
 	
 </script>
 	</body>

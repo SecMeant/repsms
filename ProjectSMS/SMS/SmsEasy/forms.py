@@ -189,13 +189,13 @@ class profilAndChoice(forms.Form):
 
 	studentFile = forms.FileField(required=True)
 	
-	CopySubjects = forms.CharField(label = "",widget= forms.TextInput(
+	copystuff = forms.CharField(label = "",widget= forms.TextInput(
 	attrs= {
 	'type':"hidden", 
 	'name':'CopySubjects',
 	'id':"AllSubjects"
 	}))
-	przedmioty = forms.ChoiceField(
+	CopySubjects = forms.ChoiceField(
 		
         label="Przedmioty",
         choices=Subjects,
@@ -215,10 +215,10 @@ class profilAndChoice(forms.Form):
         }, 
     }
 kat = (
-	("Wybierz sortowanie","Wybierz sortowanie"),
+	("Wybierz sortowanie","Sortuj klasy"),
 	("Nazwisko","Nazwisko"),
 	("Imię","Imie"),
-	("Miejscowość","Miejscowosc"),
+	("Miejscowość","Miejscowość"),
 	
 	)
 class sortowanie(forms.Form):
