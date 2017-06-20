@@ -23,7 +23,6 @@ def smsApp(request):
 	if request.user.is_authenticated:
 
 		if  request.user.is_expired():
-			print(request.user.is_active)
 			logout(request)
 			HttpResponseRedirect('/')
 
@@ -75,6 +74,7 @@ def smsApp(request):
 		for klasa in uczniowie['klasa']:
 			if( not( vectorContains(klasyPostfix,klasa) ) and klasa != None ):
 				klasyPostfix.append(klasa)
+
 
 		dbCopies = []
 		for name in os.listdir(BASE_DIR + '\\userData\\copies\\' + current_user.username + '\\.'):
@@ -739,3 +739,26 @@ def editStudent(request,id):
 		return render(request, "editStudent.html" , context)
 					
 	return render(request, "editStudent.html" , context)
+
+def deleteWholeClass(request, klasa):
+	if request.user.is_authenticated:
+		if  request.user.is_expired():
+			logout(request)
+			HttpResponseRedirect('/')
+
+		current_user = request.user
+
+		BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+		dbname = current_user.username
+		dbname += ".sqlite3"
+		conn = sqlite3.connect(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		print(BASE_DIR + '\\userData\\' + current_user.username + '.sqlite3')
+		c = conn.cursor()
+
+		c.execute("DROP TABLE "+klasa)
+		c.execute("UPDATE uczniowie SET klasa=NULL WHERE klasa='{}'".format(klasa))
+		conn.commit()
+
+		return HttpResponseRedirect("/sms/extended")
+
+	return HttpResponseRedirect("/")

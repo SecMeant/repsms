@@ -2,7 +2,6 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.urlresolvers import reverse
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-
 def environment(**options):
     env = Environment(
         loader=PackageLoader('SMS','..\\templates\\jinja2'),

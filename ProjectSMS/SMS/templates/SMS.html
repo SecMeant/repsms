@@ -12,6 +12,7 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script src="//code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="{% static '/modals.js' %}"></script>
 	</head>
 	<body>
 
@@ -130,15 +131,33 @@
 						</div>
 
 						<div class="innerKlasy">
-							<ul>
+							<table class="innerKlasyTable">
 							{% for klasa in klasyPostfix %}
 								{% if klasa != None%}
 
-									<li><a href="/sms/extended/klasa/{{klasa}}">{{ klasa }}</a></li>	
+									<tr>
+										<td>
+										<a href="/sms/extended/klasa/{{klasa}}" target="_blank">
+											{% if klasa|length > 16%}
+												{{ klasa|slice:":16" }}...
+											{% else %}
+												{{ klasa }}
+											{% endif %}
+										</a>
+										</td>
+										<td>
+										<a id="saferRemoveClassButton" onclick="saferDeleteClass('{{klasa}}')">
+											<div class="deleteClass">
+												<span class="glyphicon glyphicon-remove-circle"></span>
+												Usuń
+											</div>
+										</a>
+										</td>
+									</tr>	
 									
 								{% endif %}	
 							{% endfor %}
-							</ul>
+							</table>
 						</div>
 					{% endif %}
 					
@@ -226,6 +245,31 @@
 			</div>
 		</div> 
 													<!-- END WYPELNIJ KLASE MODAL BOX -->
+
+													<!-- START CZY CHCESZ USUNĄĆ KLASĘ MODAL BOX -->
+		<div class="modal fade wide" id="saferDeleteClassModal" role="dialog">
+    		<div class="modal-dialog modal-md">
+				<div class="modal-content">
+					<div class="modal-header" style="padding:35px 50px;">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4><span class="glyphicon glyphicon-remove-circle"></span>JESTEŚ PEWNY ?</h4>
+					</div>
+					<div class="modal-body modal-body-custom-delete-class" style="padding:40px 50px;">
+							<p id="paragraphSafeDeleteClass">Potwierdzenie tej akcji spowoduję bezpowrotne usunięcie klasy </p>
+
+							<button data-delete="" class="btn btn-lg btn-success" id="btn-safe-delete-class-yes">
+								Tak, usuń tę klasę
+							</button>
+
+							<button class="btn btn-lg btn-danger" id="btn-safe-delete-class-no"> 
+								Nie, cofnij zmiany
+							</button>
+					
+					</div>
+				</div>
+			</div>
+		</div> 
+													<!-- END CZY CHCESZ USUNĄĆ KLASĘ MODAL BOX -->
 
 													<!-- START ZROB KOPIE MODAL BOX -->
 		<div class="modal fade wide" id="zrobKopieModal" role="dialog">
@@ -442,53 +486,5 @@
 			</div>
 		</div> 
 													<!-- END DODAJ ALGORYTM MODAL BOX -->
-		
-
-<script type="text/javascript">
-
-	$(document).ready(function(){
-		$(".optionDodajKlase").click(function(){
-			$("#dodajKlaseModal").modal();
-		});
-
-		$(".optionDodajProfil").click(function(){
-			$("#dodajProfilModal").modal();
-		});
-
-		$(".optionDodajUcznia").click(function(){
-			$("#dodajUczniaModal").modal();
-		});
-
-		$(".optionDodajAlgorytm").click(function(){
-			$("#dodajAlgorytmModal").modal();
-		});
-
-		$(".optionWypelnijKlase").click(function(){
-			$("#wypelnijKlaseModal").modal();
-		});
-
-		$(".optionZrobKopie").click(function(){
-			$("#zrobKopieModal").modal();
-		});
-
-		$( document ).ready(function(){
-			$("#classIndexOF").modal();
-		});
-
-		$("#saferRemoveCopyButton").click(function(){
-			result = 0;
-			result = confirm("Jesteś pewny ?\nTa akcja bezpowrotnie usunie kopie zapasową.");
-			if(result)
-				$("#finalRemoveCopyButton").click();
-			});
-
-		$("#saferRestoreCopyButton").click(function(){
-			result = 0;
-			result = confirm("Jesteś pewny ?\n\nTa akcja bezpowrotnie przyróci kopie zapasową.\nPowrót do aktualnej nie bedzie już możliwy jeżeli jej stan nie został zapisany !");
-			if(result)
-				$("#finalRestoreCopyButton").click();
-			});
-	});
-</script>
 	</body>
 </html>
